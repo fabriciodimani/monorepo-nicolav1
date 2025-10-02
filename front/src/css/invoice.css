@@ -1,0 +1,10 @@
+.invoice button {
+  width: 3.5rem;
+  height: 3rem;
+  color: white;
+  background-color: blue;
+}
+
+.btn.btn-danger {
+  font-size: 1.25rem;
+}

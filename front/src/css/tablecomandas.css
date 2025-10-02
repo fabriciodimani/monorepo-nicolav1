@@ -1,0 +1,76 @@
+.table-container {
+  max-width: 100%;
+  max-height: 100%;
+  overflow-x: scroll;
+  overflow-y: scroll;
+  font-size: 4rem;
+  background-color: #f1faee;
+  /* margin-left: 0%;  */
+}
+
+.sticky2 {
+  position: sticky;
+  left: 0;
+  max-width: 60px;
+  /* background-color: #F1FAEE; */
+  font-size: 2rem;
+
+  /* background-color:#F1FAEE; */
+
+  color: white;
+}
+
+.sticky1 {
+  position: sticky;
+  left: 0;
+  /* background-color: #F1FAEE; */
+  max-width: 60px;
+  font-size: 2rem;
+}
+
+#acepto {
+  padding: 0rem;
+  height: 3rem;
+  width: 3rem;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.cli {
+  min-width: 100px;
+}
+
+.mod {
+  max-width: 10px;
+}
+
+.botones {
+  height: 35px;
+  max-width: 330px;
+  margin-right: 1px;
+  font-size: 1.25rem;
+  background-color: rgb(23, 23, 87);
+  color: white;
+}
+
+.pie {
+  font-size: 1.75rem;
+  text-align-last: right;
+  text-align: right;
+}
+
+.pie1 {
+  font-size: 1.75rem;
+  text-align-last: right;
+  text-align: right;
+  color: red;
+}
+.button.botones {
+  height: 35px;
+  max-width: 330px;
+  margin-right: 1px;
+  font-size: 1.25rem;
+  /* background-color: white; */
+  background-color: rgb(23, 23, 87);
+  color:black;
+}

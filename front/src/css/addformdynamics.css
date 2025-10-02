@@ -1,0 +1,100 @@
+h5.normal {
+  color:blue;
+}
+
+
+h5.responsive {
+  display: none;
+}
+
+select#codprod1.form-control {
+  font-size: 1.25rem;
+  width: 27rem;
+}
+
+input#cantidad1.form-control {
+  font-size: 1.25rem;
+  max-width: 5rem;
+  /* max-height: 3rem; */
+  
+}
+
+input#monto1.form-control {
+  font-size: 1.25rem;
+  max-width: 7rem;
+}
+
+input#total1.form-control {
+  font-size: 1.25rem;
+  max-width: 9rem;
+}
+
+#button {
+  font-size: 12px;
+}
+
+#masmenos1 {
+  font-size: 10px;
+  height: 2.5rem;
+}
+.form-group {
+  margin-bottom: -8px;
+}
+
+@media (max-width: 760px) {
+  select#codprod1.form-control {
+    font-size: 1.15rem;
+    min-width: 32rem;
+  }
+}
+
+@media (max-width: 760px) {
+  input#cantidad1.form-control {
+    font-size: 1.15rem;
+    min-width: 6rem;
+  }
+}
+
+@media (max-width: 760px) {
+  input#monto1.form-control {
+    font-size: 1.15rem;
+    min-width: 13rem;
+    height: 3rem;
+  }
+}
+@media (max-width: 760px) {
+  input#total1.form-control {
+    font-size: 1.15rem;
+    min-width: 13rem;
+  }
+}
+
+@media (max-width: 760px) {
+  button#masmenos1 {
+    font-size: 1.5rem;
+    min-width: 16rem;
+    height: 3rem;
+    
+  }
+}
+
+@media (max-width: 760px) {
+  h5.responsive {
+    display: inline;
+    color: blue;
+  }
+}
+
+@media (max-width: 760px) {
+  h5.normal {
+    display: none;
+    color: blue;
+  }
+}
+
+@media (max-width: 760px) {
+  h4.col-md-1,
+  h4.col-md-2 {
+    display: none;
+  }
+}

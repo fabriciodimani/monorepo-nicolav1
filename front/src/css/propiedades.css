@@ -1,0 +1,48 @@
+.background-curso {
+  background-color: #051626;
+  height: 100vh;
+  color: #ffff;
+}
+/* .avatar {
+  border-radius: 100%;
+  width: 5px;
+  border: 2px solid rgb(225, 0, 255);
+} */
+
+.card {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  color: black;
+  width: 250px;
+  border-radius: 10px;
+  overflow: hidden;
+  font-size: 0.25rem;
+}
+.card-img-top {
+  height: 100px;
+}
+.card img {
+  height: 200px;
+  /* width: auto; */
+  object-fit: cover;
+}
+
+.buscando{
+  color:white
+}
+
+.card span {
+  color: white;
+  font-size: 20px;
+}
+
+@media (max-width: 768px) {
+  .card {
+    display: flex;
+    justify-content: center;
+    font-size: 1rem;
+    background-color: red;
+  }
+}

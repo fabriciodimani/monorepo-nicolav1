@@ -1,0 +1,65 @@
+.table-container {
+  max-width: 100%;
+  max-height: 100%;
+  overflow-x: scroll;
+  overflow-y: scroll;
+  font-size: 1.25rem;
+
+  /* margin-left: 0%;  */
+}
+
+.header {
+  top: 0;
+  box-shadow: 0px 3px 3px #ccc;
+  background-color: rgb(114, 155, 179);
+  position: sticky;
+  z-index: 10;
+}
+
+.sticky2 {
+  position: sticky;
+  left: 0;
+  max-width: 60px;
+  font-size: 1rem;
+  max-width: 30px;
+}
+
+.sticky1 {
+  position: sticky;
+  left: 0;
+  max-width: 60px;
+  font-size: 1.5rem;
+  font-size: 1.25rem;
+  background-color: rgb(114, 155, 179);
+}
+
+#acepto {
+  padding: 0rem;
+  height: 3rem;
+  width: 3rem;
+  font-size: 1.5rem;
+}
+
+.cli {
+  min-width: 80px;
+}
+
+.dom {
+  max-width: 300px;
+}
+
+.tel {
+  max-width: 40px;
+}
+
+.cuit {
+  max-width: 40px;
+}
+
+.email {
+  min-width: 50px;
+}
+
+.loca {
+  max-width: 80px;
+}

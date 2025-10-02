@@ -1,0 +1,45 @@
+#footer {
+  background-color: #1d3557 !important;
+  min-height: 5rem;
+  padding: 1rem;
+  text-align: center;
+  color: #f1faee !important;
+  font-size: 1rem !important;
+}
+
+#footer p {
+  font-size: 1.2rem;
+}
+
+#footer a {
+  color: #f1faee !important;
+}
+
+#footer img {
+  height: 6rem;
+  padding: 1rem;
+}
+
+#footer .imag1 {
+  margin-top: 15px;
+  height: 6rem;
+  width: 6rem;
+}
+/*footer centrado*/
+@media (max-width: 1024px) {
+  #contacto {
+    text-align: center !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  #contacto {
+    text-align: right !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  #footer .imag1 {
+    margin-left: 120px !important;
+  }
+}

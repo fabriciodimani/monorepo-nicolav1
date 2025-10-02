@@ -1,0 +1,29 @@
+#cartel p {
+  margin-top: 50px;
+  font-size: 1.75rem;
+}
+.col {
+  background-color: white;
+}
+
+.btn.btn-dark {
+  font-size: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  #carousel .overlay .container button {
+    text-align: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .container h1 {
+    text-align: center;
+  }
+}
+
+@media (max-width: 768px) {
+  #imagen img {
+    display: none;
+  }
+}

@@ -1,0 +1,79 @@
+h5.prueba {
+  display: inline;
+}
+h4.prueba1 {
+  display: none;
+}
+
+
+
+
+select#codprod.form-control {
+  font-size: 1.25rem;
+  min-width: 30rem;
+  height: 3rem;
+}
+
+input#cantidad.form-control {
+  font-size: 1.25rem;
+  max-width: 12rem;
+  min-height: 3rem;
+}
+
+#button {
+  font-size: 2rem;
+  
+}
+
+#masmenos {
+  font-size: 12px;
+  min-width: 3rem;
+  height: 3rem;
+
+
+}
+
+@media (max-width: 760px) {
+  select#codprod.form-control {
+    font-size: 1.25rem;
+    min-width: 23rem !important;
+    min-height: 2rem !important;
+   
+  }
+}
+
+@media (max-width: 760px) {
+  input#cantidad.form-control {
+    font-size: 1.25rem;
+    width: 10rem;
+    min-height: 3rem !important;
+
+  }
+}
+
+@media (max-width: 760px) {
+  #masmenos {
+    /* color: black; */
+    font-size: 1.25rem;
+    max-width: 10px !important;
+    height: 3rem;
+  }
+}
+
+@media (max-width: 760px) {
+  h5.prueba {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  h4.prueba1 {
+    display: inline;
+  }
+}
+@media (max-width: 760px) {
+  h4.col-md-3,
+  h4.col-md-2 {
+    display: none;
+  }
+}
