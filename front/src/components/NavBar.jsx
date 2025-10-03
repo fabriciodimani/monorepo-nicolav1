@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import jwt_decode from "jwt-decode"; //Paquete para decodificar el Token
 import { Link, useLocation, useHistory } from "react-router-dom";
 // import { getComandas } from "../helpers/rutaComandas";
 import { Navbar, Nav, NavDropdown } from "react-bootstrap";
 import logo from "../images/distripollo.jpeg";
 import "../css/navbar.css";
+import { ThemeContext } from "../Context/ThemeContext";
 
 const NavBar = () => {
   //Defino location e history
@@ -17,6 +18,8 @@ const NavBar = () => {
   const [payload, setPayload] = useState({
     role: "",
   });
+
+  const { theme, toggleTheme } = useContext(ThemeContext);
 
   //estado para manejar los datos de los cursos
   // const [comandas, setComandas] = useState({
@@ -81,7 +84,7 @@ const NavBar = () => {
           <Navbar.Toggle id="hamburguesa" aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav-light">
             {/* <Navbar className="mr-auto"> */}
-            <Nav>
+            <Nav className="mr-auto">
 
             {payload.role === "ADMIN_ROLE" && (
                 <NavDropdown title="Preventa" id="navbarScrollingDropdown">
@@ -404,14 +407,26 @@ const NavBar = () => {
                 Administrador
               </Link>
             )}
-            <button
-              id="booton"
-              className="btn btn-outline-info"
-              onClick={handleLogin}
-            >
-              {user}
-            </button>
-     
+            <div className="d-flex align-items-center mt-3 mt-lg-0 ml-lg-auto" id="navbar-actions">
+              <button
+                type="button"
+                id="theme-toggle-button"
+                className="btn btn-outline-secondary mr-2 mt-2 mt-lg-0"
+                onClick={toggleTheme}
+                aria-label={`Cambiar a modo ${theme === "dark" ? "claro" : "oscuro"}`}
+                aria-pressed={theme === "dark"}
+              >
+                {theme === "dark" ? "🌙 Oscuro" : "☀️ Claro"}
+              </button>
+              <button
+                id="booton"
+                className="btn btn-outline-info mt-2 mt-lg-0"
+                onClick={handleLogin}
+              >
+                {user}
+              </button>
+            </div>
+
           </Navbar.Collapse>
         </Navbar>
       </div>
