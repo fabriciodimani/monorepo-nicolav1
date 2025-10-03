@@ -32,29 +32,28 @@ button #hamburguesa.navBar-toggler.collapsed{
   background: #1b1b1b !important;
 }
 .nav-link {
-  font-family: "Quicksand";
-  /* background-color: #1d3557 !important; */
-  /* background-color: black !important; */
-  font-size: 1.75rem;
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-size: 1.35rem;
+  font-weight: 500;
   display: inline;
   text-align: center;
-  /* -webkit-margin-start: 2rem; */
+  letter-spacing: 0.01em;
   color: #f5f5f5 !important;
 }
 .nav-link:hover,
 .nav-link:focus {
-  color: #e0e0e0 !important;
-  background-color: #2a2a2a !important;
+  color: #ffffff !important;
+  background-color: #1a1a1a !important;
   outline: none;
 }
 
 #navbarScrollingDropdown {
-  font-family: "Quicksand";
-  /* background-color: black !important; */
-  /* background-color: #1d3557 !important; */
-  font-size: 1.75rem;
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-size: 1.35rem;
+  font-weight: 500;
   display: inline;
   text-align: center;
+  letter-spacing: 0.01em;
   -webkit-margin-start: 1rem;
   -webkit-margin-end: 1rem;
   color: #f5f5f5 !important;
@@ -64,25 +63,27 @@ button #hamburguesa.navBar-toggler.collapsed{
 }
 
 .dropdown-menu {
-  font-family: "Quicksand";
-  font-size: 1.5rem;
-  /* background-color: black !important; */
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
   background-color: #1b1b1b !important;
   color: #f5f5f5 !important;
   border: 1px solid #3a3a3a !important;
 }
 
 .dropdown-item {
-  font-family: "Quicksand";
-  font-size: 1.5rem;
-  /* background-color: black !important; */
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-size: 1.2rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
   background-color: #1b1b1b !important;
   color: #f5f5f5 !important;
 }
 .dropdown-item:hover,
 .dropdown-item:focus {
-  color: #e0e0e0 !important;
-  background-color: #2a2a2a !important;
+  color: #ffffff !important;
+  background-color: #232323 !important;
 }
 
 .nav-link1 {
@@ -164,23 +165,27 @@ button #hamburguesa.navBar-toggler.collapsed{
 }
 
 #booton {
-  font-family: "Quicksand";
-  font-size: 1.75rem;
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-size: 1.35rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
   color: #f5f5f5 !important;
   background-color: #1b1b1b !important;
   border: 1px solid #3a3a3a !important;
 }
 #booton:hover,
 #booton:focus {
-  color: #e0e0e0 !important;
-  background-color: #2a2a2a !important;
-  border-color: #4a4a4a !important;
+  color: #ffffff !important;
+  background-color: #1f1f1f !important;
+  border-color: #454545 !important;
   outline: none;
 }
 
 #user {
-  font-family: "Quicksand";
-  font-size: 1.75rem;
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-size: 1.3rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
   color: #e0e0e0 !important;
 }
 #user:focus {
