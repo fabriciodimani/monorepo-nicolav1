@@ -16,9 +16,85 @@
   /* background-color: black !important; */
   background-color: #121212 !important;
   color: #f5f5f5 !important;
-  font-size: 2rem;
+  font-size: 1.35rem;
   font-family: "Times New Roman", Times, serif;
-  padding: 1rem;
+  padding: 0.75rem 1rem;
+}
+
+.navbar-monochrome {
+  background-color: #121212 !important;
+  color: #f5f5f5 !important;
+  border: none;
+}
+
+.navbar-monochrome .navbar-brand,
+.navbar-monochrome .navbar-toggler,
+.navbar-monochrome .navbar-toggler-icon {
+  color: #f5f5f5 !important;
+}
+
+.navbar-monochrome .navbar-brand {
+  font-size: 1.5rem;
+  font-weight: 600;
+  padding: 0;
+  margin-left: 0.5rem;
+}
+
+.navbar-collapse-monochrome {
+  display: flex !important;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+}
+
+.navbar-links > * {
+  margin: 0 !important;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+.navbar-admin-link {
+  font-family: "Quicksand";
+  font-size: 1.25rem;
+  color: #e0e0e0 !important;
+}
+
+@media (max-width: 991.98px) {
+  .navbar-collapse-monochrome {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.25rem;
+  }
+
+  .navbar-links {
+    justify-content: flex-start;
+  }
+
+  .navbar-actions {
+    width: 100%;
+    margin-left: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .navbar-admin-link {
+    text-align: left;
+  }
 }
 
 .navBar-toggler:hover,
@@ -35,9 +111,11 @@ button #hamburguesa.navBar-toggler.collapsed{
   font-family: "Quicksand";
   /* background-color: #1d3557 !important; */
   /* background-color: black !important; */
-  font-size: 1.75rem;
-  display: inline;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
   text-align: center;
+  padding: 0.4rem 0.6rem;
   /* -webkit-margin-start: 2rem; */
   color: #f5f5f5 !important;
 }
@@ -52,20 +130,20 @@ button #hamburguesa.navBar-toggler.collapsed{
   font-family: "Quicksand";
   /* background-color: black !important; */
   /* background-color: #1d3557 !important; */
-  font-size: 1.75rem;
-  display: inline;
-  text-align: center;
-  -webkit-margin-start: 1rem;
-  -webkit-margin-end: 1rem;
-  color: #f5f5f5 !important;
+  font-size: 1.25rem;
   display: flex;
+  align-items: center;
   justify-content: center;
-  margin-top: 0.5rem;
+  text-align: center;
+  -webkit-margin-start: 0;
+  -webkit-margin-end: 0;
+  color: #f5f5f5 !important;
+  margin-top: 0;
 }
 
 .dropdown-menu {
   font-family: "Quicksand";
-  font-size: 1.5rem;
+  font-size: 1.15rem;
   /* background-color: black !important; */
   background-color: #1b1b1b !important;
   color: #f5f5f5 !important;
@@ -74,7 +152,7 @@ button #hamburguesa.navBar-toggler.collapsed{
 
 .dropdown-item {
   font-family: "Quicksand";
-  font-size: 1.5rem;
+  font-size: 1.15rem;
   /* background-color: black !important; */
   background-color: #1b1b1b !important;
   color: #f5f5f5 !important;
@@ -88,10 +166,12 @@ button #hamburguesa.navBar-toggler.collapsed{
 .nav-link1 {
   font-family: "Quicksand";
   color: #f5f5f5 !important;
-  margin-bottom: 10px;
-  font-size: 1.75rem;
-  display: inline;
+  margin-bottom: 0.4rem;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
   text-align: center;
+  padding: 0.4rem 0.6rem;
   /* -webkit-margin-start: 2rem; */
   /* margin-top: 0rem; */
 }
@@ -105,10 +185,12 @@ button #hamburguesa.navBar-toggler.collapsed{
 .nav-link3 {
   font-family: "Quicksand";
   color: #f5f5f5 !important;
-  margin-bottom: 10px;
-  font-size: 1.75rem;
-  display: inline;
+  margin-bottom: 0.4rem;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
   text-align: center;
+  padding: 0.4rem 0.6rem;
   /* -webkit-margin-start: 2rem; */
   /* margin-top: 0rem; */
 }
@@ -122,14 +204,14 @@ button #hamburguesa.navBar-toggler.collapsed{
 .nav-link2 {
   font-family: "Quicksand";
   color: #f5f5f5 !important;
-  margin-bottom: 10px;
-  font-size: 1.75rem;
-  display: inline;
-  text-align: center;
-  /* -webkit-margin-start: 2rem; */
-
+  margin-bottom: 0.4rem;
+  font-size: 1.25rem;
   display: flex;
+  align-items: center;
   justify-content: center;
+  text-align: center;
+  padding: 0.4rem 0.6rem;
+  /* -webkit-margin-start: 2rem; */
 }
 .nav-link2:hover,
 .nav-link2:focus {
@@ -141,15 +223,15 @@ button #hamburguesa.navBar-toggler.collapsed{
 #navBar nav {
   background-color: #121212 !important;
   /* background-color: black !important; */
-  font-size: 1.75rem;
+  font-size: 1.25rem;
   display: flex;
   justify-content: center;
   color: #f5f5f5 !important;
 }
 
 .navBar img {
-  height: 10rem;
-  padding: 1rem;
+  height: 4.5rem;
+  padding: 0.5rem 1rem 0.5rem 0.5rem;
   display: flex;
   justify-content: center;
   color: #f5f5f5 !important;
@@ -165,10 +247,11 @@ button #hamburguesa.navBar-toggler.collapsed{
 
 #booton {
   font-family: "Quicksand";
-  font-size: 1.75rem;
+  font-size: 1.25rem;
   color: #f5f5f5 !important;
   background-color: #1b1b1b !important;
   border: 1px solid #3a3a3a !important;
+  padding: 0.4rem 0.75rem;
 }
 #booton:hover,
 #booton:focus {
@@ -180,7 +263,7 @@ button #hamburguesa.navBar-toggler.collapsed{
 
 #user {
   font-family: "Quicksand";
-  font-size: 1.75rem;
+  font-size: 1.25rem;
   color: #e0e0e0 !important;
 }
 #user:focus {
@@ -198,7 +281,7 @@ button #hamburguesa.navBar-toggler.collapsed{
     justify-content: flex-start;
     align-self: flex-end;
     justify-content: right;
-    padding: 1rem;
+    padding: 0.5rem;
   }
 }
 
@@ -208,7 +291,7 @@ button #hamburguesa.navBar-toggler.collapsed{
     justify-content: flex-start;
     align-self: flex-end;
     justify-content: right;
-    padding: 1rem;
+    padding: 0.5rem;
   }
 }
 
@@ -250,7 +333,7 @@ button #hamburguesa.navBar-toggler.collapsed{
   #booton {
     width: 100%;
     height: 100%;
-    margin-top: 10px;
+    margin-top: 0.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
