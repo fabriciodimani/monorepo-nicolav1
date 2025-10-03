@@ -2,6 +2,26 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Component Notes
+
+### NavBar variants
+
+El componente `NavBar` acepta una prop opcional `variant` para alternar entre las versiones horizontal (por defecto) y vertical con menú Offcanvas.
+
+```jsx
+// Versión horizontal (predeterminada)
+<NavBar />
+
+// Versión vertical con Offcanvas y navegación en columna
+<NavBar variant="vertical" />
+```
+
+#### Prueba manual rápida
+
+1. Ejecuta `npm start` dentro de la carpeta `front`.
+2. Abre `http://localhost:3000` en el navegador.
+3. Intercambia entre ambas variantes y verifica que el botón toggler abra/cierre la navegación, que la versión vertical se muestre con degradé y tipografía `Quicksand`, y que los enlaces se dispongan en columna.
+
 ## Available Scripts
 
 In the project directory, you can run:
