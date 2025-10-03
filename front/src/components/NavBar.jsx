@@ -72,19 +72,26 @@ const NavBar = () => {
   return (
     <div>
       <div id="navBar" className="navBar mr-auto">
-        <Navbar bg="light" expand="lg">
-          <img src={logo} alt="logo" />
-          <Link className="nav" to="/">
-            <Navbar.Brand>Distri Pollo</Navbar.Brand>
-          </Link>
-     
+        <Navbar bg="light" expand="lg" className="py-3">
+          <Navbar.Brand
+            as={Link}
+            to="/"
+            className="d-flex align-items-center text-decoration-none text-light me-lg-4"
+          >
+            <img src={logo} alt="logo" className="me-2" />
+            <span>Distri Pollo</span>
+          </Navbar.Brand>
+
           <Navbar.Toggle id="hamburguesa" aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav-light">
             {/* <Navbar className="mr-auto"> */}
-            <Nav>
-
-            {payload.role === "ADMIN_ROLE" && (
-                <NavDropdown title="Preventa" id="navbarScrollingDropdown">
+            <Nav className="me-auto flex-lg-row align-items-lg-center justify-content-start text-start">
+              {payload.role === "ADMIN_ROLE" && (
+                <NavDropdown
+                  title="Preventa"
+                  id="navbarScrollingDropdown"
+                  className="ms-lg-3 my-2 my-lg-0 py-2"
+                >
                   <NavDropdown.Item
                     href="/comandas"
                     classename="nav-link3"
@@ -113,7 +120,11 @@ const NavBar = () => {
               )}
 
               {payload.role === "ADMIN_SUP" && (
-                <NavDropdown title="Preventa" id="navbarScrollingDropdown">
+                <NavDropdown
+                  title="Preventa"
+                  id="navbarScrollingDropdown"
+                  className="ms-lg-3 my-2 my-lg-0 py-2"
+                >
                   <NavDropdown.Item
                     href="/comandas"
                     classename="nav-link3"
@@ -142,7 +153,11 @@ const NavBar = () => {
               )}
 
               {payload.role === "USER_PREV" && (
-                <NavDropdown title="Preventa" id="navbarScrollingDropdown">
+                <NavDropdown
+                  title="Preventa"
+                  id="navbarScrollingDropdown"
+                  className="ms-lg-3 my-2 my-lg-0 py-2"
+                >
                   <NavDropdown.Item
                     href="/comandas"
                     classename="nav-link3"
@@ -171,55 +186,55 @@ const NavBar = () => {
               )}
 
               {payload.role === "USER_CAM" && (
-                <Link to="/camiones" className="nav-link ml-3 mt-2">
+                <Link to="/camiones" className="nav-link py-2 ms-lg-3 my-2 my-lg-0">
                   Distribucion
                 </Link>
               )}
 
               {payload.role === "ADMIN_ROLE" && (
-                <Link to="/camiones" className="nav-link ml-3 mt-2">
+                <Link to="/camiones" className="nav-link py-2 ms-lg-3 my-2 my-lg-0">
                   Distribucion
                 </Link>
               )}
               
               {payload.role === "ADMIN_SUP" && (
-                <Link to="/camiones" className="nav-link ml-3 mt-2">
+                <Link to="/camiones" className="nav-link py-2 ms-lg-3 my-2 my-lg-0">
                   Distribucion
                 </Link>
               )}
 
               {payload.role === "USER_CAM" && (
-                <Link to="/mapas" className="nav-link ml-3 mt-2">
+                <Link to="/mapas" className="nav-link py-2 ms-lg-3 my-2 my-lg-0">
                   Mapa
                 </Link>
               )}
 
               {payload.role === "ADMIN_ROLE" && (
-                <Link to="/remitos" className="nav-link ml-3 mt-2">
+                <Link to="/remitos" className="nav-link py-2 ms-lg-3 my-2 my-lg-0">
                   Remito
                 </Link>
               )}
 
               {payload.role === "USER_STK" && (
-                <Link to="/remitos" className="nav-link ml-3 mt-2">
+                <Link to="/remitos" className="nav-link py-2 ms-lg-3 my-2 my-lg-0">
                   Remito
                 </Link>
               )}
 
               {payload.role === "ADMIN_ROLE" && (
-                <Link to="/stocks" className="nav-link ml-3 mt-2">
+                <Link to="/stocks" className="nav-link py-2 ms-lg-3 my-2 my-lg-0">
                   Stock
                 </Link>
               )}
 
               {payload.role === "USER_STK" && (
-                <Link to="/stocks" className="nav-link ml-3 mt-2">
+                <Link to="/stocks" className="nav-link py-2 ms-lg-3 my-2 my-lg-0">
                   Stock
                 </Link>
               )}
 
               {payload.role === "ADMIN_ROLE" && (
-                <Link to="/precios" className="nav-link ml-3 mt-2">
+                <Link to="/precios" className="nav-link py-2 ms-lg-3 my-2 my-lg-0">
                   Precios
                 </Link>
               )}
@@ -228,6 +243,7 @@ const NavBar = () => {
                 <NavDropdown
                   title="Altas"
                   id="navbarScrollingDropdown"
+                  className="ms-lg-3 my-2 my-lg-0 py-2"
                 >
                   <NavDropdown.Item href="/clientes" classename="nav-link3">
                     Clientes
@@ -283,7 +299,11 @@ const NavBar = () => {
               )} */}
 
               {payload.role === "ADMIN_ROLE" && (
-                <NavDropdown title="Informes" id="navbarScrollingDropdown">
+                <NavDropdown
+                  title="Informes"
+                  id="navbarScrollingDropdown"
+                  className="ms-lg-3 my-2 my-lg-0 py-2"
+                >
                   <NavDropdown.Item
                     href="/InformeComandas"
                     classename="nav-link3"
@@ -322,7 +342,11 @@ const NavBar = () => {
 
               
               {payload.role === "USER_STK" && (
-                <NavDropdown title="Informes" id="navbarScrollingDropdown">
+                <NavDropdown
+                  title="Informes"
+                  id="navbarScrollingDropdown"
+                  className="ms-lg-3 my-2 my-lg-0 py-2"
+                >
                   <NavDropdown.Item
                     href="/InformeRemitos"
                     classename="nav-link3"
@@ -336,7 +360,11 @@ const NavBar = () => {
               )}
 
               {payload.role === "ADMIN_SUP" && (
-                <NavDropdown title="Informes" id="navbarScrollingDropdown">
+                <NavDropdown
+                  title="Informes"
+                  id="navbarScrollingDropdown"
+                  className="ms-lg-3 my-2 my-lg-0 py-2"
+                >
                   <NavDropdown.Item
                     href="/InformeComandas"
                     classename="nav-link3"
@@ -368,7 +396,11 @@ const NavBar = () => {
               )}
 
               {payload.role === "ADMIN_ROLE" && (
-                <NavDropdown title="Gestion" id="navbarScrollingDropdown">
+                <NavDropdown
+                  title="Gestion"
+                  id="navbarScrollingDropdown"
+                  className="ms-lg-3 my-2 my-lg-0 py-2"
+                >
                   <NavDropdown.Item
                     href="/InformeGestion"
                     classename="nav-link3"
@@ -379,7 +411,11 @@ const NavBar = () => {
               )}
 
               {payload.role === "ADMIN_SUP" && (
-                <NavDropdown title="Gestion" id="navbarScrollingDropdown">
+                <NavDropdown
+                  title="Gestion"
+                  id="navbarScrollingDropdown"
+                  className="ms-lg-3 my-2 my-lg-0 py-2"
+                >
                   <NavDropdown.Item
                     href="/InformeGestion"
                     classename="nav-link3"
@@ -390,7 +426,10 @@ const NavBar = () => {
               )}
               
               {payload.role === "ADMIN_ROLE" && (
-                <Link to="/quienes" className="nav-link ml-3 mt-2 mr-5">
+                <Link
+                  to="/quienes"
+                  className="nav-link py-2 ms-lg-3 my-2 my-lg-0 me-lg-5"
+                >
                   Acerca
                 </Link>
               )}
@@ -399,14 +438,14 @@ const NavBar = () => {
               <Link
                 to="/admin"
                 id="user"
-                className="text-decoration-none text-muted ml-5 mr-3 "
+                className="text-decoration-none text-muted ms-lg-5 me-lg-3"
               >
                 Administrador
               </Link>
             )}
             <button
               id="booton"
-              className="btn btn-outline-info"
+              className="btn btn-outline-info ms-lg-2"
               onClick={handleLogin}
             >
               {user}
