@@ -1,12 +1,11 @@
 import React from "react";
 import LoginForm from "../components/LoginForm";
-import Footer from "../components/Footer";
 import "../css/login.css";
 
 const Login = () => {
   return (
-    <div className="">
-      <div className="container mt-5">
+    <div className="login-page d-flex align-items-center justify-content-center">
+      <div className="container">
         <div className="row text-center mb-3">
           <div className="col-12">
             <h1>Iniciar Sesión</h1>
@@ -27,7 +26,6 @@ const Login = () => {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 };
