@@ -1,6 +1,9 @@
 #footer {
-  background-color: #1d3557 !important;
+  background: var(--footer-gradient);
+  background-color: rgb(var(--footer-gradient-end-rgb)) !important;
   min-height: 5rem;
+  width: 100%;
+  margin: 0 auto;
   padding: 1rem;
   text-align: center;
   color: #f1faee !important;
