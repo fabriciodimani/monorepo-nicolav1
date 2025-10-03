@@ -36,7 +36,7 @@ function AppCamionReactTable() {
     table {
       sticky: true;
       color: black;
-      background-color: #f1faee;
+      background-color: #ffffff;
       border-spacing: 0;
       border: 1px solid black;
       font-size: 13px;
@@ -59,7 +59,7 @@ function AppCamionReactTable() {
         padding: 0.5rem;
         border-bottom: 1px solid black;
         border-right: 1px solid black;
-        background-color: #f0f2eb;
+        background-color: #ffffff;
         font-size: 13px;
 
         :last-child {

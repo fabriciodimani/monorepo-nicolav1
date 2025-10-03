@@ -102,7 +102,7 @@ function AppOrdenAPrepararReactTable() {
       border-bottom: 1px solid black;
       border-right: 1px solid black;
       // background-color: #548f0a;
-      background-color: #f0f2eb;
+      background-color: #ffffff;
       font-size: 13px;
       // top: 100;
       // z-index: 1;
