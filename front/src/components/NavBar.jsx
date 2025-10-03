@@ -71,8 +71,8 @@ const NavBar = () => {
 
   return (
     <div>
-      <div id="navBar" className="navBar mr-auto">
-        <Navbar bg="light" expand="lg">
+      <div id="navBar" className="navBar__container mr-auto">
+        <Navbar expand="lg" className="navBar navBar--gradient">
           <img src={logo} alt="logo" />
           <Link className="nav" to="/">
             <Navbar.Brand>Distri Pollo</Navbar.Brand>
