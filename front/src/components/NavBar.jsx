@@ -72,7 +72,12 @@ const NavBar = () => {
   return (
     <div>
       <div id="navBar" className="navBar mr-auto">
-        <Navbar bg="light" expand="lg">
+        <Navbar
+          bg="dark"
+          variant="dark"
+          expand="lg"
+          className="navBar-container"
+        >
           <img src={logo} alt="logo" />
           <Link className="nav" to="/">
             <Navbar.Brand>Distri Pollo</Navbar.Brand>
