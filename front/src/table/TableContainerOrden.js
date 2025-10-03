@@ -18,9 +18,11 @@ const Styles = styled.div`
   padding: 1rem;
 
   table {
-    margin-top:2px;
+    margin-top: 2px;
     border-spacing: 0;
-    border: 1px solid black;
+    border: 1px solid var(--color-border-strong);
+    background-color: var(--color-surface);
+    color: var(--color-text-primary);
 
     tr {
       :last-child {
@@ -34,8 +36,8 @@ const Styles = styled.div`
     td {
       margin: 0;
       padding: 0.5rem;
-      border-bottom: 1px solid black;
-      border-right: 1px solid black;
+      border-bottom: 1px solid var(--color-border);
+      border-right: 1px solid var(--color-border);
 
       :last-child {
         border-right: 0;
@@ -195,12 +197,13 @@ export default function Table({ columns, data }) {
                       {...cell.getCellProps()}
                       style={{
                         background: cell.isGrouped
-                          ? "white"
+                          ? "var(--color-surface)"
                           : cell.isAggregated
-                          ? "#white"
+                          ? "var(--color-surface)"
                           : cell.isPlaceholder
-                          ? "#white"
-                          : "white",
+                          ? "var(--color-surface)"
+                          : "var(--color-surface)",
+                        color: "var(--color-text-primary)",
                       }}
                     >
                       {cell.isGrouped ? (

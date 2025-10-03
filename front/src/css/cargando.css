@@ -4,7 +4,7 @@
     margin-left: 150px;
   }
   .fountainTextG {
-    color: rgb(0, 0, 0);
+    color: var(--color-text-primary);
     font-family: Arial;
     font-size: 48px;
     text-decoration: none;
@@ -124,51 +124,51 @@
   @keyframes bounce_fountainTextG {
     0% {
       transform: scale(1);
-      color: rgb(0, 0, 0);
+      color: var(--color-text-primary);
     }
     100% {
       transform: scale(0.5);
-      color: rgb(255, 255, 255);
+      color: var(--color-text-on-contrast);
     }
   }
   @-o-keyframes bounce_fountainTextG {
     0% {
       -o-transform: scale(1);
-      color: rgb(0, 0, 0);
+      color: var(--color-text-primary);
     }
     100% {
       -o-transform: scale(0.5);
-      color: rgb(255, 255, 255);
+      color: var(--color-text-on-contrast);
     }
   }
   @-ms-keyframes bounce_fountainTextG {
     0% {
       -ms-transform: scale(1);
-      color: rgb(0, 0, 0);
+      color: var(--color-text-primary);
     }
     100% {
       -ms-transform: scale(0.5);
-      color: rgb(255, 255, 255);
+      color: var(--color-text-on-contrast);
     }
   }
   @-webkit-keyframes bounce_fountainTextG {
     0% {
       -webkit-transform: scale(1);
-      color: rgb(0, 0, 0);
+      color: var(--color-text-primary);
     }
     100% {
       -webkit-transform: scale(0.5);
-      color: rgb(255, 255, 255);
+      color: var(--color-text-on-contrast);
     }
   }
   @-moz-keyframes bounce_fountainTextG {
     0% {
       -moz-transform: scale(1);
-      color: rgb(0, 0, 0);
+      color: var(--color-text-primary);
     }
     100% {
       -moz-transform: scale(0.5);
-      color: rgb(255, 255, 255);
+      color: var(--color-text-on-contrast);
     }
   }
   

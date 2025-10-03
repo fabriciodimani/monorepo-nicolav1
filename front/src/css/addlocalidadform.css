@@ -1,6 +1,6 @@
 .form-check {
   font-size: 1.5rem;
-  color: red;
+  color: var(--color-status-danger);
 }
 
 .form-check-input {

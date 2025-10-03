@@ -1,35 +1,37 @@
 .navBar-toggler {
-  color: #f5f5f5 !important;
-  background-color: #121212 !important;
-  border: 1px solid #3a3a3a !important;
+  color: var(--color-text-on-contrast) !important;
+  background-color: var(--color-surface-contrast) !important;
+  border: 1px solid var(--color-contrast-border) !important;
+  box-shadow: var(--shadow-contrast);
 }
 .navBar h4 {
   font-size: 1.75rem;
   text-align: center;
 
-  background-color: #121212 !important;
-  color: #f5f5f5 !important;
+  background-color: var(--color-surface-contrast) !important;
+  color: var(--color-text-on-contrast) !important;
   font-family: "Quicksand";
 }
 
 .navBar {
   /* background-color: black !important; */
-  background-color: #121212 !important;
-  color: #f5f5f5 !important;
+  background-color: var(--color-surface-contrast) !important;
+  color: var(--color-text-on-contrast) !important;
   font-size: 2rem;
   font-family: "Times New Roman", Times, serif;
   padding: 1rem;
+  box-shadow: var(--shadow-contrast);
 }
 
 .navBar-toggler:hover,
 .navBar-toggler:focus {
-  color: #e0e0e0 !important;
-  background-color: #1b1b1b !important;
-  border-color: #4a4a4a !important;
+  color: var(--color-text-on-contrast-muted) !important;
+  background-color: var(--color-surface-contrast-hover) !important;
+  border-color: var(--color-contrast-border-strong) !important;
   outline: none;
 }
 button #hamburguesa.navBar-toggler.collapsed{
-  background: #1b1b1b !important;
+  background: var(--color-surface-contrast-hover) !important;
 }
 .nav-link {
   font-family: "Quicksand";
@@ -39,12 +41,12 @@ button #hamburguesa.navBar-toggler.collapsed{
   display: inline;
   text-align: center;
   /* -webkit-margin-start: 2rem; */
-  color: #f5f5f5 !important;
+  color: var(--color-text-on-contrast) !important;
 }
 .nav-link:hover,
 .nav-link:focus {
-  color: #e0e0e0 !important;
-  background-color: #2a2a2a !important;
+  color: var(--color-text-on-contrast-muted) !important;
+  background-color: var(--color-surface-contrast-active) !important;
   outline: none;
 }
 
@@ -57,7 +59,7 @@ button #hamburguesa.navBar-toggler.collapsed{
   text-align: center;
   -webkit-margin-start: 1rem;
   -webkit-margin-end: 1rem;
-  color: #f5f5f5 !important;
+  color: var(--color-text-on-contrast) !important;
   display: flex;
   justify-content: center;
   margin-top: 0.5rem;
@@ -67,27 +69,28 @@ button #hamburguesa.navBar-toggler.collapsed{
   font-family: "Quicksand";
   font-size: 1.5rem;
   /* background-color: black !important; */
-  background-color: #1b1b1b !important;
-  color: #f5f5f5 !important;
-  border: 1px solid #3a3a3a !important;
+  background-color: var(--color-surface-contrast-hover) !important;
+  color: var(--color-text-on-contrast) !important;
+  border: 1px solid var(--color-contrast-border) !important;
+  box-shadow: var(--shadow-soft);
 }
 
 .dropdown-item {
   font-family: "Quicksand";
   font-size: 1.5rem;
   /* background-color: black !important; */
-  background-color: #1b1b1b !important;
-  color: #f5f5f5 !important;
+  background-color: var(--color-surface-contrast-hover) !important;
+  color: var(--color-text-on-contrast) !important;
 }
 .dropdown-item:hover,
 .dropdown-item:focus {
-  color: #e0e0e0 !important;
-  background-color: #2a2a2a !important;
+  color: var(--color-text-on-contrast-muted) !important;
+  background-color: var(--color-surface-contrast-active) !important;
 }
 
 .nav-link1 {
   font-family: "Quicksand";
-  color: #f5f5f5 !important;
+  color: var(--color-text-on-contrast) !important;
   margin-bottom: 10px;
   font-size: 1.75rem;
   display: inline;
@@ -97,14 +100,14 @@ button #hamburguesa.navBar-toggler.collapsed{
 }
 .nav-link1:hover,
 .nav-link1:focus {
-  color: #e0e0e0 !important;
-  background-color: #2a2a2a !important;
+  color: var(--color-text-on-contrast-muted) !important;
+  background-color: var(--color-surface-contrast-active) !important;
   outline: none;
 }
 
 .nav-link3 {
   font-family: "Quicksand";
-  color: #f5f5f5 !important;
+  color: var(--color-text-on-contrast) !important;
   margin-bottom: 10px;
   font-size: 1.75rem;
   display: inline;
@@ -114,14 +117,14 @@ button #hamburguesa.navBar-toggler.collapsed{
 }
 .nav-link3:hover,
 .nav-link3:focus {
-  color: #e0e0e0 !important;
-  background-color: #2a2a2a !important;
+  color: var(--color-text-on-contrast-muted) !important;
+  background-color: var(--color-surface-contrast-active) !important;
   outline: none;
 }
 
 .nav-link2 {
   font-family: "Quicksand";
-  color: #f5f5f5 !important;
+  color: var(--color-text-on-contrast) !important;
   margin-bottom: 10px;
   font-size: 1.75rem;
   display: inline;
@@ -133,18 +136,18 @@ button #hamburguesa.navBar-toggler.collapsed{
 }
 .nav-link2:hover,
 .nav-link2:focus {
-  color: #e0e0e0 !important;
-  background-color: #2a2a2a !important;
+  color: var(--color-text-on-contrast-muted) !important;
+  background-color: var(--color-surface-contrast-active) !important;
   outline: none;
 }
 
 #navBar nav {
-  background-color: #121212 !important;
+  background-color: var(--color-surface-contrast) !important;
   /* background-color: black !important; */
   font-size: 1.75rem;
   display: flex;
   justify-content: center;
-  color: #f5f5f5 !important;
+  color: var(--color-text-on-contrast) !important;
 }
 
 .navBar img {
@@ -152,39 +155,39 @@ button #hamburguesa.navBar-toggler.collapsed{
   padding: 1rem;
   display: flex;
   justify-content: center;
-  color: #f5f5f5 !important;
+  color: var(--color-text-on-contrast) !important;
 }
 
 .navBar span {
-  background-color: #121212 !important;
+  background-color: var(--color-surface-contrast) !important;
   /* background-color: black !important; */
   font-size: 2.2rem;
-  color: #f5f5f5 !important;
+  color: var(--color-text-on-contrast) !important;
   font-family: "Times New Roman", Times, serif;
 }
 
 #booton {
   font-family: "Quicksand";
   font-size: 1.75rem;
-  color: #f5f5f5 !important;
-  background-color: #1b1b1b !important;
-  border: 1px solid #3a3a3a !important;
+  color: var(--color-text-on-contrast) !important;
+  background-color: var(--color-surface-contrast-hover) !important;
+  border: 1px solid var(--color-contrast-border) !important;
 }
 #booton:hover,
 #booton:focus {
-  color: #e0e0e0 !important;
-  background-color: #2a2a2a !important;
-  border-color: #4a4a4a !important;
+  color: var(--color-text-on-contrast-muted) !important;
+  background-color: var(--color-surface-contrast-active) !important;
+  border-color: var(--color-contrast-border-strong) !important;
   outline: none;
 }
 
 #user {
   font-family: "Quicksand";
   font-size: 1.75rem;
-  color: #e0e0e0 !important;
+  color: var(--color-text-on-contrast-muted) !important;
 }
 #user:focus {
-  outline: 2px solid #4a4a4a;
+  outline: 2px solid var(--color-contrast-border-strong);
   outline-offset: 2px;
 }
 
@@ -254,7 +257,7 @@ button #hamburguesa.navBar-toggler.collapsed{
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #e0e0e0;
+    color: var(--color-text-on-contrast-muted);
   }
 }
 /* 
@@ -263,7 +266,7 @@ button #hamburguesa.navBar-toggler.collapsed{
       margin-left: 50%;
       margin-top: 10px;
       transform: translateX(130%);
-      background-color: red !important;
-      color: red !important;
+      background-color: var(--color-accent) !important;
+      color: var(--color-text-on-contrast) !important;
     }
   } */

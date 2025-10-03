@@ -5,6 +5,7 @@ import axios from "axios";
 import _ from "lodash";
 import Table from "./TableContainerCamion";
 import ModalCamion from "../components/ModalCamion";
+import { getCssVariable } from "../helpers/theme";
 var arrayComandas = [];
 
 function AppCamionReactTable() {
@@ -15,6 +16,7 @@ function AppCamionReactTable() {
   });
   const [comanda, setComanda] = useState({});
   const [data, setData] = useState([]);
+  const contrastText = getCssVariable("--color-text-on-contrast", "#f5f5f5");
 
   var iduser = localStorage.getItem("id");
   useEffect(() => {
@@ -33,34 +35,35 @@ function AppCamionReactTable() {
     sticky: true;
     padding: 0rem;
 
-    table {
+  table {
+    sticky: true;
+    color: var(--color-text-primary);
+    background-color: var(--color-surface-subtle);
+    border-spacing: 0;
+    border: 1px solid var(--color-border-strong);
+    font-size: 13px;
+    z-index: 10;
+
+    th {
       sticky: true;
-      color: black;
-      background-color: #f1faee;
-      border-spacing: 0;
-      border: 1px solid black;
-      font-size: 13px;
-      z-index: 10;
-     
-      th {
-        sticky: true;
-        background-color: #548fcd;
-        font-size: 12px;
-        text-align: center;
-        height: 10rem;
-        position: sticky;
+      background-color: var(--color-status-info);
+      font-size: 12px;
+      text-align: center;
+      height: 10rem;
+      position: sticky;
+          color: var(--color-text-on-contrast);
             // top: 100;
             z-index: -1;
-      }
-      ,
-      td {
-        // sticky: true;
-        margin: 0;
-        padding: 0.5rem;
-        border-bottom: 1px solid black;
-        border-right: 1px solid black;
-        background-color: #f0f2eb;
-        font-size: 13px;
+    }
+    ,
+    td {
+      // sticky: true;
+      margin: 0;
+      padding: 0.5rem;
+      border-bottom: 1px solid var(--color-border);
+      border-right: 1px solid var(--color-border);
+      background-color: var(--color-surface-muted);
+      font-size: 13px;
 
         :last-child {
           border-right: 0;
@@ -76,12 +79,13 @@ function AppCamionReactTable() {
       }
     }
 
-    .pagination {
-      padding: 0.5rem;
-      background-color: #548fcd;
-      font-size: 15px;
-      font-weight: bold;
-    }
+  .pagination {
+    padding: 0.5rem;
+    background-color: var(--color-status-info);
+    color: var(--color-text-on-contrast);
+    font-size: 15px;
+    font-weight: bold;
+  }
 
     &.sticky {
       overflow: scroll;
@@ -93,13 +97,13 @@ function AppCamionReactTable() {
       }
     }
 
-    .header {
-      top: 0;
-      box-shadow: 0px 3px 3px #ccc;
-      position: sticky;
-      z-index: 10;
-      
-    }
+  .header {
+    top: 0;
+    box-shadow: var(--shadow-soft);
+    position: sticky;
+    z-index: 10;
+
+  }
 
     [data-sticky-td] {
       position: sticky;
@@ -367,7 +371,7 @@ function AppCamionReactTable() {
             <i
               className="fa fa-pencil-square-o"
               aria-hidden="true"
-              color="white"
+              style={{ color: contrastText }}
             ></i>
           </button>
         </div>

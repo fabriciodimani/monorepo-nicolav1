@@ -14,6 +14,7 @@ import Table from "./TableContainer";
 import { SelectColumnFilter } from "./Filter";
 import ModalComanda from "../components/ModalComanda";
 // import "../css/tablecomandas.css";
+import { getCssVariable } from "../helpers/theme";
 
 // import "./App.css";
 
@@ -23,6 +24,7 @@ function AppRemitoReactTable() {
     data: {},
     loading: true,
   });
+  const contrastText = getCssVariable("--color-text-on-contrast", "#f5f5f5");
   const [comanda, setComanda] = useState({});
   const [data, setData] = useState([]);
 
@@ -41,19 +43,20 @@ function AppRemitoReactTable() {
   table {
     sticky: true;
     // background-color: #548fcd;
-    color: black;
+    color: var(--color-text-primary);
     border-spacing: 0;
-    border: 1px solid black;
+    border: 1px solid var(--color-border-strong);
     font-size: 13px;
     z-index: 1;
 
     th {
       sticky: true;
-      background-color: #548fcd;
+      background-color: var(--color-status-info);
       font-size: 12px;
       text-align: center;
       height: 10rem;
       // position: sticky;
+      color: var(--color-text-on-contrast);
       top: 100;
       z-index: 1;
     }
@@ -62,10 +65,10 @@ function AppRemitoReactTable() {
       sticky: true;
       margin: 0;
       padding: 0.5rem;
-      border-bottom: 1px solid black;
-      border-right: 1px solid black;
+      border-bottom: 1px solid var(--color-border);
+      border-right: 1px solid var(--color-border);
       // background-color: #548f0a;
-      background-color: #f0f2eb;
+      background-color: var(--color-surface-muted);
       font-size: 13px;
       // top: 100;
       // z-index: 1;
@@ -87,7 +90,8 @@ function AppRemitoReactTable() {
 
   .pagination {
     padding: 0.5rem;
-    background-color: #548fcd;
+    background-color: var(--color-status-info);
+    color: var(--color-text-on-contrast);
     font-size: 15px;
     font-weight: bold;
   }
@@ -104,10 +108,10 @@ function AppRemitoReactTable() {
     
     .header {
       top: 0;
-      box-shadow: 0px 3px 3px #ccc;
+      box-shadow: var(--shadow-soft);
       position: sticky;
       z-index:10;
-      
+
     }
 
     [data-sticky-td] {
@@ -434,7 +438,11 @@ function AppRemitoReactTable() {
             className="btn btn-danger"
             onClick={(e) => deleteRemito(row.row.original.nroderemito)}
           >
-            <i className="fa fa-trash-o" aria-hidden="true" color="white"></i>
+            <i
+              className="fa fa-trash-o"
+              aria-hidden="true"
+              style={{ color: contrastText }}
+            ></i>
           </button>
           {/* <GetDataInvoiceAdmin datacomanda={row.row.original.nrodecomanda} /> */}
         </div>

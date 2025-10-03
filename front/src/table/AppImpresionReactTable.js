@@ -9,6 +9,7 @@ import Table from "./TableContainer";
 import ModalComanda from "../components/ModalComanda";
 import ModalAsignar from "../components/ModalAsignar";
 import "../css/tablecomandas.css";
+import { getCssVariable } from "../helpers/theme";
 
 // import "./App.css";
 
@@ -21,6 +22,19 @@ function AppImpresionReactTable() {
     data: {},
     loading: true,
   });
+  const dangerColor = getCssVariable("--color-status-danger", "#ba1b26");
+  const currencyFormatter = React.useMemo(
+    () =>
+      new Intl.NumberFormat("es-AR", {
+        style: "currency",
+        currency: "ARS",
+      }),
+    []
+  );
+
+  const renderCurrency = (value) => (
+    <span style={{ color: dangerColor }}>{currencyFormatter.format(value)}</span>
+  );
   const [comanda, setComanda] = useState({});
   const [data, setData] = useState([]);
 
@@ -39,19 +53,20 @@ function AppImpresionReactTable() {
     table {
       sticky: true;
       // background-color: #E7D583  ;
-      color: black;
+      color: var(--color-text-primary);
       border-spacing: 0;
-      border: 1px solid black;
+      border: 1px solid var(--color-border-strong);
       font-size: 13px;
       z-index: 1;
 
       th {
         sticky: true;
-        background-color: #E7D583  ;
+        background-color: var(--color-status-highlight);
         font-size: 12px;
         text-align: center;
         height: 10rem;
         // position: sticky;
+        color: var(--color-text-on-contrast);
         top: 100;
         z-index: 1;
       }
@@ -60,10 +75,10 @@ function AppImpresionReactTable() {
         sticky: true;
         margin: 0;
         padding: 0.5rem;
-        border-bottom: 1px solid black;
-        border-right: 1px solid black;
+        border-bottom: 1px solid var(--color-border);
+        border-right: 1px solid var(--color-border);
         // background-color: #548f0a;
-        background-color: #f0f2eb;
+        background-color: var(--color-surface-muted);
         font-size: 13px;
         // top: 100;
         // z-index: 1;
@@ -84,7 +99,8 @@ function AppImpresionReactTable() {
 
     .pagination {
       padding: 0.5rem;
-      background-color: #E7D583  ;
+      background-color: var(--color-status-highlight);
+      color: var(--color-text-on-contrast);
       font-size: 15px;
       font-weight: bold;
     }
@@ -101,7 +117,7 @@ function AppImpresionReactTable() {
 
     .header {
       top: 0;
-      box-shadow: 0px 3px 3px #ccc;
+      box-shadow: var(--shadow-soft);
       position: sticky;
       z-index: 10;
     }
@@ -461,11 +477,7 @@ function AppImpresionReactTable() {
       width: "150",
       accessor: (d) => `${d.cantidad}` * `${d.monto}`,
 
-      Cell: (props) =>
-        new Intl.NumberFormat("es-AR", {
-          style: "currency",
-          currency: "ARS",
-        }).format(props.value),
+      Cell: (props) => renderCurrency(props.value),
       Footer: (info) => {
         const total = React.useMemo(
           () => info.rows.reduce((sum, row) => row.values.total + sum, 0),
@@ -510,23 +522,15 @@ function AppImpresionReactTable() {
         );
 
         return (
-          <div className= "pie1" style={{ textAlign: "right" }}>
-            {new Intl.NumberFormat("es-AR", {
-              style: "currency",
-              currency: "ARS",
-              color: "red",
-            }).format(totalentregada)}
+          <div className="pie1" style={{ textAlign: "right" }}>
+            {renderCurrency(totalentregada)}
           </div>
         );
       },
 
       Cell: (row) => (
         <div style={{ textAlign: "right" }}>
-          {new Intl.NumberFormat("es-AR", {
-            style: "currency",
-            currency: "ARS",
-            color: "red",
-          }).format(row.value)}
+          {renderCurrency(row.value)}
         </div>
       ),
     },
