@@ -1,9 +1,71 @@
 html {
-    font-size: 62.5%;
-  }
-  
-  body #root {
-    font-family: "Quicksand";
-    background-color: #f1faee;
-  }
-  
+  font-size: 62.5%;
+}
+
+body {
+  font-family: "Quicksand";
+  background-color: var(--body-bg, #f1faee);
+  color: var(--body-text, #1d3557);
+  margin: 0;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body #root {
+  min-height: 100vh;
+  background-color: inherit;
+  color: inherit;
+}
+
+body.theme-light {
+  color-scheme: light;
+  --body-bg: #f1faee;
+  --body-text: #1d3557;
+  --nav-bg: #ffffff;
+  --nav-surface: #f8f9fa;
+  --nav-border: #d1d5db;
+  --nav-text: #1f2937;
+  --nav-muted-text: #111827;
+  --nav-hover-bg: #e5e7eb;
+  --nav-focus-border: #9ca3af;
+  --nav-button-bg: #ffffff;
+  --nav-button-text: #1f2937;
+  --nav-dropdown-bg: #ffffff;
+  --nav-dropdown-border: #d1d5db;
+  --nav-dropdown-text: #1f2937;
+}
+
+body.theme-dark {
+  color-scheme: dark;
+  --body-bg: #0f0f0f;
+  --body-text: #f5f5f5;
+  --nav-bg: #121212;
+  --nav-surface: #1b1b1b;
+  --nav-border: #3a3a3a;
+  --nav-text: #f5f5f5;
+  --nav-muted-text: #e0e0e0;
+  --nav-hover-bg: #2a2a2a;
+  --nav-focus-border: #4a4a4a;
+  --nav-button-bg: #1b1b1b;
+  --nav-button-text: #f5f5f5;
+  --nav-dropdown-bg: #1b1b1b;
+  --nav-dropdown-border: #3a3a3a;
+  --nav-dropdown-text: #f5f5f5;
+}
+
+/* Provide sensible defaults before the ThemeProvider runs */
+body {
+  --body-bg: #f1faee;
+  --body-text: #1d3557;
+  --nav-bg: #121212;
+  --nav-surface: #1b1b1b;
+  --nav-border: #3a3a3a;
+  --nav-text: #f5f5f5;
+  --nav-muted-text: #e0e0e0;
+  --nav-hover-bg: #2a2a2a;
+  --nav-focus-border: #4a4a4a;
+  --nav-button-bg: #1b1b1b;
+  --nav-button-text: #f5f5f5;
+  --nav-dropdown-bg: #1b1b1b;
+  --nav-dropdown-border: #3a3a3a;
+  --nav-dropdown-text: #f5f5f5;
+}
