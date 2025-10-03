@@ -14,11 +14,32 @@
 
 .navBar {
   /* background-color: black !important; */
-  background-color: #121212 !important;
+  background: linear-gradient(180deg, #121212 0%, #1b1b1b 100%) !important;
   color: #f5f5f5 !important;
   font-size: 2rem;
   font-family: "Times New Roman", Times, serif;
   padding: 1rem;
+}
+
+.navBar-offcanvas {
+  background: linear-gradient(180deg, #121212 0%, #1b1b1b 100%) !important;
+  color: #f5f5f5 !important;
+  font-family: "Quicksand", sans-serif;
+}
+
+.navBar-offcanvas .offcanvas-header,
+.navBar-offcanvas .offcanvas-body {
+  background: transparent;
+  color: #f5f5f5 !important;
+  font-family: "Quicksand", sans-serif;
+}
+
+.navBar-offcanvas .offcanvas-title {
+  font-family: "Quicksand", sans-serif;
+}
+
+.navBar-offcanvas .nav-link {
+  margin: 0.25rem 0;
 }
 
 .navBar-toggler:hover,
