@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import 'bootstrap/dist/css/bootstrap.css'
 import './index.css';
 import App from './App';
+import { ThemeProvider } from './Context/ThemeContext';
 import Applogin from './Applogin';
 
 // import server from './server';
@@ -22,7 +23,9 @@ import Applogin from './Applogin';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <ThemeProvider>
+      <App />
+    </ThemeProvider>
     {/* <Applogin /> */}
   </React.StrictMode>,
   document.getElementById('root')
