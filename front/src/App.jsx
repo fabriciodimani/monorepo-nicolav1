@@ -30,43 +30,54 @@ import InformeRemitos from "./pages/InformeRemitos";
 import InformeStock from "./pages/InformeStock";
 import InformeOrdenAPreparar from "./pages/InformeOrdenAPreparar";
 import InformeHojaRuta from "./pages/InformeHojaRuta";
+import { ThemeProvider } from "./Context/ThemeContext";
 
 const App = () => {
   return (
     <>
       <Router>
-        <Layout>
-          <Switch>
-            <Route exact path="/" component={Home} />
-            <Route exact path="/login" component={Login} />
-            <Route exact path="/Comandas" component={Comandas} />
-            <Route exact path="/Camiones" component={Camiones} />
-            <Route exact path="/Mapas" component={Mapas} />
-            <Route exact path="/Remitos" component={Remitos} />
-            <Route exact path="/Stocks" component={Stocks} />
-            <Route exact path="/StocksPrev" component={StocksPrev} />
-            <Route exact path="/Clientes" component={Clientes} />
-            <Route exact path="/ClientesPrev" component={ClientesPrev} />
-            <Route exact path="/Proveedores" component={Proveedores} />
-            <Route exact path="/Localidades" component={Localidades} />
-            <Route exact path="/Empresas" component={Empresas} />
-            <Route exact path="/Producservs" component={Producservs} />
-            <Route exact path="/Rutas" component={Rutas} />
-            <Route exact path="/Rubros" component={Rubros} />
-            <Route exact path="/Marcas" component={Marcas} />
-            <Route exact path="/Precios" component={Precios} />
-            <Route exact path="/quienes" component={Quienes} />
-            <Route exact path="/InformeComandas" component={InformeComandas} />
-            <Route exact path="/InformeImpresion" component={InformeImpresion} />
-            <Route exact path="/InformeGestion" component={InformeGestion} />            
-            <Route exact path="/InformePreventas" component={InformePreventas} />
-            <Route exact path="/InformeRemitos" component={InformeRemitos} />
-            <Route exact path="/InformeStock" component={InformeStock} />
-            <Route exact path="/InformeOrdenAPreparar" component={InformeOrdenAPreparar}/>
-            <Route exact path="/InformeHojaRuta" component={InformeHojaRuta}/>
-            <Route exact path="/admin" component={Admin} />
-          </Switch>
-        </Layout>
+        <ThemeProvider>
+          <Layout>
+            <Switch>
+              <Route exact path="/" component={Home} />
+              <Route exact path="/login" component={Login} />
+              <Route exact path="/Comandas" component={Comandas} />
+              <Route exact path="/Camiones" component={Camiones} />
+              <Route exact path="/Mapas" component={Mapas} />
+              <Route exact path="/Remitos" component={Remitos} />
+              <Route exact path="/Stocks" component={Stocks} />
+              <Route exact path="/StocksPrev" component={StocksPrev} />
+              <Route exact path="/Clientes" component={Clientes} />
+              <Route exact path="/ClientesPrev" component={ClientesPrev} />
+              <Route exact path="/Proveedores" component={Proveedores} />
+              <Route exact path="/Localidades" component={Localidades} />
+              <Route exact path="/Empresas" component={Empresas} />
+              <Route exact path="/Producservs" component={Producservs} />
+              <Route exact path="/Rutas" component={Rutas} />
+              <Route exact path="/Rubros" component={Rubros} />
+              <Route exact path="/Marcas" component={Marcas} />
+              <Route exact path="/Precios" component={Precios} />
+              <Route exact path="/quienes" component={Quienes} />
+              <Route exact path="/InformeComandas" component={InformeComandas} />
+              <Route exact path="/InformeImpresion" component={InformeImpresion} />
+              <Route exact path="/InformeGestion" component={InformeGestion} />
+              <Route exact path="/InformePreventas" component={InformePreventas} />
+              <Route exact path="/InformeRemitos" component={InformeRemitos} />
+              <Route exact path="/InformeStock" component={InformeStock} />
+              <Route
+                exact
+                path="/InformeOrdenAPreparar"
+                component={InformeOrdenAPreparar}
+              />
+              <Route
+                exact
+                path="/InformeHojaRuta"
+                component={InformeHojaRuta}
+              />
+              <Route exact path="/admin" component={Admin} />
+            </Switch>
+          </Layout>
+        </ThemeProvider>
       </Router>
     </>
   );
