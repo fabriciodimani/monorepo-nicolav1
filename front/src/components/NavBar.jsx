@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import jwt_decode from "jwt-decode"; //Paquete para decodificar el Token
 import { Link, useLocation, useHistory } from "react-router-dom";
 // import { getComandas } from "../helpers/rutaComandas";
 import { Navbar, Nav, NavDropdown } from "react-bootstrap";
 import logo from "../images/distripollo.jpeg";
 import "../css/navbar.css";
+import { ThemeContext } from "../Context/ThemeContext";
 
 const NavBar = () => {
   //Defino location e history
@@ -23,6 +24,9 @@ const NavBar = () => {
   //   data: {},
   //   loading: true,
   // });
+
+  const themeContext = useContext(ThemeContext) || {};
+  const { theme = "light", toggleTheme = () => {} } = themeContext;
 
   //Si cambia la locación asigno a user el valor de localstorage
   useEffect(() => {
@@ -404,6 +408,15 @@ const NavBar = () => {
                 Administrador
               </Link>
             )}
+            <button
+              type="button"
+              className="theme-toggle"
+              aria-label="Cambiar tema"
+              aria-pressed={theme === "dark"}
+              onClick={toggleTheme}
+            >
+              {theme === "dark" ? "🌙" : "☀️"}
+            </button>
             <button
               id="booton"
               className="btn btn-outline-info"
