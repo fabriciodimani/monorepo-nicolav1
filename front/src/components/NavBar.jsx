@@ -71,14 +71,18 @@ const NavBar = () => {
 
   return (
     <div>
-      <div id="navBar" className="navBar mr-auto">
+      <div id="navBar" className="navBar navBar--glass mr-auto">
         <Navbar bg="light" expand="lg">
           <img src={logo} alt="logo" />
           <Link className="nav" to="/">
             <Navbar.Brand>Distri Pollo</Navbar.Brand>
           </Link>
-     
-          <Navbar.Toggle id="hamburguesa" aria-controls="basic-navbar-nav" />
+
+          <Navbar.Toggle
+            id="hamburguesa"
+            className="navBar-toggle--glass"
+            aria-controls="basic-navbar-nav"
+          />
           <Navbar.Collapse id="basic-navbar-nav-light">
             {/* <Navbar className="mr-auto"> */}
             <Nav>
@@ -406,7 +410,7 @@ const NavBar = () => {
             )}
             <button
               id="booton"
-              className="btn btn-outline-info"
+              className="btn btn-outline-info navBar__userButton--glass"
               onClick={handleLogin}
             >
               {user}
