@@ -36,8 +36,9 @@ button #hamburguesa.navBar-toggler.collapsed{
   /* background-color: #1d3557 !important; */
   /* background-color: black !important; */
   font-size: 1.75rem;
-  display: inline;
-  text-align: center;
+  display: block;
+  text-align: left;
+  margin-block: 0.5rem;
   /* -webkit-margin-start: 2rem; */
   color: #f5f5f5 !important;
 }
@@ -53,14 +54,12 @@ button #hamburguesa.navBar-toggler.collapsed{
   /* background-color: black !important; */
   /* background-color: #1d3557 !important; */
   font-size: 1.75rem;
-  display: inline;
-  text-align: center;
-  -webkit-margin-start: 1rem;
-  -webkit-margin-end: 1rem;
+  display: block;
+  text-align: left;
+  -webkit-margin-start: 0;
+  -webkit-margin-end: 0;
   color: #f5f5f5 !important;
-  display: flex;
-  justify-content: center;
-  margin-top: 0.5rem;
+  margin-block: 0.5rem;
 }
 
 .dropdown-menu {
@@ -78,6 +77,8 @@ button #hamburguesa.navBar-toggler.collapsed{
   /* background-color: black !important; */
   background-color: #1b1b1b !important;
   color: #f5f5f5 !important;
+  display: block;
+  text-align: left;
 }
 .dropdown-item:hover,
 .dropdown-item:focus {
@@ -88,10 +89,10 @@ button #hamburguesa.navBar-toggler.collapsed{
 .nav-link1 {
   font-family: "Quicksand";
   color: #f5f5f5 !important;
-  margin-bottom: 10px;
+  margin-block: 0.5rem;
   font-size: 1.75rem;
-  display: inline;
-  text-align: center;
+  display: block;
+  text-align: left;
   /* -webkit-margin-start: 2rem; */
   /* margin-top: 0rem; */
 }
@@ -105,10 +106,10 @@ button #hamburguesa.navBar-toggler.collapsed{
 .nav-link3 {
   font-family: "Quicksand";
   color: #f5f5f5 !important;
-  margin-bottom: 10px;
+  margin-block: 0.5rem;
   font-size: 1.75rem;
-  display: inline;
-  text-align: center;
+  display: block;
+  text-align: left;
   /* -webkit-margin-start: 2rem; */
   /* margin-top: 0rem; */
 }
@@ -122,14 +123,11 @@ button #hamburguesa.navBar-toggler.collapsed{
 .nav-link2 {
   font-family: "Quicksand";
   color: #f5f5f5 !important;
-  margin-bottom: 10px;
+  margin-block: 0.5rem;
   font-size: 1.75rem;
-  display: inline;
-  text-align: center;
+  display: block;
+  text-align: left;
   /* -webkit-margin-start: 2rem; */
-
-  display: flex;
-  justify-content: center;
 }
 .nav-link2:hover,
 .nav-link2:focus {
@@ -143,8 +141,37 @@ button #hamburguesa.navBar-toggler.collapsed{
   /* background-color: black !important; */
   font-size: 1.75rem;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: stretch;
   color: #f5f5f5 !important;
+}
+
+.nav-links-wrapper {
+  width: 100%;
+  gap: 1rem;
+}
+
+.nav-links-container {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.nav-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.nav-action-link {
+  display: block;
+  text-align: left;
+  margin-bottom: 0.25rem;
 }
 
 .navBar img {
@@ -169,6 +196,7 @@ button #hamburguesa.navBar-toggler.collapsed{
   color: #f5f5f5 !important;
   background-color: #1b1b1b !important;
   border: 1px solid #3a3a3a !important;
+  align-self: flex-start;
 }
 #booton:hover,
 #booton:focus {
@@ -215,7 +243,9 @@ button #hamburguesa.navBar-toggler.collapsed{
 @media (max-width: 768px) {
   .nav {
     display: flex;
-    justify-content: flex-start;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
   }
 }
 
@@ -255,6 +285,23 @@ button #hamburguesa.navBar-toggler.collapsed{
     align-items: center;
     justify-content: center;
     color: #e0e0e0;
+  }
+}
+
+@media (max-width: 992px) {
+  #navBar nav {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .nav-links-container,
+  .nav-actions {
+    width: 100%;
+  }
+
+  .nav-actions {
+    align-items: stretch;
   }
 }
 /* 

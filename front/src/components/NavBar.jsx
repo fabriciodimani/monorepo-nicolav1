@@ -81,9 +81,9 @@ const NavBar = () => {
           <Navbar.Toggle id="hamburguesa" aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav-light">
             {/* <Navbar className="mr-auto"> */}
-            <Nav>
-
-            {payload.role === "ADMIN_ROLE" && (
+            <Nav className="flex-column align-items-start nav-links-wrapper">
+              <div className="nav-links-container">
+                {payload.role === "ADMIN_ROLE" && (
                 <NavDropdown title="Preventa" id="navbarScrollingDropdown">
                   <NavDropdown.Item
                     href="/comandas"
@@ -171,55 +171,55 @@ const NavBar = () => {
               )}
 
               {payload.role === "USER_CAM" && (
-                <Link to="/camiones" className="nav-link ml-3 mt-2">
+                <Link to="/camiones" className="nav-link">
                   Distribucion
                 </Link>
               )}
 
               {payload.role === "ADMIN_ROLE" && (
-                <Link to="/camiones" className="nav-link ml-3 mt-2">
+                <Link to="/camiones" className="nav-link">
                   Distribucion
                 </Link>
               )}
-              
+
               {payload.role === "ADMIN_SUP" && (
-                <Link to="/camiones" className="nav-link ml-3 mt-2">
+                <Link to="/camiones" className="nav-link">
                   Distribucion
                 </Link>
               )}
 
               {payload.role === "USER_CAM" && (
-                <Link to="/mapas" className="nav-link ml-3 mt-2">
+                <Link to="/mapas" className="nav-link">
                   Mapa
                 </Link>
               )}
 
               {payload.role === "ADMIN_ROLE" && (
-                <Link to="/remitos" className="nav-link ml-3 mt-2">
+                <Link to="/remitos" className="nav-link">
                   Remito
                 </Link>
               )}
 
               {payload.role === "USER_STK" && (
-                <Link to="/remitos" className="nav-link ml-3 mt-2">
+                <Link to="/remitos" className="nav-link">
                   Remito
                 </Link>
               )}
 
               {payload.role === "ADMIN_ROLE" && (
-                <Link to="/stocks" className="nav-link ml-3 mt-2">
+                <Link to="/stocks" className="nav-link">
                   Stock
                 </Link>
               )}
 
               {payload.role === "USER_STK" && (
-                <Link to="/stocks" className="nav-link ml-3 mt-2">
+                <Link to="/stocks" className="nav-link">
                   Stock
                 </Link>
               )}
 
               {payload.role === "ADMIN_ROLE" && (
-                <Link to="/precios" className="nav-link ml-3 mt-2">
+                <Link to="/precios" className="nav-link">
                   Precios
                 </Link>
               )}
@@ -375,7 +375,7 @@ const NavBar = () => {
                   >
                     Tablero Control
                   </NavDropdown.Item>
-              </NavDropdown>
+                </NavDropdown>
               )}
 
               {payload.role === "ADMIN_SUP" && (
@@ -386,32 +386,34 @@ const NavBar = () => {
                   >
                     Tablero Control
                   </NavDropdown.Item>
-              </NavDropdown>
+                </NavDropdown>
               )}
-              
+
               {payload.role === "ADMIN_ROLE" && (
-                <Link to="/quienes" className="nav-link ml-3 mt-2 mr-5">
+                <Link to="/quienes" className="nav-link">
                   Acerca
                 </Link>
               )}
-            </Nav>
-            {payload.role === "ADMIN_ROLE" && (
-              <Link
-                to="/admin"
-                id="user"
-                className="text-decoration-none text-muted ml-5 mr-3 "
+            </div>
+            <div className="nav-actions">
+              {payload.role === "ADMIN_ROLE" && (
+                <Link
+                  to="/admin"
+                  id="user"
+                  className="text-decoration-none text-muted nav-action-link"
+                >
+                  Administrador
+                </Link>
+              )}
+              <button
+                id="booton"
+                className="btn btn-outline-info"
+                onClick={handleLogin}
               >
-                Administrador
-              </Link>
-            )}
-            <button
-              id="booton"
-              className="btn btn-outline-info"
-              onClick={handleLogin}
-            >
-              {user}
-            </button>
-     
+                {user}
+              </button>
+            </div>
+            </Nav>
           </Navbar.Collapse>
         </Navbar>
       </div>
