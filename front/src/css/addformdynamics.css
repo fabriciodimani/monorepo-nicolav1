@@ -1,5 +1,5 @@
 h5.normal {
-  color:blue;
+  color: var(--color-status-info);
 }
 
 
@@ -81,14 +81,14 @@ input#total1.form-control {
 @media (max-width: 760px) {
   h5.responsive {
     display: inline;
-    color: blue;
+    color: var(--color-status-info);
   }
 }
 
 @media (max-width: 760px) {
   h5.normal {
     display: none;
-    color: blue;
+    color: var(--color-status-info);
   }
 }
 

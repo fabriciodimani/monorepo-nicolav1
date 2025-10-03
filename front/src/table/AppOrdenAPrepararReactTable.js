@@ -5,6 +5,7 @@ import axios from "axios";
 import _ from "lodash";
 import Table from "./TableContainerOrden";
 import "../css/tablecamion.css";
+import { getCssVariable } from "../helpers/theme";
 // import { SelectColumnFilter } from "./Filter";
 // import "./App.css";
 function AppOrdenAPrepararReactTable() {
@@ -16,6 +17,11 @@ function AppOrdenAPrepararReactTable() {
       })
       .catch((err) => console.log(err));
   }, []);
+
+  const dangerColor = getCssVariable("--color-status-danger", "#ba1b26");
+  const accentColor = getCssVariable("--color-accent", "#e63946");
+  const contrastText = getCssVariable("--color-text-on-contrast", "#f5f5f5");
+  const infoColor = getCssVariable("--color-status-info", "#548fcd");
 
   // const Styles = styled.div`
   //   padding: 1rem;
@@ -77,20 +83,20 @@ function AppOrdenAPrepararReactTable() {
     sticky: true;
     // background-color: white;
     // background-color: #548fcd;
-    color: black;
+    color: var(--color-text-primary);
     border-spacing: 0;
-    border: 1px solid black;
+    border: 1px solid var(--color-border-strong);
     font-size: 13px;
     z-index: 1;
 
     th {
       sticky: true;
-      background-color: #00ffff;
+      background-color: var(--color-status-highlight);
       font-size: 1.5rem;
       text-align: center;
       height: 4rem;
       // position: sticky;
-      color: black;
+      color: var(--color-text-on-contrast);
       top: 100;
       z-index: 1;
     }
@@ -99,10 +105,10 @@ function AppOrdenAPrepararReactTable() {
       sticky: true;
       margin: 0;
       padding: 0.5rem;
-      border-bottom: 1px solid black;
-      border-right: 1px solid black;
+      border-bottom: 1px solid var(--color-border);
+      border-right: 1px solid var(--color-border);
       // background-color: #548f0a;
-      background-color: #f0f2eb;
+      background-color: var(--color-surface-muted);
       font-size: 13px;
       // top: 100;
       // z-index: 1;
@@ -124,7 +130,8 @@ function AppOrdenAPrepararReactTable() {
 
   .pagination {
     padding: 0.5rem;
-    background-color: #548fcd;
+    background-color: var(--color-status-info);
+    color: var(--color-text-on-contrast);
     font-size: 15px;
     font-weight: bold;
   }
@@ -142,10 +149,10 @@ function AppOrdenAPrepararReactTable() {
     .header {
       font-size: 13px;
       top: 0;
-      box-shadow: 0px 3px 3px #ccc;
+      box-shadow: var(--shadow-soft);
       position: sticky;
       z-index:10;
-      
+
     }
 
     [data-sticky-td] {
@@ -255,42 +262,42 @@ function AppOrdenAPrepararReactTable() {
       style: {
         width: "100px",
         marginRight: "0.5rem",
-        color: "white",
+        color: contrastText,
       },
-      color: "red",
+      color: dangerColor,
       Cell: (row) => <div style={{ textAlign: "center" }}>{row.value}</div>,
     },
 
     {
       Header: "Clientes",
       accessor: "codcli.razonsocial",
-      background: "red",
-      color: "red",
+      background: accentColor,
+      color: dangerColor,
       width: "20em",
       margin: "2em",
     },
     {
       Header: "Ruta",
       accessor: "codcli.ruta.ruta",
-      color: "red",
+      color: dangerColor,
       with: "200rem",
     },
     {
       Header: "Productos",
       accessor: "codprod.descripcion",
-      color: "red",
+      color: dangerColor,
       with: "200rem",
     },
     {
       Header: "Rubro",
       accessor: "codprod.rubro.rubro",
-      color: "red",
+      color: dangerColor,
       with: "200rem",
     },
     {
       Header: "Camion",
       accessor: "camion.camion",
-      color: "red",
+      color: dangerColor,
       with: "200rem",
     },
     {
@@ -302,7 +309,7 @@ function AppOrdenAPrepararReactTable() {
         marginRight: "0.5rem",
         
       },
-      color:"blue",
+      color: infoColor,
       // Cell: (row) => <div style={{ textAlign: "center" }}>{row.value}</div>,
       aggregate: "sum",
       Aggregated: ({ value }) => `${value} Cantidad(es)`,

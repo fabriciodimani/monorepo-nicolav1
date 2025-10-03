@@ -1,22 +1,43 @@
 .form-group label {
   font-size: 1.5rem;
   font-family: "Quicksand";
+  color: var(--color-text-secondary);
 }
 .form-group input {
   font-size: 1.5rem;
   font-family: "Quicksand";
+  background-color: var(--color-input-bg);
+  color: var(--color-input-text);
+  border: 1px solid var(--color-input-border);
 }
 .alert {
   font-size: 1.5rem;
   font-family: "Quicksand";
+  background-color: var(--color-status-danger);
+  color: var(--color-text-on-contrast);
 }
 
 .btn {
   font-size: 1.5rem;
   font-family: "Quicksand";
+  background-color: var(--color-action-primary-bg);
+  color: var(--color-action-primary-text);
+  border-color: var(--color-action-primary-bg);
 }
 
 .form-group button {
   font-size: 3rem;
   font-family: "Quicksand";
+  background-color: var(--color-action-primary-bg);
+  color: var(--color-action-primary-text);
+  border: 1px solid var(--color-action-primary-bg);
+}
+
+.btn:hover,
+.btn:focus,
+.form-group button:hover,
+.form-group button:focus {
+  background-color: var(--color-action-primary-hover);
+  border-color: var(--color-action-primary-hover);
+  color: var(--color-action-primary-text);
 }

@@ -1,8 +1,18 @@
 .invoice button {
   width: 3.5rem;
   height: 3rem;
-  color: white;
-  background-color: blue;
+  color: var(--color-action-primary-text);
+  background-color: var(--color-action-primary-bg);
+  border: 1px solid var(--color-action-primary-bg);
+  border-radius: 0.4rem;
+  transition: background-color 0.2s ease;
+}
+
+.invoice button:hover,
+.invoice button:focus {
+  background-color: var(--color-action-primary-hover);
+  border-color: var(--color-action-primary-hover);
+  color: var(--color-action-primary-text);
 }
 
 .btn.btn-danger {

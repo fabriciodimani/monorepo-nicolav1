@@ -1,15 +1,15 @@
 #estado {
-  color: red;
+  color: var(--color-status-danger);
 }
 
 #distribucion {
-  color: blue;
+  color: var(--color-status-info);
 }
 
 .actualizando{
-  color: red;
+  color: var(--color-status-danger);
 }
 
 .h4{
-  color: red;
+  color: var(--color-status-danger);
 }

@@ -12,7 +12,7 @@
 
 .form-check {
   font-size: 1.5rem;
-  color: red;
+  color: var(--color-status-danger);
 }
 
 .form-check-input {
@@ -46,11 +46,11 @@
 }
 
 #subform {
-  background-color: rgb(179, 183, 189);
+  background-color: var(--color-surface-muted);
 }
 
 #titulo {
-  background-color: rgb(179, 183, 189);
+  background-color: var(--color-surface-muted);
   margin-top: 1rem;
   padding: 0.5rem;
 }

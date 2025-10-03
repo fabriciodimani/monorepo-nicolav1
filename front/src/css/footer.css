@@ -1,10 +1,11 @@
 #footer {
-  background-color: #1d3557 !important;
+  background-color: var(--color-surface-contrast) !important;
   min-height: 5rem;
   padding: 1rem;
   text-align: center;
-  color: #f1faee !important;
+  color: var(--color-text-on-contrast) !important;
   font-size: 1rem !important;
+  box-shadow: var(--shadow-contrast);
 }
 
 #footer p {
@@ -12,7 +13,7 @@
 }
 
 #footer a {
-  color: #f1faee !important;
+  color: var(--color-text-on-contrast) !important;
 }
 
 #footer img {

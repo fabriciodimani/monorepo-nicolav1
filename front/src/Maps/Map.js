@@ -4,6 +4,7 @@
 import React from 'react';
 import { GoogleMap, DirectionsRenderer } from '@react-google-maps/api';
 import axios from 'axios';
+import { getCssVariable } from '../helpers/theme';
 // import routes from '../routes2.json';
 
 const defaultLocation = { lat: -26.860128, lng: -65.21991 };
@@ -76,6 +77,8 @@ class Map extends React.Component {
       for (let index = 0; index < routesAux.length; index++) {
         let geo = new google.maps.LatLng(routesAux[index].location.lat,routesAux[index].location.lng)
         // var geo = new google.maps.LatLng(-26.860128, -65.21991);
+        const labelColor = getCssVariable('--color-text-primary', '#1b263b');
+
         new google.maps.Marker({
           position: geo,
           map,
@@ -83,7 +86,7 @@ class Map extends React.Component {
           // title: routesAux[index].location.id,
           optimized: false,
           label: {
-            color: 'black',
+            color: labelColor,
             fontWeight: "bold",
             fontSize: "15px",
             text: routesAux[index].location.id,

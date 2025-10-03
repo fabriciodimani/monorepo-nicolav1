@@ -3,11 +3,24 @@
   font-size: 1.75rem;
 }
 .col {
-  background-color: white;
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-soft);
 }
 
 .btn.btn-dark {
   font-size: 1.5rem;
+  background-color: var(--color-action-primary-bg);
+  border-color: var(--color-action-primary-bg);
+  color: var(--color-action-primary-text);
+  transition: background-color 0.2s ease;
+}
+
+.btn.btn-dark:hover,
+.btn.btn-dark:focus {
+  background-color: var(--color-action-primary-hover);
+  border-color: var(--color-action-primary-hover);
+  color: var(--color-action-primary-text);
 }
 
 @media (max-width: 768px) {

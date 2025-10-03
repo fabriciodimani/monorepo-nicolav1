@@ -1,5 +1,5 @@
 div#root {
-  background-color: white;
+  background-color: var(--color-page-bg);
   /* background-color: #E9ECEF; */
   /* background-color: #20262E; */
   /* background-color: #FFFFFFDE; */
@@ -8,7 +8,7 @@ div#root {
 h2,
 h3,
 h4 {
-  color: black;
+  color: var(--color-text-primary);
 }
 
 hr {
@@ -16,7 +16,7 @@ hr {
 }
 
 /* .card {
-    color: #1d3557;
+    color: var(--color-text-secondary);
     width: 250px;
     border-radius: 10px;
     overflow: hidden;
@@ -36,7 +36,7 @@ hr {
 }
 
 .card span {
-  color: #1d3557;
+  color: var(--color-text-secondary);
   font-size: 1.5rem;
 }
 

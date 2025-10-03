@@ -1,10 +1,12 @@
 .col {
-    background-color: #F1FAEE;
+    background-color: var(--color-surface-subtle);
+    color: var(--color-text-primary);
     font-size: 2rem;
 }
 
 .titulo {
-    background-color: #F1FAEE;
- 
+    background-color: var(--color-surface-subtle);
+    color: var(--color-text-secondary);
+
 }
 
