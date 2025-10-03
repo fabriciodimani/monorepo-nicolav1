@@ -72,18 +72,20 @@ const NavBar = () => {
   return (
     <div>
       <div id="navBar" className="navBar mr-auto">
-        <Navbar bg="light" expand="lg">
+        <Navbar bg="light" expand="lg" className="navbar-monochrome w-100">
           <img src={logo} alt="logo" />
           <Link className="nav" to="/">
             <Navbar.Brand>Distri Pollo</Navbar.Brand>
           </Link>
-     
-          <Navbar.Toggle id="hamburguesa" aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav-light">
-            {/* <Navbar className="mr-auto"> */}
-            <Nav>
 
-            {payload.role === "ADMIN_ROLE" && (
+          <Navbar.Toggle id="hamburguesa" aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse
+            id="basic-navbar-nav-light"
+            className="navbar-collapse-monochrome"
+          >
+            {/* <Navbar className="mr-auto"> */}
+            <Nav className="navbar-links">
+              {payload.role === "ADMIN_ROLE" && (
                 <NavDropdown title="Preventa" id="navbarScrollingDropdown">
                   <NavDropdown.Item
                     href="/comandas"
@@ -395,23 +397,24 @@ const NavBar = () => {
                 </Link>
               )}
             </Nav>
-            {payload.role === "ADMIN_ROLE" && (
-              <Link
-                to="/admin"
-                id="user"
-                className="text-decoration-none text-muted ml-5 mr-3 "
+            <div className="navbar-actions">
+              {payload.role === "ADMIN_ROLE" && (
+                <Link
+                  to="/admin"
+                  id="user"
+                  className="text-decoration-none text-muted navbar-admin-link"
+                >
+                  Administrador
+                </Link>
+              )}
+              <button
+                id="booton"
+                className="btn btn-outline-info"
+                onClick={handleLogin}
               >
-                Administrador
-              </Link>
-            )}
-            <button
-              id="booton"
-              className="btn btn-outline-info"
-              onClick={handleLogin}
-            >
-              {user}
-            </button>
-     
+                {user}
+              </button>
+            </div>
           </Navbar.Collapse>
         </Navbar>
       </div>
