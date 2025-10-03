@@ -1,21 +1,21 @@
 .navBar-toggler {
-  color: #f5f5f5 !important;
-  background-color: #121212 !important;
-  border: 1px solid #3a3a3a !important;
+  color: var(--nav-text, #f5f5f5) !important;
+  background-color: var(--nav-surface, #121212) !important;
+  border: 1px solid var(--nav-border, #3a3a3a) !important;
 }
 .navBar h4 {
   font-size: 1.75rem;
   text-align: center;
 
-  background-color: #121212 !important;
-  color: #f5f5f5 !important;
+  background-color: var(--nav-bg, #121212) !important;
+  color: var(--nav-text, #f5f5f5) !important;
   font-family: "Quicksand";
 }
 
 .navBar {
   /* background-color: black !important; */
-  background-color: #121212 !important;
-  color: #f5f5f5 !important;
+  background-color: var(--nav-bg, #121212) !important;
+  color: var(--nav-text, #f5f5f5) !important;
   font-size: 2rem;
   font-family: "Times New Roman", Times, serif;
   padding: 1rem;
@@ -23,13 +23,13 @@
 
 .navBar-toggler:hover,
 .navBar-toggler:focus {
-  color: #e0e0e0 !important;
-  background-color: #1b1b1b !important;
-  border-color: #4a4a4a !important;
+  color: var(--nav-muted-text, #e0e0e0) !important;
+  background-color: var(--nav-hover-bg, #2a2a2a) !important;
+  border-color: var(--nav-focus-border, #4a4a4a) !important;
   outline: none;
 }
 button #hamburguesa.navBar-toggler.collapsed{
-  background: #1b1b1b !important;
+  background: var(--nav-surface, #1b1b1b) !important;
 }
 .nav-link {
   font-family: "Quicksand";
@@ -39,12 +39,12 @@ button #hamburguesa.navBar-toggler.collapsed{
   display: inline;
   text-align: center;
   /* -webkit-margin-start: 2rem; */
-  color: #f5f5f5 !important;
+  color: var(--nav-text, #f5f5f5) !important;
 }
 .nav-link:hover,
 .nav-link:focus {
-  color: #e0e0e0 !important;
-  background-color: #2a2a2a !important;
+  color: var(--nav-muted-text, #e0e0e0) !important;
+  background-color: var(--nav-hover-bg, #2a2a2a) !important;
   outline: none;
 }
 
@@ -57,7 +57,7 @@ button #hamburguesa.navBar-toggler.collapsed{
   text-align: center;
   -webkit-margin-start: 1rem;
   -webkit-margin-end: 1rem;
-  color: #f5f5f5 !important;
+  color: var(--nav-text, #f5f5f5) !important;
   display: flex;
   justify-content: center;
   margin-top: 0.5rem;
@@ -67,27 +67,27 @@ button #hamburguesa.navBar-toggler.collapsed{
   font-family: "Quicksand";
   font-size: 1.5rem;
   /* background-color: black !important; */
-  background-color: #1b1b1b !important;
-  color: #f5f5f5 !important;
-  border: 1px solid #3a3a3a !important;
+  background-color: var(--nav-dropdown-bg, #1b1b1b) !important;
+  color: var(--nav-dropdown-text, #f5f5f5) !important;
+  border: 1px solid var(--nav-dropdown-border, #3a3a3a) !important;
 }
 
 .dropdown-item {
   font-family: "Quicksand";
   font-size: 1.5rem;
   /* background-color: black !important; */
-  background-color: #1b1b1b !important;
-  color: #f5f5f5 !important;
+  background-color: var(--nav-dropdown-bg, #1b1b1b) !important;
+  color: var(--nav-dropdown-text, #f5f5f5) !important;
 }
 .dropdown-item:hover,
 .dropdown-item:focus {
-  color: #e0e0e0 !important;
-  background-color: #2a2a2a !important;
+  color: var(--nav-muted-text, #e0e0e0) !important;
+  background-color: var(--nav-hover-bg, #2a2a2a) !important;
 }
 
 .nav-link1 {
   font-family: "Quicksand";
-  color: #f5f5f5 !important;
+  color: var(--nav-text, #f5f5f5) !important;
   margin-bottom: 10px;
   font-size: 1.75rem;
   display: inline;
@@ -97,14 +97,14 @@ button #hamburguesa.navBar-toggler.collapsed{
 }
 .nav-link1:hover,
 .nav-link1:focus {
-  color: #e0e0e0 !important;
-  background-color: #2a2a2a !important;
+  color: var(--nav-muted-text, #e0e0e0) !important;
+  background-color: var(--nav-hover-bg, #2a2a2a) !important;
   outline: none;
 }
 
 .nav-link3 {
   font-family: "Quicksand";
-  color: #f5f5f5 !important;
+  color: var(--nav-text, #f5f5f5) !important;
   margin-bottom: 10px;
   font-size: 1.75rem;
   display: inline;
@@ -114,14 +114,14 @@ button #hamburguesa.navBar-toggler.collapsed{
 }
 .nav-link3:hover,
 .nav-link3:focus {
-  color: #e0e0e0 !important;
-  background-color: #2a2a2a !important;
+  color: var(--nav-muted-text, #e0e0e0) !important;
+  background-color: var(--nav-hover-bg, #2a2a2a) !important;
   outline: none;
 }
 
 .nav-link2 {
   font-family: "Quicksand";
-  color: #f5f5f5 !important;
+  color: var(--nav-text, #f5f5f5) !important;
   margin-bottom: 10px;
   font-size: 1.75rem;
   display: inline;
@@ -133,18 +133,18 @@ button #hamburguesa.navBar-toggler.collapsed{
 }
 .nav-link2:hover,
 .nav-link2:focus {
-  color: #e0e0e0 !important;
-  background-color: #2a2a2a !important;
+  color: var(--nav-muted-text, #e0e0e0) !important;
+  background-color: var(--nav-hover-bg, #2a2a2a) !important;
   outline: none;
 }
 
 #navBar nav {
-  background-color: #121212 !important;
+  background-color: var(--nav-bg, #121212) !important;
   /* background-color: black !important; */
   font-size: 1.75rem;
   display: flex;
   justify-content: center;
-  color: #f5f5f5 !important;
+  color: var(--nav-text, #f5f5f5) !important;
 }
 
 .navBar img {
@@ -152,39 +152,39 @@ button #hamburguesa.navBar-toggler.collapsed{
   padding: 1rem;
   display: flex;
   justify-content: center;
-  color: #f5f5f5 !important;
+  color: var(--nav-text, #f5f5f5) !important;
 }
 
 .navBar span {
-  background-color: #121212 !important;
+  background-color: var(--nav-bg, #121212) !important;
   /* background-color: black !important; */
   font-size: 2.2rem;
-  color: #f5f5f5 !important;
+  color: var(--nav-text, #f5f5f5) !important;
   font-family: "Times New Roman", Times, serif;
 }
 
 #booton {
   font-family: "Quicksand";
   font-size: 1.75rem;
-  color: #f5f5f5 !important;
-  background-color: #1b1b1b !important;
-  border: 1px solid #3a3a3a !important;
+  color: var(--nav-button-text, #f5f5f5) !important;
+  background-color: var(--nav-button-bg, #1b1b1b) !important;
+  border: 1px solid var(--nav-border, #3a3a3a) !important;
 }
 #booton:hover,
 #booton:focus {
-  color: #e0e0e0 !important;
-  background-color: #2a2a2a !important;
-  border-color: #4a4a4a !important;
+  color: var(--nav-muted-text, #e0e0e0) !important;
+  background-color: var(--nav-hover-bg, #2a2a2a) !important;
+  border-color: var(--nav-focus-border, #4a4a4a) !important;
   outline: none;
 }
 
 #user {
   font-family: "Quicksand";
   font-size: 1.75rem;
-  color: #e0e0e0 !important;
+  color: var(--nav-muted-text, #e0e0e0) !important;
 }
 #user:focus {
-  outline: 2px solid #4a4a4a;
+  outline: 2px solid var(--nav-focus-border, #4a4a4a);
   outline-offset: 2px;
 }
 
