@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import jwt_decode from "jwt-decode"; //Paquete para decodificar el Token
 import { Link, useLocation, useHistory } from "react-router-dom";
 // import { getComandas } from "../helpers/rutaComandas";
 import { Navbar, Nav, NavDropdown } from "react-bootstrap";
 import logo from "../images/distripollo.jpeg";
 import "../css/navbar.css";
+import ThemeContext from "../Context/ThemeContext";
 
 const NavBar = () => {
   //Defino location e history
@@ -13,6 +14,8 @@ const NavBar = () => {
 
   //estado para manejar el usuario
   const [user, setUser] = useState("Iniciar sesión");
+
+  const { theme, toggleTheme } = useContext(ThemeContext);
 
   const [payload, setPayload] = useState({
     role: "",
@@ -395,22 +398,31 @@ const NavBar = () => {
                 </Link>
               )}
             </Nav>
-            {payload.role === "ADMIN_ROLE" && (
-              <Link
-                to="/admin"
-                id="user"
-                className="text-decoration-none text-muted ml-5 mr-3 "
+            <div className="ml-auto d-flex align-items-center">
+              {payload.role === "ADMIN_ROLE" && (
+                <Link
+                  to="/admin"
+                  id="user"
+                  className="text-decoration-none text-muted ml-5 mr-3 "
+                >
+                  Administrador
+                </Link>
+              )}
+              <button
+                type="button"
+                className="btn btn-outline-secondary ml-3 theme-toggle-btn"
+                onClick={toggleTheme}
               >
-                Administrador
-              </Link>
-            )}
-            <button
-              id="booton"
-              className="btn btn-outline-info"
-              onClick={handleLogin}
-            >
-              {user}
-            </button>
+                {theme === "light" ? "Modo claro" : "Modo oscuro"}
+              </button>
+              <button
+                id="booton"
+                className="btn btn-outline-info ml-3"
+                onClick={handleLogin}
+              >
+                {user}
+              </button>
+            </div>
      
           </Navbar.Collapse>
         </Navbar>
