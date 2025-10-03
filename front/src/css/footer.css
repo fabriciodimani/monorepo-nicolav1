@@ -1,9 +1,13 @@
+:root {
+  --footer-gradient: linear-gradient(135deg, #f5f5f5 0%, #d9d9d9 50%, #bcbcbc 100%);
+}
+
 #footer {
-  background-color: #1d3557 !important;
+  background: var(--footer-gradient);
   min-height: 5rem;
   padding: 1rem;
   text-align: center;
-  color: #f1faee !important;
+  color: #1f2933 !important;
   font-size: 1rem !important;
 }
 
@@ -12,7 +16,7 @@
 }
 
 #footer a {
-  color: #f1faee !important;
+  color: #0f172a !important;
 }
 
 #footer img {
