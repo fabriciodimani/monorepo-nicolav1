@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Error404 from "./pages/Error404";
 import Home from "./pages/Home";
 import Layout from "./components/Layout";
+import { ThemeProvider } from "./Context/ThemeContext";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 import Comandas from "./pages/Comandas";
@@ -33,7 +34,7 @@ import InformeHojaRuta from "./pages/InformeHojaRuta";
 
 const App = () => {
   return (
-    <>
+    <ThemeProvider>
       <Router>
         <Layout>
           <Switch>
@@ -68,7 +69,7 @@ const App = () => {
           </Switch>
         </Layout>
       </Router>
-    </>
+    </ThemeProvider>
   );
 };
 
