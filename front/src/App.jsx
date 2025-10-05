@@ -30,6 +30,7 @@ import InformeRemitos from "./pages/InformeRemitos";
 import InformeStock from "./pages/InformeStock";
 import InformeOrdenAPreparar from "./pages/InformeOrdenAPreparar";
 import InformeHojaRuta from "./pages/InformeHojaRuta";
+import CuentaCorriente from "./pages/CuentaCorriente";
 
 const App = () => {
   return (
@@ -64,6 +65,7 @@ const App = () => {
             <Route exact path="/InformeStock" component={InformeStock} />
             <Route exact path="/InformeOrdenAPreparar" component={InformeOrdenAPreparar}/>
             <Route exact path="/InformeHojaRuta" component={InformeHojaRuta}/>
+            <Route exact path="/CuentaCorriente" component={CuentaCorriente} />
             <Route exact path="/admin" component={Admin} />
           </Switch>
         </Layout>

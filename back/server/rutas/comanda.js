@@ -1,5 +1,7 @@
 const express = require("express");
 const Comanda = require("../modelos/comanda");
+const Cliente = require("../modelos/cliente");
+const MovimientoCuentaCorriente = require("../modelos/movimientoCuentaCorriente");
 
 const {
   verificaToken,
@@ -383,46 +385,104 @@ app.get("/comandasinformes", function (req, res) {
 
 
 //LO COMENTADO ES CON VERIFICACION DE TOKEN
-app.post("/comandas", [verificaToken, verificaAdminPrev_role], function (req, res) {
-// app.post("/comandas", function (req, res) {
-  // res.json('POST usuarios')
+// Registra una nueva comanda y actualiza la cuenta corriente del cliente.
+app.post("/comandas", [verificaToken, verificaAdminPrev_role], async function (
+  req,
+  res
+) {
+  const body = req.body;
+  const monto = Number(body.monto) || 0;
+  const fechaComanda = body.fecha ? new Date(body.fecha) : null;
 
-  let body = req.body;
-  console.log(body);
+  if (!body.codcli) {
+    return res.status(400).json({
+      ok: false,
+      err: { message: "El cliente es obligatorio" },
+    });
+  }
 
-  let comanda = new Comanda({
-    nrodecomanda: body.nrodecomanda,
-    codcli: body.codcli,
-    lista: body.lista,
-    codprod: body.codprod,
-    cantidad: body.cantidad,
-    monto: body.monto,
-    codestado: body.codestado,
-    camion: body.camion,
-    entregado: body.entregado,
-    cantidadentregada: body.cantidadentregada,
-    fechadeentrega: body.fechadeentrega,
-    activo: body.activo,
-    usuario: body.usuario,
-    camionero: body.camionero,
+  if (Number.isNaN(monto) || monto < 0) {
+    return res.status(400).json({
+      ok: false,
+      err: { message: "El monto de la comanda es inválido" },
+    });
+  }
 
-    // usuario: req.usuario._id,
-  });
+  if (body.fecha && Number.isNaN(fechaComanda.getTime())) {
+    return res.status(400).json({
+      ok: false,
+      err: { message: "La fecha de la comanda es inválida" },
+    });
+  }
 
-  comanda.save((err, comandaDB) => {
-    console.log("POST Comanda", err);
-    if (err) {
-      return res.status(400).json({
+  try {
+    const comandaData = {
+      nrodecomanda: body.nrodecomanda,
+      codcli: body.codcli,
+      lista: body.lista,
+      codprod: body.codprod,
+      cantidad: body.cantidad,
+      monto: monto,
+      codestado: body.codestado,
+      camion: body.camion,
+      entregado: body.entregado,
+      cantidadentregada: body.cantidadentregada,
+      fechadeentrega: body.fechadeentrega,
+      activo: body.activo,
+      usuario: body.usuario,
+      camionero: body.camionero,
+    };
+
+    if (fechaComanda) {
+      comandaData.fecha = fechaComanda;
+    }
+
+    const comanda = new Comanda(comandaData);
+
+    const comandaDB = await comanda.save();
+
+    const cliente = await Cliente.findById(body.codcli);
+    if (!cliente) {
+      await Comanda.findByIdAndDelete(comandaDB._id);
+      return res.status(404).json({
         ok: false,
-        err,
+        err: { message: "Cliente no encontrado" },
       });
     }
+
+    cliente.saldo = (cliente.saldo || 0) + monto;
+    await cliente.save();
+
+    const movimiento = new MovimientoCuentaCorriente({
+      cliente: cliente._id,
+      tipo: "Venta",
+      descripcion:
+        body.descripcion ||
+        `Comanda ${comandaDB.nrodecomanda ? `#${comandaDB.nrodecomanda}` : ""}`.trim(),
+      fecha: fechaComanda || comandaDB.fecha,
+      monto: monto,
+      saldo: cliente.saldo,
+      comanda: comandaDB._id,
+    });
+
+    await movimiento.save();
 
     res.json({
       ok: true,
       comanda: comandaDB,
+      saldo: cliente.saldo,
+      movimiento,
     });
-  });
+  } catch (err) {
+    console.log("POST Comanda", err);
+    res.status(500).json({
+      ok: false,
+      err: {
+        message: "Error al crear la comanda",
+        detalle: err.message,
+      },
+    });
+  }
 });
 app.put(
   "/comandas/:id",
@@ -457,40 +517,112 @@ app.put(
 app.delete(
   "/comandas/:id",
   [verificaToken, verificaAdmin_role],
-  function (req, res) {
-    let id = req.params.id;
+  async (req, res) => {
+    const { id } = req.params;
+    let comandaActualizada = false;
+    let clienteAfectadoId = null;
+    let saldoAnteriorCliente = null;
+    let movimientoCreadoId = null;
 
-    let estadoActualizado = {
-      activo: false,
-    };
+    try {
+      const comanda = await Comanda.findById(id);
 
-    Comanda.findByIdAndUpdate(
-      id,
-      estadoActualizado,
-      { new: true },
-      (err, comandaBorrado) => {
-        if (err) {
-          return res.status(400).json({
-            ok: false,
-            err,
-          });
-        }
-
-        if (!comandaBorrado) {
-          return res.status(400).json({
-            ok: false,
-            err: {
-              message: "Comanda no encontrada",
-            },
-          });
-        }
-
-        res.json({
-          ok: true,
-          comanda: comandaBorrado,
+      if (!comanda) {
+        return res.status(404).json({
+          ok: false,
+          err: { message: "Comanda no encontrada" },
         });
       }
-    );
+
+      if (comanda.activo === false) {
+        return res.status(400).json({
+          ok: false,
+          err: { message: "La comanda ya se encuentra anulada" },
+        });
+      }
+
+      const montoComanda = Number(comanda.monto) || 0;
+
+      comanda.activo = false;
+      const comandaAnulada = await comanda.save();
+      comandaActualizada = true;
+
+      let movimiento = null;
+      let saldo = null;
+
+      if (comanda.codcli) {
+        const cliente = await Cliente.findById(comanda.codcli);
+
+        if (cliente) {
+          saldoAnteriorCliente = cliente.saldo || 0;
+          cliente.saldo = saldoAnteriorCliente - montoComanda;
+          const clienteActualizado = await cliente.save();
+          clienteAfectadoId = clienteActualizado._id;
+
+          const movimientoNuevo = new MovimientoCuentaCorriente({
+            cliente: clienteActualizado._id,
+            tipo: "Anulacion",
+            descripcion: `Anulación de comanda ${
+              comandaAnulada.nrodecomanda
+                ? `#${comandaAnulada.nrodecomanda}`
+                : comandaAnulada._id
+            }`,
+            fecha: new Date(),
+            monto: montoComanda,
+            saldo: clienteActualizado.saldo,
+            comanda: comandaAnulada._id,
+          });
+
+          movimiento = await movimientoNuevo.save();
+          movimientoCreadoId = movimiento._id;
+          saldo = clienteActualizado.saldo;
+        }
+      }
+
+      res.json({
+        ok: true,
+        comanda: comandaAnulada,
+        saldo,
+        movimiento,
+      });
+    } catch (error) {
+      console.error("DELETE /comandas/:id", error);
+      // Si algo falla luego de marcar la comanda como anulada, se intenta revertir.
+      if (movimientoCreadoId) {
+        try {
+          await MovimientoCuentaCorriente.findByIdAndDelete(movimientoCreadoId);
+        } catch (movimientoRevertError) {
+          console.error(
+            "Eliminando movimiento de anulación fallido",
+            movimientoRevertError
+          );
+        }
+      }
+      if (clienteAfectadoId !== null) {
+        try {
+          await Cliente.findByIdAndUpdate(clienteAfectadoId, {
+            saldo: saldoAnteriorCliente,
+          });
+        } catch (clienteRevertError) {
+          console.error("Revirtiendo saldo de cliente", clienteRevertError);
+        }
+      }
+      if (comandaActualizada) {
+        try {
+          await Comanda.findByIdAndUpdate(id, { activo: true });
+        } catch (revertError) {
+          console.error("Revirtiendo anulación de comanda", revertError);
+        }
+      }
+
+      res.status(500).json({
+        ok: false,
+        err: {
+          message: "Error al anular la comanda",
+          detalle: error.message,
+        },
+      });
+    }
   }
 );
 
