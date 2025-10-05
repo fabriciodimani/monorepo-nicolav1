@@ -129,6 +129,7 @@ app.post("/clientes", function (req, res) {
     lat: body.lat,
     lng: body.lng,
     activo: body.activo,
+    saldo: body.saldo,
     // usuario: req.Usuario._id, //probar si graba
   });
 

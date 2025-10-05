@@ -22,6 +22,7 @@ app.use(require("./marca"));
 app.use(require("./stock"));
 app.use(require("./deposito"));
 app.use(require("./comanda"));
+app.use(require("./cuentacorriente"));
 app.use(require("./ultimacomanda"));
 app.use(require("./tipomovimiento"));
 app.use(require("./invoice"));
