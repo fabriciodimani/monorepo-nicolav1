@@ -116,7 +116,7 @@ app.post("/clientes", function (req, res) {
 
   let body = req.body;
 
-  let cliente = new Cliente({
+  const clienteData = {
     codcli: body.codcli,
     razonsocial: body.razonsocial,
     domicilio: body.domicilio,
@@ -130,7 +130,13 @@ app.post("/clientes", function (req, res) {
     lng: body.lng,
     activo: body.activo,
     // usuario: req.Usuario._id, //probar si graba
-  });
+  };
+
+  if (body.saldo !== undefined) {
+    clienteData.saldo = body.saldo;
+  }
+
+  let cliente = new Cliente(clienteData);
 
   cliente.save((err, clienteDB) => {
     if (err) {

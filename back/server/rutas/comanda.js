@@ -1,5 +1,7 @@
 const express = require("express");
 const Comanda = require("../modelos/comanda");
+const Cliente = require("../modelos/cliente");
+const MovimientoCuentaCorriente = require("../modelos/movimientocuentacorriente");
 
 const {
   verificaToken,
@@ -383,38 +385,84 @@ app.get("/comandasinformes", function (req, res) {
 
 
 //LO COMENTADO ES CON VERIFICACION DE TOKEN
-app.post("/comandas", [verificaToken, verificaAdminPrev_role], function (req, res) {
-// app.post("/comandas", function (req, res) {
-  // res.json('POST usuarios')
-
+app.post("/comandas", [verificaToken, verificaAdminPrev_role], async function (req, res) {
   let body = req.body;
-  console.log(body);
 
-  let comanda = new Comanda({
-    nrodecomanda: body.nrodecomanda,
-    codcli: body.codcli,
-    lista: body.lista,
-    codprod: body.codprod,
-    cantidad: body.cantidad,
-    monto: body.monto,
-    codestado: body.codestado,
-    camion: body.camion,
-    entregado: body.entregado,
-    cantidadentregada: body.cantidadentregada,
-    fechadeentrega: body.fechadeentrega,
-    activo: body.activo,
-    usuario: body.usuario,
-    camionero: body.camionero,
-
-    // usuario: req.usuario._id,
-  });
-
-  comanda.save((err, comandaDB) => {
-    console.log("POST Comanda", err);
-    if (err) {
+  try {
+    if (!body.codcli) {
       return res.status(400).json({
         ok: false,
-        err,
+        err: {
+          message: "El cliente es obligatorio para registrar la comanda",
+        },
+      });
+    }
+
+    // Verificamos la existencia del cliente antes de registrar la comanda
+    const cliente = await Cliente.findById(body.codcli);
+
+    if (!cliente) {
+      return res.status(404).json({
+        ok: false,
+        err: {
+          message: "Cliente no encontrado",
+        },
+      });
+    }
+
+    const montoNumber = body.monto !== undefined ? Number(body.monto) : 0;
+
+    if (Number.isNaN(montoNumber)) {
+      return res.status(400).json({
+        ok: false,
+        err: {
+          message: "El monto de la comanda no es válido",
+        },
+      });
+    }
+
+    const comandaData = {
+      nrodecomanda: body.nrodecomanda,
+      codcli: body.codcli,
+      lista: body.lista,
+      codprod: body.codprod,
+      cantidad: body.cantidad,
+      monto: montoNumber,
+      codestado: body.codestado,
+      camion: body.camion,
+      entregado: body.entregado,
+      cantidadentregada: body.cantidadentregada,
+      fechadeentrega: body.fechadeentrega,
+      activo: body.activo,
+      usuario: body.usuario,
+      camionero: body.camionero,
+    };
+
+    if (body.fecha) {
+      comandaData.fecha = body.fecha;
+    }
+
+    const comanda = new Comanda(comandaData);
+
+    const comandaDB = await comanda.save();
+
+    if (montoNumber !== 0) {
+      cliente.saldo = (cliente.saldo || 0) + montoNumber;
+      await cliente.save();
+
+      const descripcionMovimiento = (body.descripcion || `Venta - Comanda ${
+        comandaDB.nrodecomanda || comandaDB._id
+      }`).trim();
+
+      // Registramos el movimiento en la cuenta corriente del cliente
+      await MovimientoCuentaCorriente.create({
+        cliente: cliente._id,
+        tipo: "Venta",
+        descripcion: descripcionMovimiento,
+        fecha: body.fecha ? new Date(body.fecha) : comandaDB.fecha,
+        monto: montoNumber,
+        saldo: cliente.saldo,
+        comanda: comandaDB._id,
       });
     }
 
@@ -422,7 +470,16 @@ app.post("/comandas", [verificaToken, verificaAdminPrev_role], function (req, re
       ok: true,
       comanda: comandaDB,
     });
-  });
+  } catch (error) {
+    console.log("POST Comanda error", error);
+    res.status(400).json({
+      ok: false,
+      err: {
+        message: "No se pudo registrar la comanda",
+        detalle: error.message,
+      },
+    });
+  }
 });
 app.put(
   "/comandas/:id",
