@@ -26,6 +26,7 @@ app.use(require("./ultimacomanda"));
 app.use(require("./tipomovimiento"));
 app.use(require("./invoice"));
 app.use(require("./remito"));
+app.use(require("./cuentacorriente"));
 
 app.use(require("./login"));
 
