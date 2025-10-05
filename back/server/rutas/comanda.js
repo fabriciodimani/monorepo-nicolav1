@@ -1,5 +1,7 @@
 const express = require("express");
 const Comanda = require("../modelos/comanda");
+const Cliente = require("../modelos/cliente");
+const MovimientoCuentaCorriente = require("../modelos/movimientoCuenta");
 
 const {
   verificaToken,
@@ -383,46 +385,96 @@ app.get("/comandasinformes", function (req, res) {
 
 
 //LO COMENTADO ES CON VERIFICACION DE TOKEN
-app.post("/comandas", [verificaToken, verificaAdminPrev_role], function (req, res) {
+app.post("/comandas", [verificaToken, verificaAdminPrev_role], async function (req, res) {
 // app.post("/comandas", function (req, res) {
   // res.json('POST usuarios')
 
-  let body = req.body;
-  console.log(body);
+  const body = req.body;
+  const monto = Number(body.monto || 0);
+  let comandaGuardada = null;
+  let cliente = null;
 
-  let comanda = new Comanda({
-    nrodecomanda: body.nrodecomanda,
-    codcli: body.codcli,
-    lista: body.lista,
-    codprod: body.codprod,
-    cantidad: body.cantidad,
-    monto: body.monto,
-    codestado: body.codestado,
-    camion: body.camion,
-    entregado: body.entregado,
-    cantidadentregada: body.cantidadentregada,
-    fechadeentrega: body.fechadeentrega,
-    activo: body.activo,
-    usuario: body.usuario,
-    camionero: body.camionero,
-
-    // usuario: req.usuario._id,
-  });
-
-  comanda.save((err, comandaDB) => {
-    console.log("POST Comanda", err);
-    if (err) {
-      return res.status(400).json({
+  try {
+    cliente = await Cliente.findById(body.codcli);
+    if (!cliente) {
+      return res.status(404).json({
         ok: false,
-        err,
+        err: {
+          message: "Cliente no encontrado",
+        },
+      });
+    }
+
+    const comanda = new Comanda({
+      nrodecomanda: body.nrodecomanda,
+      codcli: body.codcli,
+      lista: body.lista,
+      codprod: body.codprod,
+      cantidad: body.cantidad,
+      monto: monto,
+      codestado: body.codestado,
+      camion: body.camion,
+      entregado: body.entregado,
+      cantidadentregada: body.cantidadentregada,
+      fechadeentrega: body.fechadeentrega,
+      activo: body.activo,
+      usuario: body.usuario,
+      camionero: body.camionero,
+
+      // usuario: req.usuario._id,
+    });
+
+    comandaGuardada = await comanda.save();
+
+    // Actualiza el saldo del cliente y registra el movimiento asociado a la venta
+    if (!Number.isNaN(monto) && monto !== 0) {
+      cliente.saldo = (cliente.saldo || 0) + monto;
+      await cliente.save();
+
+      await MovimientoCuentaCorriente.create({
+        cliente: cliente._id,
+        tipo: "Venta",
+        descripcion:
+          body.descripcionMovimiento ||
+          `Comanda ${comandaGuardada.nrodecomanda || comandaGuardada._id}`,
+        fecha: comandaGuardada.fecha || new Date(),
+        monto: Math.abs(monto),
+        saldo: cliente.saldo,
+        comanda: comandaGuardada._id,
       });
     }
 
     res.json({
       ok: true,
-      comanda: comandaDB,
+      comanda: comandaGuardada,
     });
-  });
+  } catch (error) {
+    if (comandaGuardada) {
+      await Comanda.findByIdAndDelete(comandaGuardada._id).catch(() => {});
+    }
+
+    if (cliente && !Number.isNaN(monto) && monto !== 0) {
+      cliente.saldo = (cliente.saldo || 0) - monto;
+      await cliente.save().catch(() => {});
+    }
+
+    console.error("Error al crear la comanda y registrar movimiento", error);
+    const statusCode =
+      error.name === "ValidationError" || error.name === "MongoError"
+        ? 400
+        : 500;
+    const mensaje =
+      error.name === "ValidationError"
+        ? error.message
+        : "Error al crear la comanda";
+
+    res.status(statusCode).json({
+      ok: false,
+      err: {
+        message: mensaje,
+      },
+    });
+  }
 });
 app.put(
   "/comandas/:id",

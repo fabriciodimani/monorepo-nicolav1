@@ -53,6 +53,11 @@ let clienteSchema = new Schema({
     default: true,
   },
 
+  saldo: {
+    type: Number,
+    default: 0,
+  },
+
   lat: {
     type: Number,
   },
