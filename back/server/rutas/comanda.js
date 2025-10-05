@@ -1,5 +1,7 @@
 const express = require("express");
 const Comanda = require("../modelos/comanda");
+const Cliente = require("../modelos/cliente");
+const MovimientoCuentaCorriente = require("../modelos/movimientoCuentaCorriente");
 
 const {
   verificaToken,
@@ -383,46 +385,104 @@ app.get("/comandasinformes", function (req, res) {
 
 
 //LO COMENTADO ES CON VERIFICACION DE TOKEN
-app.post("/comandas", [verificaToken, verificaAdminPrev_role], function (req, res) {
-// app.post("/comandas", function (req, res) {
-  // res.json('POST usuarios')
+// Registra una nueva comanda y actualiza la cuenta corriente del cliente.
+app.post("/comandas", [verificaToken, verificaAdminPrev_role], async function (
+  req,
+  res
+) {
+  const body = req.body;
+  const monto = Number(body.monto) || 0;
+  const fechaComanda = body.fecha ? new Date(body.fecha) : null;
 
-  let body = req.body;
-  console.log(body);
+  if (!body.codcli) {
+    return res.status(400).json({
+      ok: false,
+      err: { message: "El cliente es obligatorio" },
+    });
+  }
 
-  let comanda = new Comanda({
-    nrodecomanda: body.nrodecomanda,
-    codcli: body.codcli,
-    lista: body.lista,
-    codprod: body.codprod,
-    cantidad: body.cantidad,
-    monto: body.monto,
-    codestado: body.codestado,
-    camion: body.camion,
-    entregado: body.entregado,
-    cantidadentregada: body.cantidadentregada,
-    fechadeentrega: body.fechadeentrega,
-    activo: body.activo,
-    usuario: body.usuario,
-    camionero: body.camionero,
+  if (Number.isNaN(monto) || monto < 0) {
+    return res.status(400).json({
+      ok: false,
+      err: { message: "El monto de la comanda es inválido" },
+    });
+  }
 
-    // usuario: req.usuario._id,
-  });
+  if (body.fecha && Number.isNaN(fechaComanda.getTime())) {
+    return res.status(400).json({
+      ok: false,
+      err: { message: "La fecha de la comanda es inválida" },
+    });
+  }
 
-  comanda.save((err, comandaDB) => {
-    console.log("POST Comanda", err);
-    if (err) {
-      return res.status(400).json({
+  try {
+    const comandaData = {
+      nrodecomanda: body.nrodecomanda,
+      codcli: body.codcli,
+      lista: body.lista,
+      codprod: body.codprod,
+      cantidad: body.cantidad,
+      monto: monto,
+      codestado: body.codestado,
+      camion: body.camion,
+      entregado: body.entregado,
+      cantidadentregada: body.cantidadentregada,
+      fechadeentrega: body.fechadeentrega,
+      activo: body.activo,
+      usuario: body.usuario,
+      camionero: body.camionero,
+    };
+
+    if (fechaComanda) {
+      comandaData.fecha = fechaComanda;
+    }
+
+    const comanda = new Comanda(comandaData);
+
+    const comandaDB = await comanda.save();
+
+    const cliente = await Cliente.findById(body.codcli);
+    if (!cliente) {
+      await Comanda.findByIdAndDelete(comandaDB._id);
+      return res.status(404).json({
         ok: false,
-        err,
+        err: { message: "Cliente no encontrado" },
       });
     }
+
+    cliente.saldo = (cliente.saldo || 0) + monto;
+    await cliente.save();
+
+    const movimiento = new MovimientoCuentaCorriente({
+      cliente: cliente._id,
+      tipo: "Venta",
+      descripcion:
+        body.descripcion ||
+        `Comanda ${comandaDB.nrodecomanda ? `#${comandaDB.nrodecomanda}` : ""}`.trim(),
+      fecha: fechaComanda || comandaDB.fecha,
+      monto: monto,
+      saldo: cliente.saldo,
+      comanda: comandaDB._id,
+    });
+
+    await movimiento.save();
 
     res.json({
       ok: true,
       comanda: comandaDB,
+      saldo: cliente.saldo,
+      movimiento,
     });
-  });
+  } catch (err) {
+    console.log("POST Comanda", err);
+    res.status(500).json({
+      ok: false,
+      err: {
+        message: "Error al crear la comanda",
+        detalle: err.message,
+      },
+    });
+  }
 });
 app.put(
   "/comandas/:id",
