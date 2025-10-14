@@ -114,12 +114,86 @@ app.get(
         cliente: clienteId,
       })
         .sort({ fecha: 1, createdAt: 1 })
+        .populate({
+          path: "comanda",
+          select: "nrodecomanda fecha lista",
+          options: { lean: true },
+        })
         .lean();
+
+      const movimientosAgrupados = [];
+      const comandasAgrupadas = new Map();
+
+      movimientos.forEach((movimiento) => {
+        const esVentaConComanda =
+          movimiento.tipo === "Venta" && movimiento.comanda;
+
+        if (!esVentaConComanda) {
+          movimientosAgrupados.push(movimiento);
+          return;
+        }
+
+        const numeroComanda =
+          movimiento.comanda?.nrodecomanda != null
+            ? movimiento.comanda.nrodecomanda.toString()
+            : movimiento.comanda?._id?.toString() || movimiento._id.toString();
+
+        let movimientoAgrupado = comandasAgrupadas.get(numeroComanda);
+
+        if (!movimientoAgrupado) {
+          movimientoAgrupado = {
+            ...movimiento,
+            monto: Number(movimiento.monto) || 0,
+            numeroComanda: movimiento.comanda?.nrodecomanda || null,
+          };
+
+          if (movimiento.comanda?.fecha) {
+            movimientoAgrupado.fecha = movimiento.comanda.fecha;
+          }
+
+          comandasAgrupadas.set(numeroComanda, movimientoAgrupado);
+          movimientosAgrupados.push(movimientoAgrupado);
+          return;
+        }
+
+        movimientoAgrupado.monto =
+          (Number(movimientoAgrupado.monto) || 0) +
+          (Number(movimiento.monto) || 0);
+        movimientoAgrupado.saldo = movimiento.saldo;
+
+        const fechaMovimiento = movimiento.fecha
+          ? new Date(movimiento.fecha)
+          : null;
+        const fechaAgrupada = movimientoAgrupado.fecha
+          ? new Date(movimientoAgrupado.fecha)
+          : null;
+
+        if (
+          fechaMovimiento &&
+          (!fechaAgrupada || fechaMovimiento > fechaAgrupada)
+        ) {
+          movimientoAgrupado.fecha = movimiento.fecha;
+        }
+      });
+
+      movimientosAgrupados.sort((a, b) => {
+        const fechaA = a.fecha ? new Date(a.fecha).getTime() : 0;
+        const fechaB = b.fecha ? new Date(b.fecha).getTime() : 0;
+
+        if (fechaA !== fechaB) {
+          return fechaA - fechaB;
+        }
+
+        const creadoA = a.createdAt ? new Date(a.createdAt).getTime() : fechaA;
+        const creadoB = b.createdAt ? new Date(b.createdAt).getTime() : fechaB;
+
+        return creadoA - creadoB;
+      });
 
       res.json({
         ok: true,
         saldo: cliente.saldo || 0,
-        movimientos,
+        movimientos: movimientosAgrupados,
       });
     } catch (error) {
       console.error("GET /cuentacorriente/:clienteId", error);
