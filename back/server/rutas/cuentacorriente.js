@@ -110,11 +110,108 @@ app.get(
         });
       }
 
-      const movimientos = await MovimientoCuentaCorriente.find({
+      const movimientosDB = await MovimientoCuentaCorriente.find({
         cliente: clienteId,
       })
         .sort({ fecha: 1, createdAt: 1 })
+        .populate({
+          path: "comanda",
+          select: "nrodecomanda fecha lista codprod cantidad monto",
+        })
         .lean();
+
+      const agrupados = [];
+      const ventasPorComanda = new Map();
+
+      movimientosDB.forEach((movimiento, index) => {
+        const {
+          tipo,
+          comanda,
+          descripcion,
+          monto,
+          fecha,
+          saldo: saldoMovimiento,
+          createdAt,
+          updatedAt,
+        } = movimiento;
+
+        const numeroComanda = comanda?.nrodecomanda;
+        const esVentaAgrupable =
+          tipo === "Venta" && numeroComanda !== undefined && numeroComanda !== null;
+
+        if (!esVentaAgrupable) {
+          agrupados.push(movimiento);
+          return;
+        }
+
+        const claveComanda = `${numeroComanda}`;
+        let ventaAgrupada = ventasPorComanda.get(claveComanda);
+
+        if (!ventaAgrupada) {
+          ventaAgrupada = {
+            _id: `comanda-${claveComanda}`,
+            tipo,
+            descripcion: descripcion || `Comanda #${numeroComanda}`,
+            monto: 0,
+            fecha,
+            saldo: saldoMovimiento,
+            numeroComanda,
+            comanda,
+            createdAt,
+            updatedAt,
+            __orden: index,
+          };
+          ventasPorComanda.set(claveComanda, ventaAgrupada);
+          agrupados.push(ventaAgrupada);
+        }
+
+        const montoNumerico = Number(monto) || 0;
+        ventaAgrupada.monto += montoNumerico;
+
+        if (descripcion) {
+          const descripcionPlaceholder = `Comanda #${numeroComanda}`;
+          if (
+            !ventaAgrupada.descripcion ||
+            ventaAgrupada.descripcion === descripcionPlaceholder
+          ) {
+            ventaAgrupada.descripcion = descripcion;
+          }
+        }
+
+        const fechaActual = fecha ? new Date(fecha) : null;
+        const fechaAgrupada = ventaAgrupada.fecha ? new Date(ventaAgrupada.fecha) : null;
+
+        if (!fechaAgrupada || (fechaActual && fechaActual >= fechaAgrupada)) {
+          ventaAgrupada.fecha = fecha;
+          ventaAgrupada.createdAt = createdAt;
+          ventaAgrupada.updatedAt = updatedAt;
+        }
+
+        ventaAgrupada.saldo = saldoMovimiento;
+      });
+
+      agrupados.sort((a, b) => {
+        const fechaA = a.fecha ? new Date(a.fecha).getTime() : 0;
+        const fechaB = b.fecha ? new Date(b.fecha).getTime() : 0;
+
+        if (fechaA !== fechaB) {
+          return fechaA - fechaB;
+        }
+
+        const createdA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const createdB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+
+        if (createdA !== createdB) {
+          return createdA - createdB;
+        }
+
+        const ordenA = typeof a.__orden === "number" ? a.__orden : Number.MAX_SAFE_INTEGER;
+        const ordenB = typeof b.__orden === "number" ? b.__orden : Number.MAX_SAFE_INTEGER;
+
+        return ordenA - ordenB;
+      });
+
+      const movimientos = agrupados.map(({ __orden, ...mov }) => mov);
 
       res.json({
         ok: true,
