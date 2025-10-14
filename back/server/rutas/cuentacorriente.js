@@ -114,12 +114,68 @@ app.get(
         cliente: clienteId,
       })
         .sort({ fecha: 1, createdAt: 1 })
+        .populate({ path: "comanda", select: "nrodecomanda fecha" })
         .lean();
+
+      const movimientosAgrupados = [];
+      const indiceComandas = new Map();
+
+      movimientos.forEach((movimiento) => {
+        const esVenta = movimiento.tipo === "Venta";
+        const comanda = movimiento.comanda;
+        const numeroComanda =
+          comanda && comanda.nrodecomanda !== undefined && comanda.nrodecomanda !== null
+            ? comanda.nrodecomanda
+            : null;
+
+        if (esVenta && numeroComanda !== null) {
+          const clave = numeroComanda.toString();
+          if (indiceComandas.has(clave)) {
+            const indice = indiceComandas.get(clave);
+            const movimientoExistente = movimientosAgrupados[indice];
+            const montoExistente = Number(movimientoExistente.monto) || 0;
+            const montoActual = Number(movimiento.monto) || 0;
+
+            movimientoExistente.monto = montoExistente + montoActual;
+            movimientoExistente.saldo = movimiento.saldo;
+
+            const fechaActual = movimiento.fecha
+              ? new Date(movimiento.fecha).getTime()
+              : null;
+            const fechaExistente = movimientoExistente.fecha
+              ? new Date(movimientoExistente.fecha).getTime()
+              : null;
+
+            if (fechaActual && (!fechaExistente || fechaActual > fechaExistente)) {
+              movimientoExistente.fecha = movimiento.fecha;
+            }
+
+            return;
+          }
+
+          const montoActual = Number(movimiento.monto) || 0;
+          const descripcionBase = movimiento.descripcion || "";
+          const descripcionComanda =
+            descripcionBase.trim().length > 0
+              ? descripcionBase
+              : `Comanda #${numeroComanda}`;
+
+          movimientosAgrupados.push({
+            ...movimiento,
+            monto: montoActual,
+            descripcion: descripcionComanda,
+          });
+          indiceComandas.set(clave, movimientosAgrupados.length - 1);
+          return;
+        }
+
+        movimientosAgrupados.push(movimiento);
+      });
 
       res.json({
         ok: true,
         saldo: cliente.saldo || 0,
-        movimientos,
+        movimientos: movimientosAgrupados,
       });
     } catch (error) {
       console.error("GET /cuentacorriente/:clienteId", error);
