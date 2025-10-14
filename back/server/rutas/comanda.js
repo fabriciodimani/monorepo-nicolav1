@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const Comanda = require("../modelos/comanda");
 const Cliente = require("../modelos/cliente");
 const MovimientoCuentaCorriente = require("../modelos/movimientoCuentaCorriente");
@@ -453,19 +454,113 @@ app.post("/comandas", [verificaToken, verificaAdminPrev_role], async function (
     cliente.saldo = (cliente.saldo || 0) + monto;
     await cliente.save();
 
-    const movimiento = new MovimientoCuentaCorriente({
-      cliente: cliente._id,
-      tipo: "Venta",
-      descripcion:
-        body.descripcion ||
-        `Comanda ${comandaDB.nrodecomanda ? `#${comandaDB.nrodecomanda}` : ""}`.trim(),
-      fecha: fechaComanda || comandaDB.fecha,
-      monto: monto,
-      saldo: cliente.saldo,
-      comanda: comandaDB._id,
-    });
+    const descripcionMovimiento = (body.descripcion || "")
+      .toString()
+      .trim()
+      .replace(/\s+/g, " ") ||
+      (comandaDB.nrodecomanda
+        ? `Comanda #${comandaDB.nrodecomanda}`
+        : "Comanda");
 
-    await movimiento.save();
+    const numeroComanda =
+      typeof comandaDB.nrodecomanda === "number" &&
+      !Number.isNaN(comandaDB.nrodecomanda)
+        ? comandaDB.nrodecomanda
+        : null;
+
+    let movimiento;
+
+    if (numeroComanda !== null) {
+      const filtrosActivos = {
+        $or: [{ activo: { $exists: false } }, { activo: true }],
+      };
+
+      const totales = await Comanda.aggregate([
+        {
+          $match: {
+            codcli: new mongoose.Types.ObjectId(cliente._id.toString()),
+            nrodecomanda: numeroComanda,
+            ...filtrosActivos,
+          },
+        },
+        {
+          $group: {
+            _id: "$nrodecomanda",
+            total: { $sum: { $ifNull: ["$monto", 0] } },
+            ultimaFecha: { $max: "$fecha" },
+          },
+        },
+      ]);
+
+      const totalComanda = Number(totales[0]?.total) || monto;
+      const fechaAgrupada =
+        (totales[0]?.ultimaFecha && new Date(totales[0].ultimaFecha)) ||
+        fechaComanda ||
+        comandaDB.fecha;
+
+      movimiento = await MovimientoCuentaCorriente.findOne({
+        cliente: cliente._id,
+        tipo: "Venta",
+        comandaNumero: numeroComanda,
+      });
+
+      if (!movimiento) {
+        movimiento = new MovimientoCuentaCorriente({
+          cliente: cliente._id,
+          tipo: "Venta",
+          descripcion: descripcionMovimiento,
+          fecha: fechaAgrupada,
+          monto: totalComanda,
+          saldo: cliente.saldo,
+          comanda: comandaDB._id,
+          comandaNumero: numeroComanda,
+        });
+
+        movimiento = await movimiento.save();
+      } else {
+        const montoAnterior = Number(movimiento.monto) || 0;
+        const saldoAnterior = Number(movimiento.saldo) || 0;
+        const diferencia = totalComanda - montoAnterior;
+
+        movimiento.monto = totalComanda;
+        movimiento.descripcion = descripcionMovimiento;
+        movimiento.fecha = fechaAgrupada;
+        movimiento.comandaNumero = numeroComanda;
+
+        if (!movimiento.comanda) {
+          movimiento.comanda = comandaDB._id;
+        }
+
+        if (diferencia !== 0) {
+          movimiento.saldo = saldoAnterior + diferencia;
+        }
+
+        movimiento = await movimiento.save();
+
+        if (diferencia !== 0) {
+          await MovimientoCuentaCorriente.updateMany(
+            {
+              cliente: cliente._id,
+              _id: { $ne: movimiento._id },
+              createdAt: { $gt: movimiento.createdAt },
+            },
+            { $inc: { saldo: diferencia } }
+          );
+        }
+      }
+    } else {
+      movimiento = new MovimientoCuentaCorriente({
+        cliente: cliente._id,
+        tipo: "Venta",
+        descripcion: descripcionMovimiento,
+        fecha: fechaComanda || comandaDB.fecha,
+        monto: monto,
+        saldo: cliente.saldo,
+        comanda: comandaDB._id,
+      });
+
+      movimiento = await movimiento.save();
+    }
 
     res.json({
       ok: true,
