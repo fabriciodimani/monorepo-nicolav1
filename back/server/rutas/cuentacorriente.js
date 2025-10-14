@@ -126,6 +126,42 @@ app.get(
 
       const ventasAgrupadas = new Map();
 
+      const obtenerMontoMovimiento = (movimiento) => {
+        const monto = Number(movimiento && movimiento.monto);
+        return Number.isFinite(monto) && monto > 0 ? monto : 0;
+      };
+
+      const obtenerImpactoMovimiento = (movimiento) => {
+        const montoMovimiento = obtenerMontoMovimiento(movimiento);
+
+        if (!montoMovimiento) {
+          return 0;
+        }
+
+        const tipoMovimiento = (movimiento.tipo || "").toLowerCase();
+
+        if (tipoMovimiento.includes("pago")) {
+          return -montoMovimiento;
+        }
+
+        if (tipoMovimiento.includes("nota de crédito")) {
+          return -montoMovimiento;
+        }
+
+        if (tipoMovimiento.includes("nota de credito")) {
+          return -montoMovimiento;
+        }
+
+        if (tipoMovimiento.includes("devol")) {
+          return -montoMovimiento;
+        }
+
+        // Las anulaciones deben incrementar el saldo según lo indicado por el usuario.
+        // Para el resto de los movimientos (ventas, ajustes positivos, etc.)
+        // tratamos el monto como un incremento del saldo.
+        return montoMovimiento;
+      };
+
       movimientos.forEach((movimiento) => {
         const comanda =
           movimiento && typeof movimiento.comanda === "object"
@@ -237,10 +273,31 @@ app.get(
         }
       });
 
+      let saldoAcumulado = 0;
+      const saldoCliente = Number(cliente.saldo) || 0;
+
+      const impactoTotal = movimientosAgrupados.reduce(
+        (acumulador, movimiento) => acumulador + obtenerImpactoMovimiento(movimiento),
+        0
+      );
+
+      const saldoInicial = saldoCliente - impactoTotal;
+      saldoAcumulado = saldoInicial;
+
+      const movimientosConSaldoRecalculado = movimientosAgrupados.map(
+        (movimientoOriginal) => {
+          const movimiento = { ...movimientoOriginal };
+          const impacto = obtenerImpactoMovimiento(movimiento);
+          saldoAcumulado += impacto;
+          movimiento.saldo = saldoAcumulado;
+          return movimiento;
+        }
+      );
+
       res.json({
         ok: true,
-        saldo: cliente.saldo || 0,
-        movimientos: movimientosAgrupados,
+        saldo: saldoCliente,
+        movimientos: movimientosConSaldoRecalculado,
       });
     } catch (error) {
       console.error("GET /cuentacorriente/:clienteId", error);
