@@ -1,4 +1,5 @@
 import React from "react";
+import { calcularSaldoMovimiento } from "../utils/cuentaCorriente";
 
 const formatCurrency = (valor) => {
   const numero = Number(valor) || 0;
@@ -37,6 +38,16 @@ const CuentaCorrienteTable = ({ movimientos = [], loading = false }) => {
     );
   }
 
+  const movimientosCalculados = movimientos.map((movimiento) => ({
+    ...movimiento,
+    saldoCalculado: calcularSaldoMovimiento(movimiento),
+  }));
+
+  const saldoTotal = movimientosCalculados.reduce(
+    (total, movimiento) => total + movimiento.saldoCalculado,
+    0
+  );
+
   return (
     <div className="table-responsive">
       <table className="table table-striped table-hover">
@@ -50,16 +61,28 @@ const CuentaCorrienteTable = ({ movimientos = [], loading = false }) => {
           </tr>
         </thead>
         <tbody>
-          {movimientos.map((movimiento, index) => (
+          {movimientosCalculados.map((movimiento, index) => (
             <tr key={movimiento._id || `${movimiento.fecha}-${index}`}>
               <td>{movimiento.tipo}</td>
               <td>{movimiento.descripcion || ""}</td>
               <td className="text-right">{formatCurrency(movimiento.monto)}</td>
               <td>{formatDate(movimiento.fecha)}</td>
-              <td className="text-right">{formatCurrency(movimiento.saldo)}</td>
+              <td className="text-right">
+                {formatCurrency(movimiento.saldoCalculado)}
+              </td>
             </tr>
           ))}
         </tbody>
+        <tfoot>
+          <tr>
+            <td colSpan="4" className="text-right font-weight-bold">
+              Total
+            </td>
+            <td className="text-right font-weight-bold">
+              {formatCurrency(saldoTotal)}
+            </td>
+          </tr>
+        </tfoot>
       </table>
     </div>
   );
