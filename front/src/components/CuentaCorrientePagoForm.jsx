@@ -93,9 +93,9 @@ const CuentaCorrientePagoForm = ({
 
   return (
     <form onSubmit={handleSubmit} className="card shadow-sm">
-      <div className="card-body">
+      <div className="card-body d-flex flex-column gap-3">
         <h5 className="card-title">Registrar pago</h5>
-        <div className="form-group">
+        <div className="form-group mb-3">
           <label htmlFor="clienteId">Cliente</label>
           <select
             id="clienteId"
@@ -114,7 +114,7 @@ const CuentaCorrientePagoForm = ({
           </select>
         </div>
 
-        <div className="form-group">
+        <div className="form-group mb-3">
           <label htmlFor="fecha">Fecha</label>
           <input
             type="date"
@@ -127,7 +127,7 @@ const CuentaCorrientePagoForm = ({
           />
         </div>
 
-        <div className="form-group">
+        <div className="form-group mb-3">
           <label htmlFor="descripcion">Descripción</label>
           <input
             type="text"
@@ -141,7 +141,7 @@ const CuentaCorrientePagoForm = ({
           />
         </div>
 
-        <div className="form-group">
+        <div className="form-group mb-4">
           <label htmlFor="monto">Monto</label>
           <input
             type="number"
@@ -163,7 +163,11 @@ const CuentaCorrientePagoForm = ({
           </div>
         )}
 
-        <button type="submit" className="btn btn-primary" disabled={loading}>
+        <button
+          type="submit"
+          className="btn btn-primary mt-2"
+          disabled={loading}
+        >
           {loading ? "Registrando..." : "Registrar pago"}
         </button>
       </div>

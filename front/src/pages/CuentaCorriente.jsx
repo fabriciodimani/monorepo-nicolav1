@@ -8,6 +8,7 @@ import {
   getMovimientosCuentaCorriente,
   registrarPagoCuentaCorriente,
 } from "../helpers/rutaCuentaCorriente";
+import { calcularSaldoTotal } from "../utils/cuentaCorriente";
 import "../css/admin.css";
 
 const formatCurrency = (valor) => {
@@ -76,8 +77,9 @@ const CuentaCorriente = () => {
     try {
       const respuesta = await getMovimientosCuentaCorriente(clienteId);
       if (respuesta.ok) {
-        setMovimientos(respuesta.movimientos || []);
-        setSaldo(respuesta.saldo || 0);
+        const movimientosRecibidos = respuesta.movimientos || [];
+        setMovimientos(movimientosRecibidos);
+        setSaldo(calcularSaldoTotal(movimientosRecibidos));
       } else {
         const mensajeError =
           respuesta.err?.message || "No fue posible obtener los movimientos";
