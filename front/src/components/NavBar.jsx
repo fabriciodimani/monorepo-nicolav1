@@ -228,6 +228,12 @@ const NavBar = () => {
               )}
 
               {(payload.role === "ADMIN_ROLE" || payload.role === "ADMIN_SUP") && (
+                <Link to="/CuentaCorriente" className="nav-link ml-3 mt-2">
+                  Cuenta Corriente
+                </Link>
+              )}
+
+              {(payload.role === "ADMIN_ROLE" || payload.role === "ADMIN_SUP") && (
                 <NavDropdown
                   title="Altas"
                   id="navbarScrollingDropdown"
