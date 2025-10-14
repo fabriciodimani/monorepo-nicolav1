@@ -114,12 +114,138 @@ app.get(
         cliente: clienteId,
       })
         .sort({ fecha: 1, createdAt: 1 })
+        .populate({
+          path: "comanda",
+          select: "nrodecomanda cantidad monto codcli",
+          populate: {
+            path: "codcli",
+            select: "razonsocial nombre apellido",
+          },
+        })
         .lean();
+
+      const ventasAgrupadas = new Map();
+
+      movimientos.forEach((movimiento) => {
+        const comanda =
+          movimiento && typeof movimiento.comanda === "object"
+            ? movimiento.comanda
+            : null;
+
+        if (
+          movimiento.tipo === "Venta" &&
+          comanda &&
+          comanda.nrodecomanda !== undefined &&
+          comanda.nrodecomanda !== null
+        ) {
+          const nrodecomanda = comanda.nrodecomanda;
+          const clienteMovimientoId =
+            movimiento.cliente !== undefined && movimiento.cliente !== null
+              ? String(movimiento.cliente)
+              : "";
+          const cantidad = Number(comanda.cantidad) || 0;
+          const montoUnitario = Number(comanda.monto) || 0;
+          const subtotal = cantidad * montoUnitario;
+
+          if (!ventasAgrupadas.has(nrodecomanda)) {
+            const clienteComanda =
+              comanda.codcli && typeof comanda.codcli === "object"
+                ? { ...comanda.codcli }
+                : null;
+
+            ventasAgrupadas.set(nrodecomanda, {
+              _id: `comanda-${clienteMovimientoId}-${nrodecomanda}`,
+              cliente: clienteComanda,
+              clienteId: movimiento.cliente,
+              tipo: movimiento.tipo,
+              descripcion:
+                movimiento.descripcion || `Comanda #${nrodecomanda}`,
+              fecha: movimiento.fecha,
+              saldo: movimiento.saldo,
+              monto: 0,
+              nrodecomanda,
+              comanda: {
+                nrodecomanda,
+                detalles: [],
+              },
+            });
+          }
+
+          const ventaAgrupada = ventasAgrupadas.get(nrodecomanda);
+
+          ventaAgrupada.monto += subtotal;
+          ventaAgrupada.saldo = movimiento.saldo;
+          if (
+            !ventaAgrupada.fecha ||
+            new Date(movimiento.fecha) < new Date(ventaAgrupada.fecha)
+          ) {
+            ventaAgrupada.fecha = movimiento.fecha;
+          }
+
+          const detalle = {
+            cantidad,
+            montoUnitario,
+            subtotal,
+          };
+
+          if (comanda._id) {
+            detalle.comandaId = comanda._id;
+          }
+
+          ventaAgrupada.comanda.detalles.push(detalle);
+        }
+      });
+
+      const movimientosAgrupados = [];
+      const comandasIncluidas = new Set();
+
+      movimientos.forEach((movimiento) => {
+        const comanda =
+          movimiento && typeof movimiento.comanda === "object"
+            ? movimiento.comanda
+            : null;
+
+        if (
+          movimiento.tipo === "Venta" &&
+          comanda &&
+          comanda.nrodecomanda !== undefined &&
+          comanda.nrodecomanda !== null
+        ) {
+          const nrodecomanda = comanda.nrodecomanda;
+          if (!comandasIncluidas.has(nrodecomanda)) {
+            const ventaAgrupada = ventasAgrupadas.get(nrodecomanda);
+            movimientosAgrupados.push(ventaAgrupada || movimiento);
+            comandasIncluidas.add(nrodecomanda);
+          }
+        } else {
+          movimientosAgrupados.push(movimiento);
+        }
+      });
+
+      let saldoAcumulado = 0;
+      const movimientosConSaldo = movimientosAgrupados.map((movimiento) => {
+        const movimientoNormalizado = { ...movimiento };
+        const montoMovimiento = Number(movimientoNormalizado.monto) || 0;
+
+        if (movimientoNormalizado.tipo === "Venta") {
+          saldoAcumulado += montoMovimiento;
+        } else if (movimientoNormalizado.tipo === "Pago") {
+          saldoAcumulado -= montoMovimiento;
+        } else if (
+          Object.prototype.hasOwnProperty.call(movimientoNormalizado, "saldo")
+        ) {
+          saldoAcumulado = Number(movimientoNormalizado.saldo) || saldoAcumulado;
+        }
+
+        movimientoNormalizado.saldo = saldoAcumulado;
+
+        return movimientoNormalizado;
+      });
 
       res.json({
         ok: true,
         saldo: cliente.saldo || 0,
-        movimientos,
+        movimientos: movimientosConSaldo,
       });
     } catch (error) {
       console.error("GET /cuentacorriente/:clienteId", error);
