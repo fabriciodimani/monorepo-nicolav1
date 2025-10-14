@@ -2,6 +2,10 @@ const express = require("express");
 const Cliente = require("../modelos/cliente");
 const MovimientoCuentaCorriente = require("../modelos/movimientoCuentaCorriente");
 const { verificaToken } = require("../middlewares/autenticacion");
+const comandaRouter = require("./comanda");
+
+const agruparMovimientosPorNumeroComanda =
+  comandaRouter.agruparMovimientosPorNumeroComanda || ((ventas) => ventas);
 
 const app = express();
 
@@ -114,12 +118,77 @@ app.get(
         cliente: clienteId,
       })
         .sort({ fecha: 1, createdAt: 1 })
+        .populate({ path: "comanda", select: "nrodecomanda fecha" })
         .lean();
+
+      const ventas = [];
+      const otrosMovimientos = [];
+
+      movimientos.forEach((movimiento) => {
+        const numeroComanda = movimiento.comanda?.nrodecomanda;
+
+        if (
+          movimiento.tipo === "Venta" &&
+          numeroComanda !== undefined &&
+          numeroComanda !== null
+        ) {
+          ventas.push(movimiento);
+        } else {
+          otrosMovimientos.push(movimiento);
+        }
+      });
+
+      const ventasAgrupadas = agruparMovimientosPorNumeroComanda(ventas);
+
+      const movimientosCombinados = [...otrosMovimientos, ...ventasAgrupadas];
+
+      const obtenerTiempo = (valor) => {
+        if (!valor) {
+          return 0;
+        }
+
+        const fecha = new Date(valor);
+        const tiempo = fecha.getTime();
+
+        return Number.isNaN(tiempo) ? 0 : tiempo;
+      };
+
+      let saldoCalculado = 0;
+
+      const movimientosAgrupados = movimientosCombinados
+        .map((movimiento) => ({
+          ...movimiento,
+          monto: Number(movimiento.monto) || 0,
+        }))
+        .sort((a, b) => {
+          const fechaA = obtenerTiempo(a.fecha);
+          const fechaB = obtenerTiempo(b.fecha);
+
+          if (fechaA !== fechaB) {
+            return fechaA - fechaB;
+          }
+
+          const creadoA = obtenerTiempo(a.createdAt);
+          const creadoB = obtenerTiempo(b.createdAt);
+
+          return creadoA - creadoB;
+        })
+        .map((movimiento) => {
+          const esPago = movimiento.tipo === "Pago";
+          const monto = movimiento.monto;
+
+          saldoCalculado += esPago ? -monto : monto;
+
+          return {
+            ...movimiento,
+            saldo: saldoCalculado,
+          };
+        });
 
       res.json({
         ok: true,
-        saldo: cliente.saldo || 0,
-        movimientos,
+        saldo: saldoCalculado,
+        movimientos: movimientosAgrupados,
       });
     } catch (error) {
       console.error("GET /cuentacorriente/:clienteId", error);
