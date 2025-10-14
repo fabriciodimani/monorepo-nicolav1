@@ -14,6 +14,24 @@ const {
 const _ = require("underscore");
 const app = express();
 
+const obtenerNumero = (valor, defecto = 0) => {
+  const numero = Number(valor);
+  return Number.isFinite(numero) ? numero : defecto;
+};
+
+const calcularSubtotalRegistro = (registro = {}) => {
+  const cantidad = obtenerNumero(registro.cantidad, 0);
+  const monto = obtenerNumero(registro.monto, 0);
+
+  const subtotalCalculado = obtenerNumero(cantidad * monto, 0);
+
+  if (subtotalCalculado > 0) {
+    return subtotalCalculado;
+  }
+
+  return monto > 0 ? monto : 0;
+};
+
 //TODAS LAS COMANDAS
 app.get("/comandas", function (req, res) {
   // res.json("GET usuarios");
@@ -391,7 +409,7 @@ app.post("/comandas", [verificaToken, verificaAdminPrev_role], async function (
   res
 ) {
   const body = req.body;
-  const monto = Number(body.monto) || 0;
+  const monto = obtenerNumero(body.monto, 0);
   const cantidadParseada = Number(body.cantidad);
   const cantidad = Number.isFinite(cantidadParseada)
     ? cantidadParseada
@@ -426,6 +444,12 @@ app.post("/comandas", [verificaToken, verificaAdminPrev_role], async function (
     });
   }
 
+  let comandaDB = null;
+  let subtotalMovimiento = 0;
+  let movimientoRegistrado = null;
+  let clienteActualizado = null;
+  let saldoActualizado = false;
+
   try {
     const comandaData = {
       nrodecomanda: body.nrodecomanda,
@@ -450,10 +474,17 @@ app.post("/comandas", [verificaToken, verificaAdminPrev_role], async function (
 
     const comanda = new Comanda(comandaData);
 
-    const comandaDB = await comanda.save();
+    comandaDB = await comanda.save();
 
-    const cliente = await Cliente.findById(body.codcli);
-    if (!cliente) {
+    subtotalMovimiento = calcularSubtotalRegistro({ cantidad, monto });
+
+    clienteActualizado = await Cliente.findByIdAndUpdate(
+      body.codcli,
+      { $inc: { saldo: subtotalMovimiento } },
+      { new: true }
+    );
+
+    if (!clienteActualizado) {
       await Comanda.findByIdAndDelete(comandaDB._id);
       return res.status(404).json({
         ok: false,
@@ -461,32 +492,69 @@ app.post("/comandas", [verificaToken, verificaAdminPrev_role], async function (
       });
     }
 
-    const subtotalMovimiento = cantidad * monto;
-    cliente.saldo = (cliente.saldo || 0) + subtotalMovimiento;
-    await cliente.save();
+    saldoActualizado = true;
 
-    const movimiento = new MovimientoCuentaCorriente({
-      cliente: cliente._id,
+    movimientoRegistrado = new MovimientoCuentaCorriente({
+      cliente: clienteActualizado._id,
       tipo: "Venta",
       descripcion:
         body.descripcion ||
         `Comanda ${comandaDB.nrodecomanda ? `#${comandaDB.nrodecomanda}` : ""}`.trim(),
       fecha: fechaComanda || comandaDB.fecha,
       monto: subtotalMovimiento,
-      saldo: cliente.saldo,
+      saldo: clienteActualizado.saldo,
       comanda: comandaDB._id,
     });
 
-    await movimiento.save();
+    await movimientoRegistrado.save();
+
+    const comandasMismoNumero = await Comanda.find({
+      nrodecomanda: comandaDB.nrodecomanda,
+      codcli: comandaDB.codcli,
+      activo: true,
+    }).select("cantidad monto");
+
+    const totalComanda = comandasMismoNumero.reduce((total, registro) => {
+      return total + calcularSubtotalRegistro(registro);
+    }, 0);
 
     res.json({
       ok: true,
       comanda: comandaDB,
-      saldo: cliente.saldo,
-      movimiento,
+      saldo: clienteActualizado.saldo,
+      movimiento: movimientoRegistrado,
+      totalComanda,
     });
   } catch (err) {
     console.log("POST Comanda", err);
+    if (comandaDB && comandaDB._id) {
+      try {
+        await Comanda.findByIdAndDelete(comandaDB._id);
+      } catch (error) {
+        console.error("Error al revertir comanda", error);
+      }
+    }
+
+    if (saldoActualizado && subtotalMovimiento && body.codcli) {
+      try {
+        await Cliente.findByIdAndUpdate(body.codcli, {
+          $inc: { saldo: -subtotalMovimiento },
+        });
+      } catch (error) {
+        console.error("Error al revertir saldo de cliente", error);
+      }
+    }
+
+    if (movimientoRegistrado && movimientoRegistrado._id) {
+      try {
+        await MovimientoCuentaCorriente.findByIdAndDelete(
+          movimientoRegistrado._id
+        );
+      } catch (error) {
+        console.error("Error al revertir movimiento", error);
+      }
+    }
+
     res.status(500).json({
       ok: false,
       err: {
