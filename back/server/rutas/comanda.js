@@ -14,6 +14,80 @@ const {
 const _ = require("underscore");
 const app = express();
 
+const obtenerTiempoSeguro = (valor) => {
+  if (!valor) {
+    return 0;
+  }
+
+  const fecha = new Date(valor);
+  const tiempo = fecha.getTime();
+
+  return Number.isNaN(tiempo) ? 0 : tiempo;
+};
+
+const agruparMovimientosPorNumeroComanda = (ventas = []) => {
+  const ventasAgrupadas = new Map();
+
+  ventas.forEach((movimiento) => {
+    const numeroComanda = movimiento.comanda?.nrodecomanda;
+
+    if (numeroComanda === undefined || numeroComanda === null) {
+      return;
+    }
+
+    const monto = Number(movimiento.monto) || 0;
+    const clave = `venta-${numeroComanda}`;
+    const existente = ventasAgrupadas.get(clave);
+
+    if (!existente) {
+      ventasAgrupadas.set(clave, {
+        ...movimiento,
+        monto,
+        saldo: monto,
+        descripcion:
+          movimiento.descripcion || `Comanda #${numeroComanda}`,
+        numeroComanda,
+      });
+      return;
+    }
+
+    existente.monto += monto;
+    existente.saldo += monto;
+
+    if (movimiento.descripcion) {
+      existente.descripcion = movimiento.descripcion;
+    }
+
+    const fechaMovimiento = obtenerTiempoSeguro(movimiento.fecha);
+    const fechaExistente = obtenerTiempoSeguro(existente.fecha);
+
+    if (fechaMovimiento >= fechaExistente) {
+      existente.fecha = movimiento.fecha;
+    }
+
+    const creadoMovimiento = obtenerTiempoSeguro(movimiento.createdAt);
+    const creadoExistente = obtenerTiempoSeguro(existente.createdAt);
+
+    if (creadoMovimiento >= creadoExistente) {
+      existente.createdAt = movimiento.createdAt;
+      existente._id = movimiento._id;
+      existente.comanda = movimiento.comanda;
+    }
+
+    const actualizadoMovimiento = obtenerTiempoSeguro(movimiento.updatedAt);
+    const actualizadoExistente = obtenerTiempoSeguro(existente.updatedAt);
+
+    if (actualizadoMovimiento >= actualizadoExistente) {
+      existente.updatedAt = movimiento.updatedAt;
+    }
+  });
+
+  return Array.from(ventasAgrupadas.values()).map((movimientoAgrupado) => {
+    const { numeroComanda, ...restoMovimiento } = movimientoAgrupado;
+    return restoMovimiento;
+  });
+};
+
 //TODAS LAS COMANDAS
 app.get("/comandas", function (req, res) {
   // res.json("GET usuarios");
@@ -553,5 +627,7 @@ app.delete(
     );
   }
 );
+
+app.agruparMovimientosPorNumeroComanda = agruparMovimientosPorNumeroComanda;
 
 module.exports = app;

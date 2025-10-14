@@ -2,6 +2,10 @@ const express = require("express");
 const Cliente = require("../modelos/cliente");
 const MovimientoCuentaCorriente = require("../modelos/movimientoCuentaCorriente");
 const { verificaToken } = require("../middlewares/autenticacion");
+const comandaRouter = require("./comanda");
+
+const agruparMovimientosPorNumeroComanda =
+  comandaRouter.agruparMovimientosPorNumeroComanda || ((ventas) => ventas);
 
 const app = express();
 
@@ -117,8 +121,26 @@ app.get(
         .populate({ path: "comanda", select: "nrodecomanda fecha" })
         .lean();
 
-      const ventasAgrupadas = new Map();
-      const movimientosProcesados = [];
+      const ventas = [];
+      const otrosMovimientos = [];
+
+      movimientos.forEach((movimiento) => {
+        const numeroComanda = movimiento.comanda?.nrodecomanda;
+
+        if (
+          movimiento.tipo === "Venta" &&
+          numeroComanda !== undefined &&
+          numeroComanda !== null
+        ) {
+          ventas.push(movimiento);
+        } else {
+          otrosMovimientos.push(movimiento);
+        }
+      });
+
+      const ventasAgrupadas = agruparMovimientosPorNumeroComanda(ventas);
+
+      const movimientosCombinados = [...otrosMovimientos, ...ventasAgrupadas];
 
       const obtenerTiempo = (valor) => {
         if (!valor) {
@@ -131,87 +153,41 @@ app.get(
         return Number.isNaN(tiempo) ? 0 : tiempo;
       };
 
-      movimientos.forEach((movimiento) => {
-        const monto = Number(movimiento.monto) || 0;
-        const saldo = Number(movimiento.saldo) || 0;
-        const numeroComanda = movimiento.comanda?.nrodecomanda;
+      let saldoCalculado = 0;
 
-        if (
-          movimiento.tipo === "Venta" &&
-          numeroComanda !== undefined &&
-          numeroComanda !== null
-        ) {
-          const clave = `venta-${numeroComanda}`;
-          const existente = ventasAgrupadas.get(clave);
+      const movimientosAgrupados = movimientosCombinados
+        .map((movimiento) => ({
+          ...movimiento,
+          monto: Number(movimiento.monto) || 0,
+        }))
+        .sort((a, b) => {
+          const fechaA = obtenerTiempo(a.fecha);
+          const fechaB = obtenerTiempo(b.fecha);
 
-          if (!existente) {
-            ventasAgrupadas.set(clave, {
-              ...movimiento,
-              monto,
-              saldo,
-              descripcion:
-                movimiento.descripcion || `Comanda #${numeroComanda}`,
-              numeroComanda,
-            });
-          } else {
-            existente.monto += monto;
-            existente.saldo = saldo;
-
-            if (movimiento.descripcion) {
-              existente.descripcion = movimiento.descripcion;
-            }
-
-            const fechaMovimiento = obtenerTiempo(movimiento.fecha);
-            const fechaExistente = obtenerTiempo(existente.fecha);
-
-            if (fechaMovimiento >= fechaExistente) {
-              existente.fecha = movimiento.fecha;
-            }
-
-            const creadoMovimiento = obtenerTiempo(movimiento.createdAt);
-            const creadoExistente = obtenerTiempo(existente.createdAt);
-
-            if (creadoMovimiento >= creadoExistente) {
-              existente.createdAt = movimiento.createdAt;
-              existente._id = movimiento._id;
-              existente.comanda = movimiento.comanda;
-            }
-
-            const actualizadoMovimiento = obtenerTiempo(movimiento.updatedAt);
-            const actualizadoExistente = obtenerTiempo(existente.updatedAt);
-
-            if (actualizadoMovimiento >= actualizadoExistente) {
-              existente.updatedAt = movimiento.updatedAt;
-            }
+          if (fechaA !== fechaB) {
+            return fechaA - fechaB;
           }
-        } else {
-          movimientosProcesados.push(movimiento);
-        }
-      });
 
-      const movimientosAgrupados = [
-        ...movimientosProcesados,
-        ...Array.from(ventasAgrupadas.values()).map((movimiento) => {
-          const { numeroComanda, ...restoMovimiento } = movimiento;
-          return restoMovimiento;
-        }),
-      ].sort((a, b) => {
-        const fechaA = obtenerTiempo(a.fecha);
-        const fechaB = obtenerTiempo(b.fecha);
+          const creadoA = obtenerTiempo(a.createdAt);
+          const creadoB = obtenerTiempo(b.createdAt);
 
-        if (fechaA !== fechaB) {
-          return fechaA - fechaB;
-        }
+          return creadoA - creadoB;
+        })
+        .map((movimiento) => {
+          const esPago = movimiento.tipo === "Pago";
+          const monto = movimiento.monto;
 
-        const creadoA = obtenerTiempo(a.createdAt);
-        const creadoB = obtenerTiempo(b.createdAt);
+          saldoCalculado += esPago ? -monto : monto;
 
-        return creadoA - creadoB;
-      });
+          return {
+            ...movimiento,
+            saldo: saldoCalculado,
+          };
+        });
 
       res.json({
         ok: true,
-        saldo: cliente.saldo || 0,
+        saldo: saldoCalculado,
         movimientos: movimientosAgrupados,
       });
     } catch (error) {
