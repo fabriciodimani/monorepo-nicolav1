@@ -20,6 +20,62 @@ const formatDate = (fecha) => {
   return date.toLocaleDateString("es-AR");
 };
 
+const obtenerNumeroComanda = (movimiento = {}) => {
+  if (movimiento.nrodecomanda !== undefined && movimiento.nrodecomanda !== null) {
+    return movimiento.nrodecomanda;
+  }
+
+  if (
+    movimiento.comanda &&
+    typeof movimiento.comanda === "object" &&
+    movimiento.comanda.nrodecomanda !== undefined &&
+    movimiento.comanda.nrodecomanda !== null
+  ) {
+    return movimiento.comanda.nrodecomanda;
+  }
+
+  return "";
+};
+
+const esClienteValido = (cliente) => {
+  if (!cliente || typeof cliente !== "object") {
+    return false;
+  }
+
+  return ["razonsocial", "nombre", "apellido"].some((propiedad) =>
+    Object.prototype.hasOwnProperty.call(cliente, propiedad)
+  );
+};
+
+const obtenerClienteDeMovimiento = (movimiento = {}) => {
+  if (esClienteValido(movimiento.cliente)) {
+    return movimiento.cliente;
+  }
+
+  if (
+    movimiento.comanda &&
+    typeof movimiento.comanda === "object" &&
+    esClienteValido(movimiento.comanda.codcli)
+  ) {
+    return movimiento.comanda.codcli;
+  }
+
+  return null;
+};
+
+const obtenerNombreCliente = (cliente) => {
+  if (!cliente) {
+    return "";
+  }
+
+  if (cliente.razonsocial) {
+    return cliente.razonsocial;
+  }
+
+  const partes = [cliente.nombre, cliente.apellido].filter(Boolean);
+  return partes.join(" ").trim();
+};
+
 const CuentaCorrienteTable = ({ movimientos = [], loading = false }) => {
   if (loading) {
     return (
@@ -42,6 +98,8 @@ const CuentaCorrienteTable = ({ movimientos = [], loading = false }) => {
       <table className="table table-striped table-hover">
         <thead className="thead-light">
           <tr>
+            <th>Comanda</th>
+            <th>Cliente</th>
             <th>Tipo</th>
             <th>Descripción</th>
             <th className="text-right">Monto</th>
@@ -50,15 +108,23 @@ const CuentaCorrienteTable = ({ movimientos = [], loading = false }) => {
           </tr>
         </thead>
         <tbody>
-          {movimientos.map((movimiento, index) => (
-            <tr key={movimiento._id || `${movimiento.fecha}-${index}`}>
-              <td>{movimiento.tipo}</td>
-              <td>{movimiento.descripcion || ""}</td>
-              <td className="text-right">{formatCurrency(movimiento.monto)}</td>
-              <td>{formatDate(movimiento.fecha)}</td>
-              <td className="text-right">{formatCurrency(movimiento.saldo)}</td>
-            </tr>
-          ))}
+          {movimientos.map((movimiento, index) => {
+            const numeroComanda = obtenerNumeroComanda(movimiento);
+            const cliente = obtenerClienteDeMovimiento(movimiento);
+            const nombreCliente = obtenerNombreCliente(cliente);
+
+            return (
+              <tr key={movimiento._id || `${movimiento.fecha}-${index}`}>
+                <td>{numeroComanda || ""}</td>
+                <td>{nombreCliente}</td>
+                <td>{movimiento.tipo}</td>
+                <td>{movimiento.descripcion || ""}</td>
+                <td className="text-right">{formatCurrency(movimiento.monto)}</td>
+                <td>{formatDate(movimiento.fecha)}</td>
+                <td className="text-right">{formatCurrency(movimiento.saldo)}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

@@ -114,12 +114,190 @@ app.get(
         cliente: clienteId,
       })
         .sort({ fecha: 1, createdAt: 1 })
+        .populate({
+          path: "comanda",
+          select: "nrodecomanda cantidad monto codcli",
+          populate: {
+            path: "codcli",
+            select: "razonsocial nombre apellido",
+          },
+        })
         .lean();
+
+      const ventasAgrupadas = new Map();
+
+      const obtenerMontoMovimiento = (movimiento) => {
+        const monto = Number(movimiento && movimiento.monto);
+        return Number.isFinite(monto) && monto > 0 ? monto : 0;
+      };
+
+      const obtenerImpactoMovimiento = (movimiento) => {
+        const montoMovimiento = obtenerMontoMovimiento(movimiento);
+
+        if (!montoMovimiento) {
+          return 0;
+        }
+
+        const tipoMovimiento = (movimiento.tipo || "").toLowerCase();
+
+        if (tipoMovimiento.includes("pago")) {
+          return -montoMovimiento;
+        }
+
+        if (tipoMovimiento.includes("nota de crédito")) {
+          return -montoMovimiento;
+        }
+
+        if (tipoMovimiento.includes("nota de credito")) {
+          return -montoMovimiento;
+        }
+
+        if (tipoMovimiento.includes("devol")) {
+          return -montoMovimiento;
+        }
+
+        // Las anulaciones deben incrementar el saldo según lo indicado por el usuario.
+        // Para el resto de los movimientos (ventas, ajustes positivos, etc.)
+        // tratamos el monto como un incremento del saldo.
+        return montoMovimiento;
+      };
+
+      movimientos.forEach((movimiento) => {
+        const comanda =
+          movimiento && typeof movimiento.comanda === "object"
+            ? movimiento.comanda
+            : null;
+
+        if (
+          movimiento.tipo === "Venta" &&
+          comanda &&
+          comanda.nrodecomanda !== undefined &&
+          comanda.nrodecomanda !== null
+        ) {
+          const nrodecomanda = comanda.nrodecomanda;
+          const clienteMovimientoId =
+            movimiento.cliente !== undefined && movimiento.cliente !== null
+              ? String(movimiento.cliente)
+              : "";
+          const cantidadRegistrada = Number(comanda.cantidad);
+          const cantidad =
+            !Number.isFinite(cantidadRegistrada) || cantidadRegistrada <= 0
+              ? 1
+              : cantidadRegistrada;
+          const montoUnitarioRegistrado = Number(comanda.monto);
+          let montoUnitario = !Number.isFinite(montoUnitarioRegistrado)
+            ? 0
+            : montoUnitarioRegistrado;
+          const montoMovimiento = Number(movimiento.monto) || 0;
+          let subtotal = cantidad * montoUnitario;
+
+          if (!Number.isFinite(subtotal) || (subtotal === 0 && montoMovimiento)) {
+            subtotal = montoMovimiento;
+            if (cantidad > 0 && montoMovimiento) {
+              montoUnitario = subtotal / cantidad;
+            }
+          }
+
+          if (!ventasAgrupadas.has(nrodecomanda)) {
+            const clienteComanda =
+              comanda.codcli && typeof comanda.codcli === "object"
+                ? { ...comanda.codcli }
+                : null;
+
+            ventasAgrupadas.set(nrodecomanda, {
+              _id: `comanda-${clienteMovimientoId}-${nrodecomanda}`,
+              cliente: clienteComanda,
+              clienteId: movimiento.cliente,
+              tipo: movimiento.tipo,
+              descripcion:
+                movimiento.descripcion || `Comanda #${nrodecomanda}`,
+              fecha: movimiento.fecha,
+              saldo: movimiento.saldo,
+              monto: 0,
+              nrodecomanda,
+              comanda: {
+                nrodecomanda,
+                detalles: [],
+              },
+            });
+          }
+
+          const ventaAgrupada = ventasAgrupadas.get(nrodecomanda);
+
+          ventaAgrupada.monto += subtotal;
+          ventaAgrupada.saldo = movimiento.saldo;
+          if (
+            !ventaAgrupada.fecha ||
+            new Date(movimiento.fecha) < new Date(ventaAgrupada.fecha)
+          ) {
+            ventaAgrupada.fecha = movimiento.fecha;
+          }
+
+          const detalle = {
+            cantidad,
+            montoUnitario,
+            subtotal,
+          };
+
+          if (comanda._id) {
+            detalle.comandaId = comanda._id;
+          }
+
+          ventaAgrupada.comanda.detalles.push(detalle);
+        }
+      });
+
+      const movimientosAgrupados = [];
+      const comandasIncluidas = new Set();
+
+      movimientos.forEach((movimiento) => {
+        const comanda =
+          movimiento && typeof movimiento.comanda === "object"
+            ? movimiento.comanda
+            : null;
+
+        if (
+          movimiento.tipo === "Venta" &&
+          comanda &&
+          comanda.nrodecomanda !== undefined &&
+          comanda.nrodecomanda !== null
+        ) {
+          const nrodecomanda = comanda.nrodecomanda;
+          if (!comandasIncluidas.has(nrodecomanda)) {
+            const ventaAgrupada = ventasAgrupadas.get(nrodecomanda);
+            movimientosAgrupados.push(ventaAgrupada || movimiento);
+            comandasIncluidas.add(nrodecomanda);
+          }
+        } else {
+          movimientosAgrupados.push(movimiento);
+        }
+      });
+
+      let saldoAcumulado = 0;
+      const saldoCliente = Number(cliente.saldo) || 0;
+
+      const impactoTotal = movimientosAgrupados.reduce(
+        (acumulador, movimiento) => acumulador + obtenerImpactoMovimiento(movimiento),
+        0
+      );
+
+      const saldoInicial = saldoCliente - impactoTotal;
+      saldoAcumulado = saldoInicial;
+
+      const movimientosConSaldoRecalculado = movimientosAgrupados.map(
+        (movimientoOriginal) => {
+          const movimiento = { ...movimientoOriginal };
+          const impacto = obtenerImpactoMovimiento(movimiento);
+          saldoAcumulado += impacto;
+          movimiento.saldo = saldoAcumulado;
+          return movimiento;
+        }
+      );
 
       res.json({
         ok: true,
-        saldo: cliente.saldo || 0,
-        movimientos,
+        saldo: saldoCliente,
+        movimientos: movimientosConSaldoRecalculado,
       });
     } catch (error) {
       console.error("GET /cuentacorriente/:clienteId", error);

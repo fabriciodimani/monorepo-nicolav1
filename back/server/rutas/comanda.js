@@ -392,6 +392,10 @@ app.post("/comandas", [verificaToken, verificaAdminPrev_role], async function (
 ) {
   const body = req.body;
   const monto = Number(body.monto) || 0;
+  const cantidadParseada = Number(body.cantidad);
+  const cantidad = Number.isFinite(cantidadParseada)
+    ? cantidadParseada
+    : 1;
   const fechaComanda = body.fecha ? new Date(body.fecha) : null;
 
   if (!body.codcli) {
@@ -408,6 +412,13 @@ app.post("/comandas", [verificaToken, verificaAdminPrev_role], async function (
     });
   }
 
+  if (!Number.isFinite(cantidad) || cantidad <= 0) {
+    return res.status(400).json({
+      ok: false,
+      err: { message: "La cantidad de la comanda es inválida" },
+    });
+  }
+
   if (body.fecha && Number.isNaN(fechaComanda.getTime())) {
     return res.status(400).json({
       ok: false,
@@ -421,7 +432,7 @@ app.post("/comandas", [verificaToken, verificaAdminPrev_role], async function (
       codcli: body.codcli,
       lista: body.lista,
       codprod: body.codprod,
-      cantidad: body.cantidad,
+      cantidad,
       monto: monto,
       codestado: body.codestado,
       camion: body.camion,
@@ -450,7 +461,8 @@ app.post("/comandas", [verificaToken, verificaAdminPrev_role], async function (
       });
     }
 
-    cliente.saldo = (cliente.saldo || 0) + monto;
+    const subtotalMovimiento = cantidad * monto;
+    cliente.saldo = (cliente.saldo || 0) + subtotalMovimiento;
     await cliente.save();
 
     const movimiento = new MovimientoCuentaCorriente({
@@ -460,7 +472,7 @@ app.post("/comandas", [verificaToken, verificaAdminPrev_role], async function (
         body.descripcion ||
         `Comanda ${comandaDB.nrodecomanda ? `#${comandaDB.nrodecomanda}` : ""}`.trim(),
       fecha: fechaComanda || comandaDB.fecha,
-      monto: monto,
+      monto: subtotalMovimiento,
       saldo: cliente.saldo,
       comanda: comandaDB._id,
     });
