@@ -114,12 +114,71 @@ app.get(
         cliente: clienteId,
       })
         .sort({ fecha: 1, createdAt: 1 })
+        .populate({ path: "comanda", select: "nrodecomanda" })
         .lean();
+
+      const movimientosAgrupados = [];
+      const ventasPorComanda = new Map();
+
+      movimientos.forEach((movimiento) => {
+        const { tipo, comanda } = movimiento;
+
+        const numeroDeComanda = comanda?.nrodecomanda;
+        const tieneNumeroDeComanda =
+          numeroDeComanda !== undefined && numeroDeComanda !== null;
+        const claveAgrupacion =
+          tipo === "Venta" && (tieneNumeroDeComanda || comanda?._id)
+            ? `comanda-${
+                tieneNumeroDeComanda
+                  ? numeroDeComanda
+                  : comanda._id.toString()
+              }`
+            : null;
+
+        if (claveAgrupacion) {
+          let grupo = ventasPorComanda.get(claveAgrupacion);
+
+          if (!grupo) {
+            grupo = {
+              ...movimiento,
+              monto: 0,
+            };
+            ventasPorComanda.set(claveAgrupacion, grupo);
+            movimientosAgrupados.push(grupo);
+          }
+
+          const montoMovimiento = Number(movimiento.monto) || 0;
+          grupo.monto = (grupo.monto || 0) + montoMovimiento;
+
+          grupo.saldo = movimiento.saldo;
+
+          if (
+            !grupo.fecha ||
+            (movimiento.fecha &&
+              new Date(movimiento.fecha).getTime() >
+                new Date(grupo.fecha).getTime())
+          ) {
+            grupo.fecha = movimiento.fecha;
+          }
+
+          if (!grupo.descripcion && movimiento.descripcion) {
+            grupo.descripcion = movimiento.descripcion;
+          }
+
+          return;
+        }
+
+        movimientosAgrupados.push({ ...movimiento });
+      });
+
+      const movimientosRespuesta = movimientosAgrupados.map((movimiento) => ({
+        ...movimiento,
+      }));
 
       res.json({
         ok: true,
         saldo: cliente.saldo || 0,
-        movimientos,
+        movimientos: movimientosRespuesta,
       });
     } catch (error) {
       console.error("GET /cuentacorriente/:clienteId", error);
