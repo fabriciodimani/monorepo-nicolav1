@@ -36,6 +36,9 @@ const movimientoCuentaCorrienteSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Comanda",
     },
+    comandaNumero: {
+      type: Number,
+    },
   },
   {
     timestamps: true,
