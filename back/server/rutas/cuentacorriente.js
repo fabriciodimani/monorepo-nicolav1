@@ -114,12 +114,105 @@ app.get(
         cliente: clienteId,
       })
         .sort({ fecha: 1, createdAt: 1 })
+        .populate({ path: "comanda", select: "nrodecomanda fecha" })
         .lean();
+
+      const ventasAgrupadas = new Map();
+      const movimientosProcesados = [];
+
+      const obtenerTiempo = (valor) => {
+        if (!valor) {
+          return 0;
+        }
+
+        const fecha = new Date(valor);
+        const tiempo = fecha.getTime();
+
+        return Number.isNaN(tiempo) ? 0 : tiempo;
+      };
+
+      movimientos.forEach((movimiento) => {
+        const monto = Number(movimiento.monto) || 0;
+        const saldo = Number(movimiento.saldo) || 0;
+        const numeroComanda = movimiento.comanda?.nrodecomanda;
+
+        if (
+          movimiento.tipo === "Venta" &&
+          numeroComanda !== undefined &&
+          numeroComanda !== null
+        ) {
+          const clave = `venta-${numeroComanda}`;
+          const existente = ventasAgrupadas.get(clave);
+
+          if (!existente) {
+            ventasAgrupadas.set(clave, {
+              ...movimiento,
+              monto,
+              saldo,
+              descripcion:
+                movimiento.descripcion || `Comanda #${numeroComanda}`,
+              numeroComanda,
+            });
+          } else {
+            existente.monto += monto;
+            existente.saldo = saldo;
+
+            if (movimiento.descripcion) {
+              existente.descripcion = movimiento.descripcion;
+            }
+
+            const fechaMovimiento = obtenerTiempo(movimiento.fecha);
+            const fechaExistente = obtenerTiempo(existente.fecha);
+
+            if (fechaMovimiento >= fechaExistente) {
+              existente.fecha = movimiento.fecha;
+            }
+
+            const creadoMovimiento = obtenerTiempo(movimiento.createdAt);
+            const creadoExistente = obtenerTiempo(existente.createdAt);
+
+            if (creadoMovimiento >= creadoExistente) {
+              existente.createdAt = movimiento.createdAt;
+              existente._id = movimiento._id;
+              existente.comanda = movimiento.comanda;
+            }
+
+            const actualizadoMovimiento = obtenerTiempo(movimiento.updatedAt);
+            const actualizadoExistente = obtenerTiempo(existente.updatedAt);
+
+            if (actualizadoMovimiento >= actualizadoExistente) {
+              existente.updatedAt = movimiento.updatedAt;
+            }
+          }
+        } else {
+          movimientosProcesados.push(movimiento);
+        }
+      });
+
+      const movimientosAgrupados = [
+        ...movimientosProcesados,
+        ...Array.from(ventasAgrupadas.values()).map((movimiento) => {
+          const { numeroComanda, ...restoMovimiento } = movimiento;
+          return restoMovimiento;
+        }),
+      ].sort((a, b) => {
+        const fechaA = obtenerTiempo(a.fecha);
+        const fechaB = obtenerTiempo(b.fecha);
+
+        if (fechaA !== fechaB) {
+          return fechaA - fechaB;
+        }
+
+        const creadoA = obtenerTiempo(a.createdAt);
+        const creadoB = obtenerTiempo(b.createdAt);
+
+        return creadoA - creadoB;
+      });
 
       res.json({
         ok: true,
         saldo: cliente.saldo || 0,
-        movimientos,
+        movimientos: movimientosAgrupados,
       });
     } catch (error) {
       console.error("GET /cuentacorriente/:clienteId", error);
