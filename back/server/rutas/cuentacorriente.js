@@ -86,6 +86,71 @@ app.post("/cuentacorriente/pago", [verificaToken], async (req, res) => {
   }
 });
 
+// Agrega los movimientos pertenecientes a una misma comanda sumando sus montos.
+const agruparMovimientosPorComanda = (movimientos = []) => {
+  const agrupados = [];
+  const mapaPorComanda = new Map();
+
+  movimientos.forEach((movimiento) => {
+    const comandaId =
+      movimiento.tipo === "Venta" && movimiento.comanda
+        ? movimiento.comanda.toString()
+        : null;
+
+    if (!comandaId) {
+      agrupados.push(movimiento);
+      return;
+    }
+
+    if (!mapaPorComanda.has(comandaId)) {
+      const movimientoAgrupado = { ...movimiento, monto: 0 };
+      mapaPorComanda.set(comandaId, movimientoAgrupado);
+      agrupados.push(movimientoAgrupado);
+    }
+
+    const movimientoAgrupado = mapaPorComanda.get(comandaId);
+    const montoActual = Number(movimientoAgrupado.monto) || 0;
+    const montoMovimiento = Number(movimiento.monto) || 0;
+    movimientoAgrupado.monto = montoActual + montoMovimiento;
+
+    const fechaActual = movimientoAgrupado.fecha
+      ? new Date(movimientoAgrupado.fecha)
+      : null;
+    const fechaMovimiento = movimiento.fecha
+      ? new Date(movimiento.fecha)
+      : null;
+
+    if (
+      fechaMovimiento &&
+      (!fechaActual || fechaMovimiento.getTime() >= fechaActual.getTime())
+    ) {
+      movimientoAgrupado.fecha = movimiento.fecha;
+      movimientoAgrupado.saldo = movimiento.saldo;
+      movimientoAgrupado.descripcion = movimiento.descripcion;
+      if (movimiento.createdAt) {
+        movimientoAgrupado.createdAt = movimiento.createdAt;
+      }
+      if (movimiento.updatedAt) {
+        movimientoAgrupado.updatedAt = movimiento.updatedAt;
+      }
+    }
+  });
+
+  return agrupados.sort((a, b) => {
+    const fechaA = a.fecha ? new Date(a.fecha).getTime() : 0;
+    const fechaB = b.fecha ? new Date(b.fecha).getTime() : 0;
+
+    if (fechaA !== fechaB) {
+      return fechaA - fechaB;
+    }
+
+    const creadoA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const creadoB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+
+    return creadoA - creadoB;
+  });
+};
+
 // Devuelve el historial de movimientos de la cuenta corriente de un cliente.
 app.get(
   "/cuentacorriente/:clienteId",
@@ -116,10 +181,12 @@ app.get(
         .sort({ fecha: 1, createdAt: 1 })
         .lean();
 
+      const movimientosAgrupados = agruparMovimientosPorComanda(movimientos);
+
       res.json({
         ok: true,
         saldo: cliente.saldo || 0,
-        movimientos,
+        movimientos: movimientosAgrupados,
       });
     } catch (error) {
       console.error("GET /cuentacorriente/:clienteId", error);
