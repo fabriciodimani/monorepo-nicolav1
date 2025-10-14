@@ -222,10 +222,30 @@ app.get(
         }
       });
 
+      let saldoAcumulado = 0;
+      const movimientosConSaldo = movimientosAgrupados.map((movimiento) => {
+        const movimientoNormalizado = { ...movimiento };
+        const montoMovimiento = Number(movimientoNormalizado.monto) || 0;
+
+        if (movimientoNormalizado.tipo === "Venta") {
+          saldoAcumulado += montoMovimiento;
+        } else if (movimientoNormalizado.tipo === "Pago") {
+          saldoAcumulado -= montoMovimiento;
+        } else if (
+          Object.prototype.hasOwnProperty.call(movimientoNormalizado, "saldo")
+        ) {
+          saldoAcumulado = Number(movimientoNormalizado.saldo) || saldoAcumulado;
+        }
+
+        movimientoNormalizado.saldo = saldoAcumulado;
+
+        return movimientoNormalizado;
+      });
+
       res.json({
         ok: true,
         saldo: cliente.saldo || 0,
-        movimientos: movimientosAgrupados,
+        movimientos: movimientosConSaldo,
       });
     } catch (error) {
       console.error("GET /cuentacorriente/:clienteId", error);

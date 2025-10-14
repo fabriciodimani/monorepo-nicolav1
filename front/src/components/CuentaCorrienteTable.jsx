@@ -76,6 +76,16 @@ const obtenerNombreCliente = (cliente) => {
   return partes.join(" ").trim();
 };
 
+const obtenerMontoConSigno = (movimiento = {}) => {
+  const monto = Number(movimiento.monto) || 0;
+
+  if (movimiento.tipo === "Pago") {
+    return -Math.abs(monto);
+  }
+
+  return monto;
+};
+
 const CuentaCorrienteTable = ({ movimientos = [], loading = false }) => {
   if (loading) {
     return (
@@ -112,6 +122,7 @@ const CuentaCorrienteTable = ({ movimientos = [], loading = false }) => {
             const numeroComanda = obtenerNumeroComanda(movimiento);
             const cliente = obtenerClienteDeMovimiento(movimiento);
             const nombreCliente = obtenerNombreCliente(cliente);
+            const montoConSigno = obtenerMontoConSigno(movimiento);
 
             return (
               <tr key={movimiento._id || `${movimiento.fecha}-${index}`}>
@@ -119,7 +130,7 @@ const CuentaCorrienteTable = ({ movimientos = [], loading = false }) => {
                 <td>{nombreCliente}</td>
                 <td>{movimiento.tipo}</td>
                 <td>{movimiento.descripcion || ""}</td>
-                <td className="text-right">{formatCurrency(movimiento.monto)}</td>
+                <td className="text-right">{formatCurrency(montoConSigno)}</td>
                 <td>{formatDate(movimiento.fecha)}</td>
                 <td className="text-right">{formatCurrency(movimiento.saldo)}</td>
               </tr>
