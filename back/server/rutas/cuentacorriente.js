@@ -114,12 +114,68 @@ app.get(
         cliente: clienteId,
       })
         .sort({ fecha: 1, createdAt: 1 })
+        .populate({
+          path: "comanda",
+          select: "nrodecomanda fecha lista",
+        })
         .lean();
+
+      const movimientosAgrupados = [];
+      const ventasAgrupadasPorComanda = new Map();
+
+      movimientos.forEach((movimiento) => {
+        const esVenta = movimiento.tipo === "Venta";
+        const numeroDeComanda = movimiento.comanda?.nrodecomanda;
+
+        if (!esVenta || numeroDeComanda === undefined || numeroDeComanda === null) {
+          movimientosAgrupados.push(movimiento);
+          return;
+        }
+
+        const claveAgrupacion = `venta-${numeroDeComanda}`;
+        const montoMovimiento = Number(movimiento.monto) || 0;
+
+        if (!ventasAgrupadasPorComanda.has(claveAgrupacion)) {
+          const movimientoAgrupado = {
+            ...movimiento,
+            monto: montoMovimiento,
+          };
+
+          movimientoAgrupado.descripcion =
+            movimiento.descripcion || `Comanda #${numeroDeComanda}`;
+
+          if (!movimientoAgrupado.fecha && movimiento.comanda?.fecha) {
+            movimientoAgrupado.fecha = movimiento.comanda.fecha;
+          }
+
+          ventasAgrupadasPorComanda.set(claveAgrupacion, movimientoAgrupado);
+          movimientosAgrupados.push(movimientoAgrupado);
+          return;
+        }
+
+        const movimientoExistente = ventasAgrupadasPorComanda.get(claveAgrupacion);
+        movimientoExistente.monto =
+          (Number(movimientoExistente.monto) || 0) + montoMovimiento;
+
+        if (movimiento.fecha) {
+          const fechaMovimiento = new Date(movimiento.fecha);
+          const fechaExistente =
+            movimientoExistente.fecha && new Date(movimientoExistente.fecha);
+
+          if (!fechaExistente || fechaMovimiento > fechaExistente) {
+            movimientoExistente.fecha = movimiento.fecha;
+          }
+        } else if (!movimientoExistente.fecha && movimiento.comanda?.fecha) {
+          movimientoExistente.fecha = movimiento.comanda.fecha;
+        }
+
+        movimientoExistente.saldo = movimiento.saldo;
+      });
 
       res.json({
         ok: true,
         saldo: cliente.saldo || 0,
-        movimientos,
+        movimientos: movimientosAgrupados,
       });
     } catch (error) {
       console.error("GET /cuentacorriente/:clienteId", error);
