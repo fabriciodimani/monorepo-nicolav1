@@ -189,6 +189,7 @@ const CuentaCorriente = () => {
                     {clienteSeleccionado ? (
                       <CuentaCorrienteTable
                         movimientos={movimientos}
+                        saldoActual={saldo}
                         loading={cargandoMovimientos}
                       />
                     ) : (
