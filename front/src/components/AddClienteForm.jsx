@@ -24,6 +24,7 @@ const AddClienteForm = ({ setShow }) => {
     ruta: "",
     lat: "",
     lng: "",
+    saldo: "",
 
     // usuario: id,
   });
@@ -49,6 +50,7 @@ const AddClienteForm = ({ setShow }) => {
         ruta: "",
         lat:"", 
         lng:"",
+        saldo: "",
 
       });
       //   setShow(false);
@@ -269,6 +271,18 @@ const AddClienteForm = ({ setShow }) => {
                   onChange={handleChange}
                 />
                 {console.log(formValues.lng)}
+              </div>
+              <div className="form-group mt-3 col-sm-2">
+                <label className="">Saldo</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  name="saldo"
+                  step="0.01"
+                  value={formValues.saldo}
+                  onChange={handleChange}
+                />
+                {console.log(formValues.saldo)}
               </div>
             </div>
 
