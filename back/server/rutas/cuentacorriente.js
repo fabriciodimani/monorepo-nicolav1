@@ -126,6 +126,42 @@ app.get(
 
       const ventasAgrupadas = new Map();
 
+      const obtenerNumeroComanda = (movimiento = {}) => {
+        if (
+          movimiento.nrodecomanda !== undefined &&
+          movimiento.nrodecomanda !== null
+        ) {
+          return Number(movimiento.nrodecomanda) || 0;
+        }
+
+        const comandaMovimiento =
+          movimiento && typeof movimiento.comanda === "object"
+            ? movimiento.comanda
+            : null;
+
+        if (
+          comandaMovimiento &&
+          comandaMovimiento.nrodecomanda !== undefined &&
+          comandaMovimiento.nrodecomanda !== null
+        ) {
+          return Number(comandaMovimiento.nrodecomanda) || 0;
+        }
+
+        return 0;
+      };
+
+      const obtenerFechaMovimiento = (movimiento = {}) => {
+        if (movimiento.fecha) {
+          return new Date(movimiento.fecha);
+        }
+
+        if (movimiento.createdAt) {
+          return new Date(movimiento.createdAt);
+        }
+
+        return new Date(0);
+      };
+
       const obtenerMontoNumerico = (valor, defecto = 0) => {
         const numero = Number(valor);
         return Number.isFinite(numero) ? numero : defecto;
@@ -212,6 +248,7 @@ app.get(
               descripcion:
                 movimiento.descripcion || `Comanda #${nrodecomanda}`,
               fecha: movimiento.fecha,
+              createdAt: movimiento.createdAt,
               saldo: movimiento.saldo,
               monto: 0,
               nrodecomanda,
@@ -235,6 +272,13 @@ app.get(
             new Date(movimiento.fecha) < new Date(ventaAgrupada.fecha)
           ) {
             ventaAgrupada.fecha = movimiento.fecha;
+          }
+
+          if (
+            !ventaAgrupada.createdAt ||
+            new Date(movimiento.createdAt) < new Date(ventaAgrupada.createdAt)
+          ) {
+            ventaAgrupada.createdAt = movimiento.createdAt;
           }
 
           const detalle = {
@@ -309,6 +353,35 @@ app.get(
         }
       );
 
+      const compararMovimientosDesc = (a, b) => {
+        const fechaA = obtenerFechaMovimiento(a);
+        const fechaB = obtenerFechaMovimiento(b);
+
+        if (fechaA.getTime() !== fechaB.getTime()) {
+          return fechaB.getTime() - fechaA.getTime();
+        }
+
+        const numeroA = obtenerNumeroComanda(a);
+        const numeroB = obtenerNumeroComanda(b);
+
+        if (numeroA !== numeroB) {
+          return numeroB - numeroA;
+        }
+
+        const createdAtA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const createdAtB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+
+        if (createdAtA !== createdAtB) {
+          return createdAtB - createdAtA;
+        }
+
+        return 0;
+      };
+
+      const movimientosOrdenados = [...movimientosConSaldo].sort(
+        compararMovimientosDesc
+      );
+
       const saldoFinal = movimientosConSaldo.length
         ? movimientosConSaldo[movimientosConSaldo.length - 1].saldo
         : saldoClienteActual;
@@ -316,7 +389,7 @@ app.get(
       res.json({
         ok: true,
         saldo: saldoFinal,
-        movimientos: movimientosConSaldo,
+        movimientos: movimientosOrdenados,
       });
     } catch (error) {
       console.error("GET /cuentacorriente/:clienteId", error);
