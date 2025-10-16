@@ -9,6 +9,100 @@ const app = express();
 const esRolAdministrativo = (usuario = {}) =>
   usuario.role === "ADMIN_ROLE" || usuario.role === "ADMIN_SUP";
 
+const ZONA_HORARIA_ARGENTINA = "America/Argentina/Buenos_Aires";
+
+const crearFechaArgentinaDesdeCadena = (valor) => {
+  if (typeof valor !== "string") {
+    return null;
+  }
+
+  const fechaNormalizada = valor.trim();
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaNormalizada)) {
+    return null;
+  }
+
+  const fecha = new Date(`${fechaNormalizada}T00:00:00-03:00`);
+  return Number.isNaN(fecha.getTime()) ? null : fecha;
+};
+
+const obtenerFechaArgentinaActual = () => {
+  const fechaFormateada = new Intl.DateTimeFormat("en-CA", {
+    timeZone: ZONA_HORARIA_ARGENTINA,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+
+  return crearFechaArgentinaDesdeCadena(fechaFormateada);
+};
+
+const construirFechaMovimiento = (valor) => {
+  if (valor === undefined || valor === null || valor === "") {
+    return obtenerFechaArgentinaActual();
+  }
+
+  const fechaDesdeCadena = crearFechaArgentinaDesdeCadena(valor);
+  if (fechaDesdeCadena) {
+    return fechaDesdeCadena;
+  }
+
+  const fecha = new Date(valor);
+  return Number.isNaN(fecha.getTime()) ? null : fecha;
+};
+
+const obtenerMarcaTemporal = (valor) => {
+  if (!valor) {
+    return null;
+  }
+
+  const fecha = new Date(valor);
+  const marcaTemporal = fecha.getTime();
+  return Number.isNaN(marcaTemporal) ? null : marcaTemporal;
+};
+
+const ordenarMovimientosPorRecenciaDesc = (lista = []) =>
+  [...lista].sort((a, b) => {
+    const marcaCreacionB = obtenerMarcaTemporal(b.createdAt);
+    const marcaCreacionA = obtenerMarcaTemporal(a.createdAt);
+
+    if (marcaCreacionB !== null || marcaCreacionA !== null) {
+      if (marcaCreacionB === null) {
+        return 1;
+      }
+      if (marcaCreacionA === null) {
+        return -1;
+      }
+      if (marcaCreacionB !== marcaCreacionA) {
+        return marcaCreacionB - marcaCreacionA;
+      }
+    }
+
+    const marcaFechaB = obtenerMarcaTemporal(b.fecha);
+    const marcaFechaA = obtenerMarcaTemporal(a.fecha);
+
+    if (marcaFechaB !== null || marcaFechaA !== null) {
+      if (marcaFechaB === null) {
+        return 1;
+      }
+      if (marcaFechaA === null) {
+        return -1;
+      }
+      if (marcaFechaB !== marcaFechaA) {
+        return marcaFechaB - marcaFechaA;
+      }
+    }
+
+    const idB = b._id ? String(b._id) : "";
+    const idA = a._id ? String(a._id) : "";
+
+    if (idB || idA) {
+      return idB.localeCompare(idA);
+    }
+
+    return 0;
+  });
+
 // Registra un pago realizado por un cliente y descuenta el saldo correspondiente.
 app.post("/cuentacorriente/pago", [verificaToken], async (req, res) => {
   if (!esRolAdministrativo(req.usuario)) {
@@ -36,9 +130,9 @@ app.post("/cuentacorriente/pago", [verificaToken], async (req, res) => {
     });
   }
 
-  const fechaMovimiento = fecha ? new Date(fecha) : new Date();
+  const fechaMovimiento = construirFechaMovimiento(fecha);
 
-  if (Number.isNaN(fechaMovimiento.getTime())) {
+  if (!fechaMovimiento) {
     return res.status(400).json({
       ok: false,
       err: { message: "La fecha del pago no es válida" },
@@ -113,7 +207,7 @@ app.get(
       const movimientos = await MovimientoCuentaCorriente.find({
         cliente: clienteId,
       })
-        .sort({ fecha: 1, createdAt: 1 })
+        .sort({ createdAt: 1, fecha: 1, _id: 1 })
         .populate({
           path: "comanda",
           select: "nrodecomanda cantidad monto codcli",
@@ -212,6 +306,7 @@ app.get(
               descripcion:
                 movimiento.descripcion || `Comanda #${nrodecomanda}`,
               fecha: movimiento.fecha,
+              createdAt: movimiento.createdAt,
               saldo: movimiento.saldo,
               monto: 0,
               nrodecomanda,
@@ -235,6 +330,13 @@ app.get(
             new Date(movimiento.fecha) < new Date(ventaAgrupada.fecha)
           ) {
             ventaAgrupada.fecha = movimiento.fecha;
+          }
+          if (
+            movimiento.createdAt &&
+            (!ventaAgrupada.createdAt ||
+              new Date(movimiento.createdAt) > new Date(ventaAgrupada.createdAt))
+          ) {
+            ventaAgrupada.createdAt = movimiento.createdAt;
           }
 
           const detalle = {
@@ -313,10 +415,14 @@ app.get(
         ? movimientosConSaldo[movimientosConSaldo.length - 1].saldo
         : saldoClienteActual;
 
+      const movimientosOrdenados = ordenarMovimientosPorRecenciaDesc(
+        movimientosConSaldo
+      );
+
       res.json({
         ok: true,
         saldo: saldoFinal,
-        movimientos: movimientosConSaldo,
+        movimientos: movimientosOrdenados,
       });
     } catch (error) {
       console.error("GET /cuentacorriente/:clienteId", error);
