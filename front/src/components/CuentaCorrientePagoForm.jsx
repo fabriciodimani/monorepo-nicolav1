@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 
-const obtenerFechaHoy = () => new Date().toISOString().split("T")[0];
+const obtenerFechaHoy = () => {
+  const hoy = new Date();
+  const diferenciaZonaHoraria = hoy.getTimezoneOffset();
+  const fechaLocal = new Date(hoy.getTime() - diferenciaZonaHoraria * 60000);
+  return fechaLocal.toISOString().split("T")[0];
+};
 
 const CuentaCorrientePagoForm = ({
   clientes = [],

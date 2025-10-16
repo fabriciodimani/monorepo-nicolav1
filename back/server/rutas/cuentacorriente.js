@@ -9,6 +9,48 @@ const app = express();
 const esRolAdministrativo = (usuario = {}) =>
   usuario.role === "ADMIN_ROLE" || usuario.role === "ADMIN_SUP";
 
+const ZONA_HORARIA_ARGENTINA = "America/Argentina/Buenos_Aires";
+
+const crearFechaArgentinaDesdeCadena = (valor) => {
+  if (typeof valor !== "string") {
+    return null;
+  }
+
+  const fechaNormalizada = valor.trim();
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaNormalizada)) {
+    return null;
+  }
+
+  const fecha = new Date(`${fechaNormalizada}T00:00:00-03:00`);
+  return Number.isNaN(fecha.getTime()) ? null : fecha;
+};
+
+const obtenerFechaArgentinaActual = () => {
+  const fechaFormateada = new Intl.DateTimeFormat("en-CA", {
+    timeZone: ZONA_HORARIA_ARGENTINA,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+
+  return crearFechaArgentinaDesdeCadena(fechaFormateada);
+};
+
+const construirFechaMovimiento = (valor) => {
+  if (valor === undefined || valor === null || valor === "") {
+    return obtenerFechaArgentinaActual();
+  }
+
+  const fechaDesdeCadena = crearFechaArgentinaDesdeCadena(valor);
+  if (fechaDesdeCadena) {
+    return fechaDesdeCadena;
+  }
+
+  const fecha = new Date(valor);
+  return Number.isNaN(fecha.getTime()) ? null : fecha;
+};
+
 // Registra un pago realizado por un cliente y descuenta el saldo correspondiente.
 app.post("/cuentacorriente/pago", [verificaToken], async (req, res) => {
   if (!esRolAdministrativo(req.usuario)) {
@@ -36,9 +78,9 @@ app.post("/cuentacorriente/pago", [verificaToken], async (req, res) => {
     });
   }
 
-  const fechaMovimiento = fecha ? new Date(fecha) : new Date();
+  const fechaMovimiento = construirFechaMovimiento(fecha);
 
-  if (Number.isNaN(fechaMovimiento.getTime())) {
+  if (!fechaMovimiento) {
     return res.status(400).json({
       ok: false,
       err: { message: "La fecha del pago no es válida" },
