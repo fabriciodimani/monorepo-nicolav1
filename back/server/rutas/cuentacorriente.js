@@ -288,15 +288,7 @@ app.get(
         };
       });
 
-      let totalImpactos = 0;
-      impactosMovimiento.forEach(({ impacto }) => {
-        totalImpactos = redondearMoneda(totalImpactos + impacto);
-      });
-
-      const saldoClienteActual = obtenerMontoNumerico(cliente.saldo, 0);
-      const saldoInicial = redondearMoneda(saldoClienteActual - totalImpactos);
-
-      let saldoAcumulado = saldoInicial;
+      let saldoAcumulado = 0;
       const movimientosConSaldo = impactosMovimiento.map(
         ({ movimiento, impacto, monto }) => {
           saldoAcumulado = redondearMoneda(saldoAcumulado + impacto);
@@ -309,13 +301,22 @@ app.get(
         }
       );
 
-      const saldoFinal = movimientosConSaldo.length
+      const saldoClienteActual = obtenerMontoNumerico(cliente.saldo, 0);
+      const saldoFinalCalculado = movimientosConSaldo.length
         ? movimientosConSaldo[movimientosConSaldo.length - 1].saldo
         : saldoClienteActual;
 
+      if (
+        movimientosConSaldo.length &&
+        Math.abs(saldoFinalCalculado - saldoClienteActual) > 0.009
+      ) {
+        cliente.saldo = saldoFinalCalculado;
+        await cliente.save();
+      }
+
       res.json({
         ok: true,
-        saldo: saldoFinal,
+        saldo: saldoFinalCalculado,
         movimientos: movimientosConSaldo,
       });
     } catch (error) {
