@@ -175,26 +175,15 @@ const CuentaCorrienteTable = ({
   saldoActual = 0,
   loading = false,
 }) => {
-  if (loading) {
-    return (
-      <div className="alert alert-info" role="alert">
-        Cargando movimientos...
-      </div>
-    );
-  }
-
-  if (!movimientos.length) {
-    return (
-      <div className="alert alert-light" role="alert">
-        No hay movimientos para mostrar.
-      </div>
-    );
-  }
-
   const movimientosOrdenados = useMemo(() => {
-    const movimientosValidos = Array.isArray(movimientos)
-      ? movimientos.map((movimiento, index) => ({ movimiento, index }))
-      : [];
+    if (!Array.isArray(movimientos) || !movimientos.length) {
+      return [];
+    }
+
+    const movimientosValidos = movimientos.map((movimiento, index) => ({
+      movimiento,
+      index,
+    }));
 
     movimientosValidos.sort((a, b) => {
       const comparacion = compararMovimientosDesc(a.movimiento, b.movimiento);
@@ -222,6 +211,22 @@ const CuentaCorrienteTable = ({
       };
     });
   }, [movimientos, saldoActual]);
+
+  if (loading) {
+    return (
+      <div className="alert alert-info" role="alert">
+        Cargando movimientos...
+      </div>
+    );
+  }
+
+  if (!movimientosOrdenados.length) {
+    return (
+      <div className="alert alert-light" role="alert">
+        No hay movimientos para mostrar.
+      </div>
+    );
+  }
 
   return (
     <div className="table-responsive">
