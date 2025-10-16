@@ -51,6 +51,58 @@ const construirFechaMovimiento = (valor) => {
   return Number.isNaN(fecha.getTime()) ? null : fecha;
 };
 
+const obtenerMarcaTemporal = (valor) => {
+  if (!valor) {
+    return null;
+  }
+
+  const fecha = new Date(valor);
+  const marcaTemporal = fecha.getTime();
+  return Number.isNaN(marcaTemporal) ? null : marcaTemporal;
+};
+
+const ordenarMovimientosPorFechaDesc = (lista = []) =>
+  [...lista].sort((a, b) => {
+    const marcaFechaB = obtenerMarcaTemporal(b.fecha);
+    const marcaFechaA = obtenerMarcaTemporal(a.fecha);
+
+    if (marcaFechaB !== null || marcaFechaA !== null) {
+      if (marcaFechaB === null) {
+        return 1;
+      }
+      if (marcaFechaA === null) {
+        return -1;
+      }
+      if (marcaFechaB !== marcaFechaA) {
+        return marcaFechaB - marcaFechaA;
+      }
+    }
+
+    const marcaCreacionB = obtenerMarcaTemporal(b.createdAt);
+    const marcaCreacionA = obtenerMarcaTemporal(a.createdAt);
+
+    if (marcaCreacionB !== null || marcaCreacionA !== null) {
+      if (marcaCreacionB === null) {
+        return 1;
+      }
+      if (marcaCreacionA === null) {
+        return -1;
+      }
+      if (marcaCreacionB !== marcaCreacionA) {
+        return marcaCreacionB - marcaCreacionA;
+      }
+    }
+
+    const idB = b._id ? String(b._id) : "";
+    const idA = a._id ? String(a._id) : "";
+
+    if (idB || idA) {
+      return idB.localeCompare(idA);
+    }
+
+    return 0;
+  });
+
 // Registra un pago realizado por un cliente y descuenta el saldo correspondiente.
 app.post("/cuentacorriente/pago", [verificaToken], async (req, res) => {
   if (!esRolAdministrativo(req.usuario)) {
@@ -254,6 +306,7 @@ app.get(
               descripcion:
                 movimiento.descripcion || `Comanda #${nrodecomanda}`,
               fecha: movimiento.fecha,
+              createdAt: movimiento.createdAt,
               saldo: movimiento.saldo,
               monto: 0,
               nrodecomanda,
@@ -277,6 +330,13 @@ app.get(
             new Date(movimiento.fecha) < new Date(ventaAgrupada.fecha)
           ) {
             ventaAgrupada.fecha = movimiento.fecha;
+          }
+          if (
+            movimiento.createdAt &&
+            (!ventaAgrupada.createdAt ||
+              new Date(movimiento.createdAt) > new Date(ventaAgrupada.createdAt))
+          ) {
+            ventaAgrupada.createdAt = movimiento.createdAt;
           }
 
           const detalle = {
@@ -355,10 +415,14 @@ app.get(
         ? movimientosConSaldo[movimientosConSaldo.length - 1].saldo
         : saldoClienteActual;
 
+      const movimientosOrdenados = ordenarMovimientosPorFechaDesc(
+        movimientosConSaldo
+      );
+
       res.json({
         ok: true,
         saldo: saldoFinal,
-        movimientos: movimientosConSaldo,
+        movimientos: movimientosOrdenados,
       });
     } catch (error) {
       console.error("GET /cuentacorriente/:clienteId", error);
