@@ -61,23 +61,8 @@ const obtenerMarcaTemporal = (valor) => {
   return Number.isNaN(marcaTemporal) ? null : marcaTemporal;
 };
 
-const ordenarMovimientosPorFechaDesc = (lista = []) =>
+const ordenarMovimientosPorRecenciaDesc = (lista = []) =>
   [...lista].sort((a, b) => {
-    const marcaFechaB = obtenerMarcaTemporal(b.fecha);
-    const marcaFechaA = obtenerMarcaTemporal(a.fecha);
-
-    if (marcaFechaB !== null || marcaFechaA !== null) {
-      if (marcaFechaB === null) {
-        return 1;
-      }
-      if (marcaFechaA === null) {
-        return -1;
-      }
-      if (marcaFechaB !== marcaFechaA) {
-        return marcaFechaB - marcaFechaA;
-      }
-    }
-
     const marcaCreacionB = obtenerMarcaTemporal(b.createdAt);
     const marcaCreacionA = obtenerMarcaTemporal(a.createdAt);
 
@@ -90,6 +75,21 @@ const ordenarMovimientosPorFechaDesc = (lista = []) =>
       }
       if (marcaCreacionB !== marcaCreacionA) {
         return marcaCreacionB - marcaCreacionA;
+      }
+    }
+
+    const marcaFechaB = obtenerMarcaTemporal(b.fecha);
+    const marcaFechaA = obtenerMarcaTemporal(a.fecha);
+
+    if (marcaFechaB !== null || marcaFechaA !== null) {
+      if (marcaFechaB === null) {
+        return 1;
+      }
+      if (marcaFechaA === null) {
+        return -1;
+      }
+      if (marcaFechaB !== marcaFechaA) {
+        return marcaFechaB - marcaFechaA;
       }
     }
 
@@ -207,7 +207,7 @@ app.get(
       const movimientos = await MovimientoCuentaCorriente.find({
         cliente: clienteId,
       })
-        .sort({ fecha: 1, createdAt: 1 })
+        .sort({ createdAt: 1, fecha: 1, _id: 1 })
         .populate({
           path: "comanda",
           select: "nrodecomanda cantidad monto codcli",
@@ -415,7 +415,7 @@ app.get(
         ? movimientosConSaldo[movimientosConSaldo.length - 1].saldo
         : saldoClienteActual;
 
-      const movimientosOrdenados = ordenarMovimientosPorFechaDesc(
+      const movimientosOrdenados = ordenarMovimientosPorRecenciaDesc(
         movimientosConSaldo
       );
 
