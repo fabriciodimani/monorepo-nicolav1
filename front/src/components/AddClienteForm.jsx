@@ -272,6 +272,9 @@ const AddClienteForm = ({ setShow }) => {
                 />
                 {console.log(formValues.lng)}
               </div>
+            </div>
+
+            <div className="form-row">
               <div className="form-group mt-3 col-sm-2">
                 <label className="">Saldo</label>
                 <input
