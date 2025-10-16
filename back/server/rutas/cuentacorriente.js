@@ -5,6 +5,83 @@ const { verificaToken } = require("../middlewares/autenticacion");
 
 const app = express();
 
+const FORMATO_FECHA_SIMPLE = /^(\d{4})-(\d{2})-(\d{2})$/;
+const HUSO_HORARIO_ARGENTINA = "-03:00";
+
+const esFechaValida = (valor) =>
+  valor instanceof Date && !Number.isNaN(valor.getTime());
+
+const normalizarFechaMovimiento = (valor) => {
+  if (!valor && valor !== 0) {
+    return null;
+  }
+
+  if (esFechaValida(valor)) {
+    return valor;
+  }
+
+  if (typeof valor === "number" && Number.isFinite(valor)) {
+    const fechaDesdeNumero = new Date(valor);
+    return esFechaValida(fechaDesdeNumero) ? fechaDesdeNumero : null;
+  }
+
+  if (typeof valor === "string") {
+    const fechaLimpia = valor.trim();
+
+    if (!fechaLimpia) {
+      return null;
+    }
+
+    const coincidencia = FORMATO_FECHA_SIMPLE.exec(fechaLimpia);
+
+    if (coincidencia) {
+      const [, anio, mes, dia] = coincidencia;
+      const fechaArgentina = new Date(
+        `${anio}-${mes}-${dia}T00:00:00${HUSO_HORARIO_ARGENTINA}`
+      );
+
+      if (esFechaValida(fechaArgentina)) {
+        return fechaArgentina;
+      }
+    }
+
+    const fechaDesdeCadena = new Date(fechaLimpia);
+    return esFechaValida(fechaDesdeCadena) ? fechaDesdeCadena : null;
+  }
+
+  return null;
+};
+
+const obtenerValorTemporal = (valor) => {
+  if (!valor) {
+    return 0;
+  }
+
+  const fecha = new Date(valor);
+  return Number.isNaN(fecha.getTime()) ? 0 : fecha.getTime();
+};
+
+const ordenarPorFechaDesc = (a, b) => {
+  const fechaB = obtenerValorTemporal(b.fecha);
+  const fechaA = obtenerValorTemporal(a.fecha);
+
+  if (fechaB !== fechaA) {
+    return fechaB - fechaA;
+  }
+
+  const creadoB = obtenerValorTemporal(b.createdAt);
+  const creadoA = obtenerValorTemporal(a.createdAt);
+
+  if (creadoB !== creadoA) {
+    return creadoB - creadoA;
+  }
+
+  const idA = a && a._id ? a._id.toString() : "";
+  const idB = b && b._id ? b._id.toString() : "";
+
+  return idB.localeCompare(idA);
+};
+
 // Determina si el usuario posee permisos administrativos.
 const esRolAdministrativo = (usuario = {}) =>
   usuario.role === "ADMIN_ROLE" || usuario.role === "ADMIN_SUP";
@@ -36,9 +113,11 @@ app.post("/cuentacorriente/pago", [verificaToken], async (req, res) => {
     });
   }
 
-  const fechaMovimiento = fecha ? new Date(fecha) : new Date();
+  const fechaMovimiento = fecha
+    ? normalizarFechaMovimiento(fecha)
+    : new Date();
 
-  if (Number.isNaN(fechaMovimiento.getTime())) {
+  if (!esFechaValida(fechaMovimiento)) {
     return res.status(400).json({
       ok: false,
       err: { message: "La fecha del pago no es válida" },
@@ -313,10 +392,14 @@ app.get(
         ? movimientosConSaldo[movimientosConSaldo.length - 1].saldo
         : saldoClienteActual;
 
+      const movimientosOrdenados = [...movimientosConSaldo].sort(
+        ordenarPorFechaDesc
+      );
+
       res.json({
         ok: true,
         saldo: saldoFinal,
-        movimientos: movimientosConSaldo,
+        movimientos: movimientosOrdenados,
       });
     } catch (error) {
       console.error("GET /cuentacorriente/:clienteId", error);
