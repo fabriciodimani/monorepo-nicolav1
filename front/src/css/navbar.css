@@ -11,6 +11,12 @@
   color: #f1faee;
 }
 
+@media (min-width: 992px) {
+  #hamburguesa.navbar-toggler {
+    display: none;
+  }
+}
+
 #hamburguesa.navbar-toggler .navbar-toggler-icon {
   display: block;
   width: 2.4rem;
