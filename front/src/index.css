@@ -62,4 +62,21 @@ body.dark-theme .navbar-light .navbar-brand:focus {
 body.dark-theme .navbar-light .navbar-toggler-icon {
   filter: invert(1);
 }
+
+body.dark-theme h1,
+body.dark-theme h2,
+body.dark-theme h3,
+body.dark-theme h4,
+body.dark-theme h5,
+body.dark-theme h6,
+body.dark-theme .card-title,
+body.dark-theme .modal-title {
+  color: #f1faee;
+}
+
+body.dark-theme label,
+body.dark-theme .form-label,
+body.dark-theme legend {
+  color: rgba(241, 250, 238, 0.85);
+}
   
