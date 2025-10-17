@@ -51,6 +51,15 @@ body.dark-theme .cabecera .col hr {
     border-top: none;
 }
 
+body.dark-theme .cuenta-corriente-pago-form {
+    color: #f1faee;
+}
+
+body.dark-theme .cuenta-corriente-pago-form .card-title,
+body.dark-theme .cuenta-corriente-pago-form label {
+    color: #f1faee;
+}
+
 .cuenta-corriente-tabla thead th {
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     font-size: 0.95rem;

@@ -92,7 +92,10 @@ const CuentaCorrientePagoForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="card shadow-sm">
+    <form
+      onSubmit={handleSubmit}
+      className="card shadow-sm cuenta-corriente-pago-form"
+    >
       <div className="card-body d-flex flex-column gap-3">
         <h5 className="card-title">Registrar pago</h5>
         <div className="form-group mb-3">
