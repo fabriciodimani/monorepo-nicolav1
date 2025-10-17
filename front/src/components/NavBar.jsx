@@ -174,25 +174,25 @@ const NavBar = () => {
               )}
 
               {payload.role === "USER_CAM" && (
-                <Link to="/camiones" className="nav-link ml-3">
+                <Link to="/camiones" className="nav-link">
                   Distribucion
                 </Link>
               )}
 
               {payload.role === "ADMIN_ROLE" && (
-                <Link to="/camiones" className="nav-link ml-3">
+                <Link to="/camiones" className="nav-link">
                   Distribucion
                 </Link>
               )}
 
               {payload.role === "ADMIN_SUP" && (
-                <Link to="/camiones" className="nav-link ml-3">
+                <Link to="/camiones" className="nav-link">
                   Distribucion
                 </Link>
               )}
 
               {payload.role === "USER_CAM" && (
-                <Link to="/mapas" className="nav-link ml-3">
+                <Link to="/mapas" className="nav-link">
                   Mapa
                 </Link>
               )}
@@ -390,7 +390,7 @@ const NavBar = () => {
               )}
               
               {payload.role === "ADMIN_ROLE" && (
-                <Link to="/quienes" className="nav-link ml-3 mr-5">
+                <Link to="/quienes" className="nav-link">
                   Acerca
                 </Link>
               )}
