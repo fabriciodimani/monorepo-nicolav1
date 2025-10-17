@@ -78,7 +78,7 @@ const NavBar = () => {
         <Navbar bg="light" expand="lg">
           <img src={logo} alt="logo" />
           <Link className="nav" to="/">
-            <Navbar.Brand>Distri Pollo</Navbar.Brand>
+            <Navbar.Brand>Avicola Nicola</Navbar.Brand>
           </Link>
      
           <Navbar.Toggle id="hamburguesa" aria-controls="basic-navbar-nav" />
