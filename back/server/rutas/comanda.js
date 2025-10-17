@@ -2,6 +2,7 @@ const express = require("express");
 const Comanda = require("../modelos/comanda");
 const Cliente = require("../modelos/cliente");
 const MovimientoCuentaCorriente = require("../modelos/movimientoCuentaCorriente");
+const { obtenerFechaArgentina } = require("../utils/fechas");
 
 const {
   verificaToken,
@@ -396,7 +397,9 @@ app.post("/comandas", [verificaToken, verificaAdminPrev_role], async function (
   const cantidad = Number.isFinite(cantidadParseada)
     ? cantidadParseada
     : 1;
-  const fechaComanda = body.fecha ? new Date(body.fecha) : null;
+  let fechaComanda = body.fecha
+    ? obtenerFechaArgentina(body.fecha)
+    : obtenerFechaArgentina();
 
   if (!body.codcli) {
     return res.status(400).json({
@@ -419,11 +422,15 @@ app.post("/comandas", [verificaToken, verificaAdminPrev_role], async function (
     });
   }
 
-  if (body.fecha && Number.isNaN(fechaComanda.getTime())) {
+  if (body.fecha && (!fechaComanda || Number.isNaN(fechaComanda.getTime()))) {
     return res.status(400).json({
       ok: false,
       err: { message: "La fecha de la comanda es inválida" },
     });
+  }
+
+  if (!fechaComanda) {
+    fechaComanda = obtenerFechaArgentina();
   }
 
   try {
