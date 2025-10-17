@@ -7,7 +7,7 @@ import { getLocalidadId } from "../helpers/rutaLocalidades";
 import { getProvinciasId } from "../helpers/rutaProvincias";
 import GetDataProducServ from "../report/GetDataProducServ";
 
-// import logo from "../images/distripollo.jpeg";
+// import logo from "../images/avicola.jpeg";
 
 const GetDataInvoice = () => {
   let nrocomanda = parseInt(localStorage.getItem("nrodecomanda"), 10);
