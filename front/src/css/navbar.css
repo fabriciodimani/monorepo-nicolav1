@@ -165,14 +165,22 @@ body.dark-theme #hamburguesa .navbar-toggler-icon {
   color: #f1faee !important;
 }
 
+#navBar .navbar-brand-link {
+  text-decoration: none !important;
+  display: inline-flex;
+  align-items: center;
+}
+
 #navBar .navbar-brand {
   color: #f1faee !important;
   font-family: "Quicksand";
+  text-transform: uppercase;
 }
 
 #navBar .navbar-brand:hover,
 #navBar .navbar-brand:focus {
   color: #a8dadc !important;
+  text-decoration: none !important;
 }
 
 #navBar .navbar-collapse {

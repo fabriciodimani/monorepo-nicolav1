@@ -77,8 +77,8 @@ const NavBar = () => {
       <div id="navBar" className="navBar mr-auto">
         <Navbar bg="light" expand="lg">
           <img src={logo} alt="logo" />
-          <Link className="nav" to="/">
-            <Navbar.Brand>Avicola Nicola</Navbar.Brand>
+          <Link className="navbar-brand-link" to="/">
+            <Navbar.Brand>AVICOLA NICOLA</Navbar.Brand>
           </Link>
      
           <Navbar.Toggle id="hamburguesa" aria-controls="basic-navbar-nav" />
