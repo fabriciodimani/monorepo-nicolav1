@@ -180,12 +180,29 @@ const CuentaCorriente = () => {
                     />
                   </div>
                   <div className="col-lg-8">
-                    <div className="d-flex justify-content-between align-items-center mb-2">
-                      <h5 className="mb-0">Movimientos</h5>
-                      <span className="badge badge-primary p-2">
-                        Saldo actual: {formatCurrency(saldo)}
-                      </span>
+                    <div className="saldo-actual-resumen mb-3">
+                      <div className="d-flex justify-content-between align-items-center">
+                        <div>
+                          <span className="saldo-etiqueta d-block mb-1">
+                            Saldo actual
+                          </span>
+                          <span className="saldo-valor">
+                            {formatCurrency(saldo)}
+                          </span>
+                        </div>
+                        {movimientos.length > 0 && (
+                          <div className="text-right">
+                            <span className="text-white-50 small d-block mb-1">
+                              Movimientos
+                            </span>
+                            <span className="h5 mb-0 font-weight-bold">
+                              {movimientos.length}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
+                    <h5 className="mb-3">Resumen de operaciones</h5>
                     {clienteSeleccionado ? (
                       <CuentaCorrienteTable
                         movimientos={movimientos}
