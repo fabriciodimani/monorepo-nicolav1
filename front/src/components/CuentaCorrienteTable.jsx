@@ -167,20 +167,6 @@ const CuentaCorrienteTable = ({
       const fechaMovimiento = obtenerFechaMovimiento(movimiento);
       const montoNumerico = Math.abs(Number(movimiento.monto) || 0);
       const impacto = obtenerImpacto(movimiento.tipo, montoNumerico);
-      const saldoRegistrado = (() => {
-        if (
-          movimiento.saldo === undefined ||
-          movimiento.saldo === null ||
-          movimiento.saldo === ""
-        ) {
-          return null;
-        }
-
-        const saldoNumero = Number(movimiento.saldo);
-        return Number.isFinite(saldoNumero)
-          ? redondearMoneda(saldoNumero)
-          : null;
-      })();
 
       return {
         key: movimiento._id || `${index}-${numeroComanda || "sin-comanda"}`,
@@ -191,7 +177,7 @@ const CuentaCorrienteTable = ({
         fechaMovimiento,
         montoNumerico,
         impacto,
-        saldoRegistrado,
+        ordenOriginal: index,
         descripcionNormalizada: normalizarDescripcion(movimiento, numeroComanda),
       };
     });
@@ -203,94 +189,51 @@ const CuentaCorrienteTable = ({
       if (fechaA === fechaB) {
         const createdA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
         const createdB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+
+        if (createdA === createdB) {
+          return a.ordenOriginal - b.ordenOriginal;
+        }
+
         return createdA - createdB;
       }
 
       return fechaA - fechaB;
     };
 
-    const ordenarDescendente = (a, b) => {
-      const fechaA = a.fechaMovimiento ? a.fechaMovimiento.getTime() : 0;
-      const fechaB = b.fechaMovimiento ? b.fechaMovimiento.getTime() : 0;
-
-      if (fechaA === fechaB) {
-        const createdA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-        const createdB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-        return createdB - createdA;
-      }
-
-      return fechaB - fechaA;
-    };
-
     const movimientosAscendentes = [...movimientosEnriquecidos].sort(
       ordenarAscendente
     );
 
-    const primerMovimientoConSaldo = movimientosAscendentes.find(
-      (movimiento) => movimiento.saldoRegistrado !== null
-    );
-
-    let saldoInicialEstimado = 0;
-
-    if (primerMovimientoConSaldo) {
-      saldoInicialEstimado = redondearMoneda(
-        primerMovimientoConSaldo.saldoRegistrado - primerMovimientoConSaldo.impacto
-      );
-    } else {
-      const saldoNumero = Number(saldoActual);
-
-      if (Number.isFinite(saldoNumero)) {
-        const totalImpactos = movimientosAscendentes.reduce(
-          (acumulado, movimiento) =>
-            redondearMoneda(acumulado + movimiento.impacto),
-          0
-        );
-
-        saldoInicialEstimado = redondearMoneda(saldoNumero - totalImpactos);
-      }
-    }
-
-    let saldoAcumulado = saldoInicialEstimado;
+    let saldoAcumulado = 0;
 
     const movimientosConSaldoAsc = movimientosAscendentes.map((movimiento) => {
-      const saldoLuegoDeImpacto = redondearMoneda(
-        saldoAcumulado + movimiento.impacto
-      );
-
-      const saldoMostrado =
-        movimiento.saldoRegistrado !== null
-          ? movimiento.saldoRegistrado
-          : saldoLuegoDeImpacto;
-
-      saldoAcumulado =
-        movimiento.saldoRegistrado !== null
-          ? movimiento.saldoRegistrado
-          : saldoLuegoDeImpacto;
+      saldoAcumulado = redondearMoneda(saldoAcumulado + movimiento.impacto);
 
       return {
         ...movimiento,
-        saldoMostrado,
+        saldoAcumulado,
       };
     });
 
     const saldoFinalCalculado = movimientosConSaldoAsc.length
-      ? movimientosConSaldoAsc[movimientosConSaldoAsc.length - 1].saldoMostrado
-      : redondearMoneda(saldoInicialEstimado);
+      ? movimientosConSaldoAsc[movimientosConSaldoAsc.length - 1].saldoAcumulado
+      : 0;
 
-    const movimientosDescendentes = [...movimientosConSaldoAsc]
-      .sort(ordenarDescendente)
+    const movimientosDescendentes = movimientosConSaldoAsc
+      .slice()
+      .reverse()
       .map((movimiento) => ({
         ...movimiento,
-        saldoMostrado: redondearMoneda(movimiento.saldoMostrado),
+        saldoMostrado: redondearMoneda(movimiento.saldoAcumulado),
       }));
 
     return {
       movimientosProcesados: movimientosDescendentes,
-      saldoFinalCalculado,
+      saldoFinalCalculado: redondearMoneda(saldoFinalCalculado),
     };
   }, [movimientos, saldoActual]);
 
-  const saldoActualMostrado = Number.isFinite(Number(saldoFinalCalculado))
+  const saldoActualMostrado = movimientosProcesados.length
     ? redondearMoneda(saldoFinalCalculado)
     : redondearMoneda(saldoActual);
 
