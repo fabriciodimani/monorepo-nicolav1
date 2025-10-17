@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext, useMemo } from "react";
 import Select from "react-select";
 import { debounce } from "lodash";
 import { getClientesPorNombre, getClientes } from "../helpers/rutaClientes";
@@ -7,8 +7,10 @@ import { getListas } from "../helpers/rutaListas";
 import ActualizaComanda from "../components/ActualizaComanda";
 import AddFormDynamics from "../components/AddFormDynamics";
 import "../css/addcomandaform.css";
+import ThemeContext from "../Context/ThemeContext";
 
 const AddComandaForm = () => {
+  const { theme } = useContext(ThemeContext);
   const [guardar, setGuardar] = useState(false);
   const [show, setShow] = useState(false);
   const [inputValue, setInputValue] = useState("");
@@ -58,6 +60,82 @@ const AddComandaForm = () => {
     }
   }, 400);
 
+  const selectStyles = useMemo(
+    () => ({
+      control: (base, state) => ({
+        ...base,
+        backgroundColor: theme === "dark" ? "#22344d" : "#fff",
+        color: theme === "dark" ? "#f1faee" : "#1d3557",
+        borderColor:
+          theme === "dark"
+            ? state.isFocused
+              ? "#a8dadc"
+              : "rgba(168, 218, 220, 0.6)"
+            : base.borderColor,
+        boxShadow:
+          state.isFocused && theme === "dark"
+            ? "0 0 0 1px rgba(168, 218, 220, 0.65)"
+            : base.boxShadow,
+        "&:hover": {
+          ...(base["&:hover"] || {}),
+          borderColor:
+            theme === "dark"
+              ? "#a8dadc"
+              : base["&:hover"]?.borderColor || base.borderColor,
+        },
+      }),
+      singleValue: (base) => ({
+        ...base,
+        color: theme === "dark" ? "#f1faee" : base.color,
+      }),
+      input: (base) => ({
+        ...base,
+        color: theme === "dark" ? "#f1faee" : base.color,
+      }),
+      placeholder: (base) => ({
+        ...base,
+        color: theme === "dark" ? "rgba(241, 250, 238, 0.75)" : base.color,
+      }),
+      menu: (base) => ({
+        ...base,
+        backgroundColor: theme === "dark" ? "#22344d" : base.backgroundColor,
+        color: theme === "dark" ? "#f1faee" : base.color,
+      }),
+      menuList: (base) => ({
+        ...base,
+        backgroundColor: theme === "dark" ? "#22344d" : base.backgroundColor,
+      }),
+      option: (base, state) => ({
+        ...base,
+        backgroundColor: state.isFocused
+          ? theme === "dark"
+            ? "rgba(168, 218, 220, 0.15)"
+            : base.backgroundColor
+          : state.isSelected
+          ? theme === "dark"
+            ? "rgba(168, 218, 220, 0.25)"
+            : base.backgroundColor
+          : base.backgroundColor,
+        color: theme === "dark" ? "#f1faee" : base.color,
+      }),
+      dropdownIndicator: (base) => ({
+        ...base,
+        color: theme === "dark" ? "#f1faee" : base.color,
+        "&:hover": {
+          color: theme === "dark" ? "#a8dadc" : base.color,
+        },
+      }),
+      clearIndicator: (base) => ({
+        ...base,
+        color: theme === "dark" ? "#f1faee" : base.color,
+        "&:hover": {
+          color: theme === "dark" ? "#a8dadc" : base.color,
+        },
+      }),
+    }),
+    [theme]
+  );
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -90,6 +168,7 @@ const AddComandaForm = () => {
                   placeholder="Escriba parte del nombre..."
                   isClearable
                   isSearchable
+                  styles={selectStyles}
                   inputValue={inputValue}
                   value={
                     selectedCliente
