@@ -14,6 +14,35 @@ const {
 const _ = require("underscore");
 const app = express();
 
+const parseFechaArgentina = (valor) => {
+  if (!valor) {
+    return null;
+  }
+
+  if (valor instanceof Date) {
+    return Number.isNaN(valor.getTime()) ? null : valor;
+  }
+
+  if (typeof valor === "string") {
+    const texto = valor.trim();
+
+    if (!texto) {
+      return null;
+    }
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(texto)) {
+      const fechaLocal = new Date(`${texto}T00:00:00-03:00`);
+      return Number.isNaN(fechaLocal.getTime()) ? null : fechaLocal;
+    }
+
+    const fecha = new Date(texto);
+    return Number.isNaN(fecha.getTime()) ? null : fecha;
+  }
+
+  const fecha = new Date(valor);
+  return Number.isNaN(fecha.getTime()) ? null : fecha;
+};
+
 //TODAS LAS COMANDAS
 app.get("/comandas", function (req, res) {
   // res.json("GET usuarios");
@@ -396,7 +425,7 @@ app.post("/comandas", [verificaToken, verificaAdminPrev_role], async function (
   const cantidad = Number.isFinite(cantidadParseada)
     ? cantidadParseada
     : 1;
-  const fechaComanda = body.fecha ? new Date(body.fecha) : null;
+  const fechaComanda = parseFechaArgentina(body.fecha);
 
   if (!body.codcli) {
     return res.status(400).json({
@@ -419,7 +448,7 @@ app.post("/comandas", [verificaToken, verificaAdminPrev_role], async function (
     });
   }
 
-  if (body.fecha && Number.isNaN(fechaComanda.getTime())) {
+  if (body.fecha && !fechaComanda) {
     return res.status(400).json({
       ok: false,
       err: { message: "La fecha de la comanda es inválida" },
