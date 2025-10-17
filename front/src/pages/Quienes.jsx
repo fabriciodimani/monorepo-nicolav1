@@ -9,13 +9,13 @@ import "bootstrap/dist/css/bootstrap.min.css";
 const Quienes = () => {
   return (
     <>
-      <div className="container">
+      <div className="container quienes-page">
         <div className="row">
           <div className="col">
             <div className="overlay">
               <div className="">
                 <div id="cartel" className="col-md-12 text-center text-md-left">
-                  <h2 className="mt-2">DISTRI POLLO</h2>
+                  <h2 className="mt-2">AVICOLA NICOLA</h2>
                   <p className="d-none d-md-block mt-1 mb-2">
                     Somos una empresa dedicada a la venta y distribución de
                     pollos y derivados. Hacemos envios a todo el interior sin
