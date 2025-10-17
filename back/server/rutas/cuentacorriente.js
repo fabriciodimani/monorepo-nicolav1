@@ -2,6 +2,7 @@ const express = require("express");
 const Cliente = require("../modelos/cliente");
 const MovimientoCuentaCorriente = require("../modelos/movimientoCuentaCorriente");
 const { verificaToken } = require("../middlewares/autenticacion");
+const { obtenerFechaArgentina } = require("../utils/fechas");
 
 const app = express();
 
@@ -36,9 +37,11 @@ app.post("/cuentacorriente/pago", [verificaToken], async (req, res) => {
     });
   }
 
-  const fechaMovimiento = fecha ? new Date(fecha) : new Date();
+  const fechaMovimiento = fecha
+    ? obtenerFechaArgentina(fecha)
+    : obtenerFechaArgentina();
 
-  if (Number.isNaN(fechaMovimiento.getTime())) {
+  if (!(fechaMovimiento instanceof Date) || Number.isNaN(fechaMovimiento.getTime())) {
     return res.status(400).json({
       ok: false,
       err: { message: "La fecha del pago no es válida" },
@@ -288,13 +291,38 @@ app.get(
         };
       });
 
-      let totalImpactos = 0;
-      impactosMovimiento.forEach(({ impacto }) => {
-        totalImpactos = redondearMoneda(totalImpactos + impacto);
-      });
+      const obtenerSaldoMovimiento = (movimiento) => {
+        const saldoMovimiento =
+          movimiento && Object.prototype.hasOwnProperty.call(movimiento, "saldo")
+            ? obtenerMontoNumerico(movimiento.saldo, null)
+            : null;
+
+        return Number.isFinite(saldoMovimiento) ? saldoMovimiento : null;
+      };
 
       const saldoClienteActual = obtenerMontoNumerico(cliente.saldo, 0);
-      const saldoInicial = redondearMoneda(saldoClienteActual - totalImpactos);
+
+      let saldoInicial = saldoClienteActual;
+
+      if (impactosMovimiento.length) {
+        const primerImpacto = impactosMovimiento[0];
+        const saldoPrimerMovimiento = obtenerSaldoMovimiento(
+          primerImpacto.movimiento
+        );
+
+        if (saldoPrimerMovimiento !== null) {
+          saldoInicial = redondearMoneda(
+            saldoPrimerMovimiento - primerImpacto.impacto
+          );
+        } else {
+          let totalImpactos = 0;
+          impactosMovimiento.forEach(({ impacto }) => {
+            totalImpactos = redondearMoneda(totalImpactos + impacto);
+          });
+
+          saldoInicial = redondearMoneda(saldoClienteActual - totalImpactos);
+        }
+      }
 
       let saldoAcumulado = saldoInicial;
       const movimientosConSaldo = impactosMovimiento.map(
@@ -309,9 +337,13 @@ app.get(
         }
       );
 
-      const saldoFinal = movimientosConSaldo.length
-        ? movimientosConSaldo[movimientosConSaldo.length - 1].saldo
-        : saldoClienteActual;
+      let saldoFinal = saldoClienteActual;
+
+      if (movimientosConSaldo.length) {
+        saldoFinal = movimientosConSaldo[movimientosConSaldo.length - 1].saldo;
+      } else {
+        saldoFinal = redondearMoneda(saldoInicial);
+      }
 
       res.json({
         ok: true,
