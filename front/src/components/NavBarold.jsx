@@ -77,9 +77,9 @@ const NavBar = () => {
           <Link className="nav" to="/">
             <Navbar.Brand>Distri Pollo</Navbar.Brand>
           </Link>
-     
+
           <Navbar.Toggle id="hamburguesa" aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav-light">
+          <Navbar.Collapse id="basic-navbar-nav">
             {/* <Navbar className="mr-auto"> */}
             <Nav>
 
