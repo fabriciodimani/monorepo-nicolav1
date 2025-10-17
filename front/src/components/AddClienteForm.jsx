@@ -22,20 +22,40 @@ const AddClienteForm = ({ setShow }) => {
     localidad: "",
     condicioniva: "",
     ruta: "",
+    saldo: "0",
     lat: "",
     lng: "",
 
     // usuario: id,
   });
   const handleChange = (e) => {
-    setFormValues({
-      ...formValues,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    const nextValue =
+      name === "saldo" ? value.replace(/[^0-9,.-]/g, "") : value;
+
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      [name]: nextValue,
+    }));
+  };
+  const toNumeroSaldo = (valor) => {
+    if (valor === null || valor === undefined || valor === "") {
+      return 0;
+    }
+
+    const normalizado = String(valor).replace(/,/g, ".");
+    const numero = Number(normalizado);
+
+    return Number.isNaN(numero) ? 0 : numero;
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    addCliente(formValues).then((resp) => {
+    const payload = {
+      ...formValues,
+      saldo: toNumeroSaldo(formValues.saldo),
+    };
+
+    addCliente(payload).then((resp) => {
       console.log(resp);
       setFormValues({
         codcli: "",
@@ -47,8 +67,9 @@ const AddClienteForm = ({ setShow }) => {
         localidad: "",
         condicioniva: "",
         ruta: "",
-        lat:"", 
-        lng:"",
+        saldo: "0",
+        lat: "",
+        lng: "",
 
       });
       //   setShow(false);
@@ -199,11 +220,13 @@ const AddClienteForm = ({ setShow }) => {
                   onChange={handleChange}
                   required
                 >
-                  <option selected value="">
+                  <option value="" disabled>
                     Elija opción
                   </option>
                   {localidades.data.localidades.map((localidad) => (
-                    <option value={localidad._id}>{localidad.localidad}</option>
+                    <option key={localidad._id} value={localidad._id}>
+                      {localidad.localidad}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -213,15 +236,17 @@ const AddClienteForm = ({ setShow }) => {
                 <select
                   className="form-control"
                   name="condicioniva"
-                  value={formValues.condidicioniva}
+                  value={formValues.condicioniva}
                   onChange={handleChange}
                   required
                 >
-                  <option selected value="">
+                  <option value="" disabled>
                     Elija opción
                   </option>
                   {iva.data.iva.map((iva) => (
-                    <option value={iva._id}>{iva.iva}</option>
+                    <option key={iva._id} value={iva._id}>
+                      {iva.iva}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -235,13 +260,28 @@ const AddClienteForm = ({ setShow }) => {
                   onChange={handleChange}
                   required
                 >
-                  <option selected value="">
+                  <option value="" disabled>
                     Elija opción
                   </option>
                   {rutas.data.rutas.map((ruta) => (
-                    <option value={ruta._id}>{ruta.ruta}</option>
+                    <option key={ruta._id} value={ruta._id}>
+                      {ruta.ruta}
+                    </option>
                   ))}
                 </select>
+              </div>
+
+              <div className="form-group mt-3 col-sm-2">
+                <label className="saldo-inicial-label">Saldo Inicial</label>
+                <input
+                  type="number"
+                  className="form-control saldo-inicial-input"
+                  name="saldo"
+                  value={formValues.saldo}
+                  step="0.01"
+                  inputMode="decimal"
+                  onChange={handleChange}
+                />
               </div>
             </div>
 
