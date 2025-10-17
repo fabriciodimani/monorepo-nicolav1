@@ -5,6 +5,55 @@
 
 .titulo {
     background-color: #F1FAEE;
- 
+
+}
+
+.movimientos-card {
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background-color: #ffffff;
+}
+
+.movimiento-item {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    border: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.movimiento-item:last-child {
+    border-bottom: none;
+}
+
+.movimiento-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(13, 110, 253, 0.1);
+}
+
+.movimiento-descripcion {
+    color: #1d3557;
+}
+
+.movimiento-importes .movimiento-saldo {
+    color: #1d3557;
+}
+
+.saldo-actual-resumen {
+    background: linear-gradient(135deg, #457b9d, #1d3557);
+    color: #f1faee;
+    border-radius: 0.75rem;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 0.75rem 1.5rem rgba(17, 45, 78, 0.2);
+}
+
+.saldo-actual-resumen .saldo-valor {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.saldo-actual-resumen .saldo-etiqueta {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.75rem;
+    opacity: 0.85;
 }
 
