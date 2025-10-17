@@ -10,15 +10,6 @@ import {
 } from "../helpers/rutaCuentaCorriente";
 import "../css/admin.css";
 
-const formatCurrency = (valor) => {
-  const numero = Number(valor) || 0;
-  return numero.toLocaleString("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    minimumFractionDigits: 2,
-  });
-};
-
 const CuentaCorriente = () => {
   const [usuario, setUsuario] = useState({});
   const [clientes, setClientes] = useState([]);
@@ -180,15 +171,10 @@ const CuentaCorriente = () => {
                     />
                   </div>
                   <div className="col-lg-8">
-                    <div className="d-flex justify-content-between align-items-center mb-2">
-                      <h5 className="mb-0">Movimientos</h5>
-                      <span className="badge badge-primary p-2">
-                        Saldo actual: {formatCurrency(saldo)}
-                      </span>
-                    </div>
                     {clienteSeleccionado ? (
                       <CuentaCorrienteTable
                         movimientos={movimientos}
+                        saldoActual={saldo}
                         loading={cargandoMovimientos}
                       />
                     ) : (
