@@ -150,24 +150,12 @@ const CuentaCorrienteTable = ({
   saldoActual = 0,
   loading = false,
 }) => {
-  if (loading) {
-    return (
-      <div className="alert alert-info" role="alert">
-        Cargando movimientos...
-      </div>
-    );
-  }
-
-  if (!movimientos.length) {
-    return (
-      <div className="alert alert-light" role="alert">
-        No hay movimientos para mostrar.
-      </div>
-    );
-  }
-
   const movimientosProcesados = useMemo(() => {
-    const lista = Array.isArray(movimientos) ? [...movimientos] : [];
+    if (!Array.isArray(movimientos) || !movimientos.length) {
+      return [];
+    }
+
+    const lista = [...movimientos];
 
     const movimientosOrdenados = lista
       .map((movimiento, index) => {
@@ -219,6 +207,22 @@ const CuentaCorrienteTable = ({
       return registro;
     });
   }, [movimientos, saldoActual]);
+
+  if (loading) {
+    return (
+      <div className="alert alert-info" role="alert">
+        Cargando movimientos...
+      </div>
+    );
+  }
+
+  if (!movimientosProcesados.length) {
+    return (
+      <div className="alert alert-light" role="alert">
+        No hay movimientos para mostrar.
+      </div>
+    );
+  }
 
   const saldoEsPositivo = Number(saldoActual) >= 0;
 
