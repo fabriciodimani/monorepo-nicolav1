@@ -1,6 +1,18 @@
-.col {
+.cabecera .col {
     background-color: #F1FAEE;
     font-size: 2rem;
+}
+
+body.dark-theme .cabecera .col {
+    background-color: transparent;
+}
+
+body.dark-theme .cabecera .col h3 {
+    color: #f1faee;
+}
+
+body.dark-theme .cabecera .col hr {
+    border-color: rgba(241, 250, 238, 0.3);
 }
 
 .titulo {
