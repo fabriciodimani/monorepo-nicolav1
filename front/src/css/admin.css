@@ -5,6 +5,49 @@
 
 .titulo {
     background-color: #F1FAEE;
- 
+
+}
+
+.saldo-actual-chip {
+    border-radius: 999px;
+    font-weight: 600;
+    padding: 0.5rem 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+.saldo-positivo {
+    background: rgba(15, 155, 15, 0.12);
+    color: #0f9b0f;
+}
+
+.saldo-negativo {
+    background: rgba(217, 83, 79, 0.12);
+    color: #d9534f;
+}
+
+.cuenta-corriente-tabla tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.08);
+}
+
+.cuenta-corriente-tabla td,
+.cuenta-corriente-tabla th {
+    vertical-align: middle;
+    border-top: none;
+}
+
+.cuenta-corriente-tabla thead th {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #6c757d;
+}
+
+.font-weight-semibold {
+    font-weight: 600;
 }
 
