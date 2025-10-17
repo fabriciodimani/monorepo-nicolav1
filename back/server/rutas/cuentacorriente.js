@@ -37,9 +37,39 @@ app.post("/cuentacorriente/pago", [verificaToken], async (req, res) => {
     });
   }
 
-  const fechaMovimiento = fecha
-    ? obtenerFechaArgentina(fecha)
-    : obtenerFechaArgentina();
+  let fechaMovimiento;
+
+  if (fecha) {
+    const fechaNormalizada = obtenerFechaArgentina(fecha);
+
+    const esFechaSoloDia =
+      typeof fecha === "string" &&
+      /^\d{4}-\d{2}-\d{2}$/.test(fecha.trim());
+
+    if (
+      fechaNormalizada instanceof Date &&
+      !Number.isNaN(fechaNormalizada.getTime()) &&
+      esFechaSoloDia
+    ) {
+      const ahoraArgentina = obtenerFechaArgentina();
+
+      if (
+        ahoraArgentina instanceof Date &&
+        !Number.isNaN(ahoraArgentina.getTime())
+      ) {
+        fechaNormalizada.setUTCHours(
+          ahoraArgentina.getUTCHours(),
+          ahoraArgentina.getUTCMinutes(),
+          ahoraArgentina.getUTCSeconds(),
+          ahoraArgentina.getUTCMilliseconds()
+        );
+      }
+    }
+
+    fechaMovimiento = fechaNormalizada;
+  } else {
+    fechaMovimiento = obtenerFechaArgentina();
+  }
 
   if (!(fechaMovimiento instanceof Date) || Number.isNaN(fechaMovimiento.getTime())) {
     return res.status(400).json({
