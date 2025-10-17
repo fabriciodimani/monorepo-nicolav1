@@ -197,40 +197,31 @@ const NavBar = () => {
                 </Link>
               )}
 
-              {payload.role === "ADMIN_ROLE" && (
-                <Link to="/remitos" className="nav-link ml-3 mt-2">
-                  Remito
-                </Link>
-              )}
-
-              {payload.role === "USER_STK" && (
-                <Link to="/remitos" className="nav-link ml-3 mt-2">
-                  Remito
-                </Link>
-              )}
-
-              {payload.role === "ADMIN_ROLE" && (
-                <Link to="/stocks" className="nav-link ml-3 mt-2">
-                  Stock
-                </Link>
-              )}
-
-              {payload.role === "USER_STK" && (
-                <Link to="/stocks" className="nav-link ml-3 mt-2">
-                  Stock
-                </Link>
-              )}
-
-              {payload.role === "ADMIN_ROLE" && (
-                <Link to="/precios" className="nav-link ml-3 mt-2">
-                  Precios
-                </Link>
+              {(payload.role === "ADMIN_ROLE" || payload.role === "USER_STK") && (
+                <NavDropdown title="Productos" id="navbarProductosDropdown">
+                  <NavDropdown.Item href="/remitos" classename="nav-link3">
+                    Remito
+                  </NavDropdown.Item>
+                  <NavDropdown.Item href="/stocks" classename="nav-link3">
+                    Stock
+                  </NavDropdown.Item>
+                  {payload.role === "ADMIN_ROLE" && (
+                    <NavDropdown.Item href="/precios" classename="nav-link3">
+                      Precios
+                    </NavDropdown.Item>
+                  )}
+                </NavDropdown>
               )}
 
               {(payload.role === "ADMIN_ROLE" || payload.role === "ADMIN_SUP") && (
-                <Link to="/CuentaCorriente" className="nav-link ml-3 mt-2">
-                  Cuenta Corriente
-                </Link>
+                <NavDropdown title="Clientes" id="navbarClientesDropdown">
+                  <NavDropdown.Item href="/CuentaCorriente" classename="nav-link3">
+                    Cuenta Corriente
+                  </NavDropdown.Item>
+                  <NavDropdown.Item href="/clientes" classename="nav-link3">
+                    Gestión de Clientes
+                  </NavDropdown.Item>
+                </NavDropdown>
               )}
 
               {(payload.role === "ADMIN_ROLE" || payload.role === "ADMIN_SUP") && (
