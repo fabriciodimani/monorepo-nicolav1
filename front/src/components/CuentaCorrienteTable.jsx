@@ -165,10 +165,17 @@ const CuentaCorrienteTable = ({
       const cliente = obtenerClienteDeMovimiento(movimiento);
       const nombreCliente = obtenerNombreCliente(cliente);
       const fechaMovimiento = obtenerFechaMovimiento(movimiento);
-      const montoNumerico = Math.abs(Number(movimiento.monto) || 0);
+      const montoOriginal = Number(movimiento.monto);
+      const montoNumerico = Number.isFinite(montoOriginal)
+        ? Math.abs(montoOriginal)
+        : 0;
       const impacto = redondearMoneda(
         obtenerImpacto(movimiento.tipo, montoNumerico)
       );
+      const saldoOriginal = Number(movimiento.saldo);
+      const saldoNormalizado = Number.isFinite(saldoOriginal)
+        ? redondearMoneda(saldoOriginal)
+        : null;
 
       return {
         key: movimiento._id || `${index}-${numeroComanda || "sin-comanda"}`,
@@ -180,6 +187,7 @@ const CuentaCorrienteTable = ({
         fechaMovimiento,
         montoNumerico,
         impacto,
+        saldoNormalizado,
         descripcionNormalizada: normalizarDescripcion(movimiento, numeroComanda),
       };
     });
@@ -195,14 +203,23 @@ const CuentaCorrienteTable = ({
       return fechaA - fechaB;
     });
 
-    let saldoAcumulado = 0;
+    let saldoPrevio = null;
 
     const movimientosConSaldoAsc = movimientosAscendentes.map((movimiento) => {
-      saldoAcumulado = redondearMoneda(saldoAcumulado + movimiento.impacto);
+      let saldoMostrado = saldoPrevio;
+
+      if (movimiento.saldoNormalizado !== null) {
+        saldoMostrado = movimiento.saldoNormalizado;
+      } else {
+        const saldoBase = saldoPrevio !== null ? saldoPrevio : 0;
+        saldoMostrado = redondearMoneda(saldoBase + movimiento.impacto);
+      }
+
+      saldoPrevio = saldoMostrado;
 
       return {
         ...movimiento,
-        saldoMostrado: saldoAcumulado,
+        saldoMostrado,
       };
     });
 
@@ -213,9 +230,13 @@ const CuentaCorrienteTable = ({
         saldoMostrado: redondearMoneda(movimiento.saldoMostrado),
       }));
 
-    const saldoFinalCalculado = movimientosConSaldoAsc.length
-      ? movimientosConSaldoAsc[movimientosConSaldoAsc.length - 1].saldoMostrado
-      : redondearMoneda(0);
+    let saldoFinalCalculado = redondearMoneda(saldoActual);
+
+    if (!Number.isFinite(Number(saldoActual))) {
+      saldoFinalCalculado = movimientosConSaldoAsc.length
+        ? movimientosConSaldoAsc[movimientosConSaldoAsc.length - 1].saldoMostrado
+        : redondearMoneda(0);
+    }
 
     return {
       movimientosProcesados: movimientosDescendentes,
@@ -223,9 +244,7 @@ const CuentaCorrienteTable = ({
     };
   }, [movimientos, saldoActual]);
 
-  const saldoActualMostrado = Number.isFinite(Number(saldoFinalCalculado))
-    ? redondearMoneda(saldoFinalCalculado)
-    : redondearMoneda(saldoActual);
+  const saldoActualMostrado = redondearMoneda(saldoFinalCalculado);
 
   if (loading) {
     return (

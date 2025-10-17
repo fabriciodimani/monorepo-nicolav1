@@ -36,7 +36,7 @@ let comandaSchema = new Schema({
 
   fecha: {
     type: Date,
-    default: () => Date.now() - 3 * 60 * 60 * 1000,
+    default: Date.now,
   },
 
   codestado: {
