@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 // import { getCarousel } from "../helpers/rutaPropiedades";
 import Footer from "../components/Footer";
 import "../css/quienes.css";
-import avicola from "../images/avicola.jpeg";
+import distripollo from "../images/distripollo.jpeg";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const Quienes = () => {
@@ -39,7 +39,7 @@ const Quienes = () => {
           <div className="col mt-2">
             <img
               className="imagen d-block w-50 mb-2"
-              src={avicola}
+              src={distripollo}
               alt="site 1"
             />
           </div>
