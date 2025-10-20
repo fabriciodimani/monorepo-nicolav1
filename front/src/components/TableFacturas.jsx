@@ -100,8 +100,7 @@ const TableFacturas = () => {
               striped
               bordered
               hover
-              responsive
-              className="facturas-table"
+              className="table-container facturas-table"
             >
               <thead>
                 <tr className="header">
@@ -109,7 +108,8 @@ const TableFacturas = () => {
                   <th className="fecha">Fecha</th>
                   <th className="proveedor">Proveedor</th>
                   <th className="monto">Monto</th>
-                  <th className="acciones">Acciones</th>
+                  <th className="acciones">Modif/Eliminar</th>
+                  <th className="acciones-extra"></th>
                 </tr>
               </thead>
               <tbody>
@@ -123,6 +123,7 @@ const TableFacturas = () => {
                       <td>
                         <button
                           type="button"
+                          id="acepto"
                           className="btn btn-primary"
                           onClick={() => editarFactura(factura._id)}
                         >
@@ -130,12 +131,14 @@ const TableFacturas = () => {
                         </button>
                         <button
                           type="button"
+                          id="acepto"
                           className="btn btn-danger ml-2"
                           onClick={() => eliminarFactura(factura._id)}
                         >
                           <i className="fa fa-trash-o" aria-hidden="true"></i>
                         </button>
                       </td>
+                      <td></td>
                     </tr>
                   )
                 ))}

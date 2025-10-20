@@ -165,36 +165,9 @@ app.put(
     const { id } = req.params;
     const body = req.body || {};
 
-    const update = {};
-
-    if (body.numero || body.nroFactura) {
-      update.numero = body.numero || body.nroFactura;
-    }
-
-    if (body.fecha || body.fechaFactura) {
-      const fecha = parseFechaFactura(body.fecha || body.fechaFactura);
-      if (!fecha) {
-        return res.status(400).json({
-          ok: false,
-          err: { message: "La fecha de la factura no es válida" },
-        });
-      }
-      update.fecha = fecha;
-    }
-
-    if (body.proveedor) {
-      update.proveedor = body.proveedor;
-    }
-
-    if (body.monto !== undefined) {
-      update.monto = normalizarMonto(body.monto);
-    }
-
-    FacturaCompra.findByIdAndUpdate(
-      id,
-      update,
-      { new: true, runValidators: true },
-      (err, facturaDB) => {
+    FacturaCompra.findById(id)
+      .populate("proveedor")
+      .exec((err, facturaDB) => {
         if (err) {
           return res.status(400).json({
             ok: false,
@@ -209,22 +182,56 @@ app.put(
           });
         }
 
-        FacturaCompra.populate(
-          facturaDB,
-          { path: "proveedor" },
-          (populateErr, facturaPopulada) => {
-            if (populateErr) {
-              return res.status(400).json({ ok: false, err: populateErr });
-            }
+        if (body.numero || body.nroFactura) {
+          facturaDB.numero = body.numero || body.nroFactura;
+        }
 
-            res.json({
-              ok: true,
-              factura: facturaPopulada,
+        if (body.fecha || body.fechaFactura) {
+          const fecha = parseFechaFactura(body.fecha || body.fechaFactura);
+          if (!fecha) {
+            return res.status(400).json({
+              ok: false,
+              err: { message: "La fecha de la factura no es válida" },
             });
           }
-        );
-      }
-    );
+          facturaDB.fecha = fecha;
+        }
+
+        if (body.proveedor) {
+          facturaDB.proveedor = body.proveedor;
+        }
+
+        if (body.monto !== undefined) {
+          facturaDB.monto = normalizarMonto(body.monto);
+        }
+
+        facturaDB.save((saveErr, facturaActualizada) => {
+          if (saveErr) {
+            return res.status(400).json({
+              ok: false,
+              err: saveErr,
+            });
+          }
+
+          FacturaCompra.populate(
+            facturaActualizada,
+            { path: "proveedor" },
+            (populateErr, facturaPopulada) => {
+              if (populateErr) {
+                return res.status(400).json({
+                  ok: false,
+                  err: populateErr,
+                });
+              }
+
+              res.json({
+                ok: true,
+                factura: facturaPopulada,
+              });
+            }
+          );
+        });
+      });
   }
 );
 
