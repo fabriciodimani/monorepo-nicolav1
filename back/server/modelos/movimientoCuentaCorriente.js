@@ -11,7 +11,7 @@ const movimientoCuentaCorrienteSchema = new Schema(
     },
     tipo: {
       type: String,
-      enum: ["Venta", "Pago"],
+      enum: ["Venta", "Pago", "Anulación", "Anulacion"],
       required: true,
     },
     descripcion: {
@@ -26,7 +26,10 @@ const movimientoCuentaCorrienteSchema = new Schema(
     monto: {
       type: Number,
       required: true,
-      min: 0,
+      validate: {
+        validator: (value) => Number.isFinite(value),
+        message: "El monto debe ser un número válido",
+      },
     },
     saldo: {
       type: Number,
