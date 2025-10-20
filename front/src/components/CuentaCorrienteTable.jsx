@@ -1,4 +1,6 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 const formatCurrency = (valor) => {
   const numero = Number(valor) || 0;
@@ -223,9 +225,111 @@ const CuentaCorrienteTable = ({
     };
   }, [movimientos, saldoActual]);
 
+  const pageSize = 5;
+  const [paginaActual, setPaginaActual] = useState(1);
+
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [movimientosProcesados]);
+
+  const totalPaginas = Math.max(1, Math.ceil(movimientosProcesados.length / pageSize));
+
+  useEffect(() => {
+    if (paginaActual > totalPaginas) {
+      setPaginaActual(totalPaginas);
+    }
+  }, [paginaActual, totalPaginas]);
+
+  const movimientosPaginados = useMemo(() => {
+    const inicio = (paginaActual - 1) * pageSize;
+    const fin = inicio + pageSize;
+    return movimientosProcesados.slice(inicio, fin);
+  }, [movimientosProcesados, paginaActual]);
+
+  const totalMovimientos = movimientosProcesados.length;
+  const rangoInicio = totalMovimientos === 0 ? 0 : (paginaActual - 1) * pageSize + 1;
+  const rangoFin = Math.min(paginaActual * pageSize, totalMovimientos);
+
   const saldoActualMostrado = Number.isFinite(Number(saldoFinalCalculado))
     ? redondearMoneda(saldoFinalCalculado)
     : redondearMoneda(saldoActual);
+
+  const nombreClientePrincipal = useMemo(() => {
+    const movimientoConCliente = movimientosProcesados.find(
+      (movimiento) => movimiento.nombreCliente
+    );
+
+    return movimientoConCliente ? movimientoConCliente.nombreCliente : "";
+  }, [movimientosProcesados]);
+
+  const movimientosParaPdf = useMemo(
+    () => movimientosProcesados.slice(0, pageSize),
+    [movimientosProcesados]
+  );
+
+  const handleExportPdf = useCallback(() => {
+    if (!movimientosParaPdf.length) {
+      return;
+    }
+
+    const doc = new jsPDF();
+    const margenInicialX = 14;
+    let posicionY = 20;
+
+    doc.setFontSize(16);
+    doc.text("Saldo de Cuenta Corriente", margenInicialX, posicionY);
+
+    posicionY += 10;
+    doc.setFontSize(12);
+    if (nombreClientePrincipal) {
+      doc.text(`Cliente: ${nombreClientePrincipal}`, margenInicialX, posicionY);
+      posicionY += 8;
+    }
+
+    const fechaActual = new Date();
+    const fechaFormateada = formatDate(fechaActual);
+    const horaFormateada = formatTime(fechaActual);
+    doc.text(
+      `Fecha de emisión: ${fechaFormateada}${
+        horaFormateada ? ` ${horaFormateada}` : ""
+      }`,
+      margenInicialX,
+      posicionY
+    );
+
+    posicionY += 6;
+
+    doc.autoTable({
+      startY: posicionY,
+      head: [["Fecha", "Tipo", "Descripción", "Monto", "Saldo"]],
+      body: movimientosParaPdf.map((movimiento) => [
+        formatDate(movimiento.fechaMovimiento) || "",
+        movimiento.tipo || "",
+        movimiento.descripcionNormalizada || "",
+        `${movimiento.impacto < 0 ? "-" : "+"} ${formatCurrency(
+          movimiento.montoNumerico
+        )}`,
+        formatCurrency(movimiento.saldoMostrado),
+      ]),
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [33, 150, 243] },
+      columnStyles: {
+        3: { halign: "right" },
+        4: { halign: "right" },
+      },
+    });
+
+    const posicionFinalTabla = doc.lastAutoTable.finalY || posicionY;
+
+    doc.setFontSize(12);
+    doc.text(
+      `Saldo actual: ${formatCurrency(saldoActualMostrado)}`,
+      margenInicialX,
+      posicionFinalTabla + 10
+    );
+
+    doc.save("saldo_cuenta_corriente.pdf");
+  }, [movimientosParaPdf, nombreClientePrincipal, saldoActualMostrado]);
 
   if (loading) {
     return (
@@ -254,13 +358,22 @@ const CuentaCorrienteTable = ({
             Las últimas comandas y pagos aparecen primero.
           </p>
         </div>
-        <span
-          className={`saldo-actual-chip ${
-            saldoEsPositivo ? "saldo-positivo" : "saldo-negativo"
-          }`}
-        >
-          Saldo actual: {formatCurrency(saldoActualMostrado)}
-        </span>
+        <div className="d-flex flex-column flex-sm-row align-items-sm-center justify-content-end mt-3 mt-md-0">
+          <button
+            type="button"
+            className="btn btn-outline-secondary btn-sm mb-2 mb-sm-0 me-sm-3"
+            onClick={handleExportPdf}
+          >
+            Descargar PDF
+          </button>
+          <span
+            className={`saldo-actual-chip ${
+              saldoEsPositivo ? "saldo-positivo" : "saldo-negativo"
+            }`}
+          >
+            Saldo actual: {formatCurrency(saldoActualMostrado)}
+          </span>
+        </div>
       </div>
       <div className="table-responsive">
         <table className="table table-hover mb-0 align-middle cuenta-corriente-tabla">
@@ -275,7 +388,7 @@ const CuentaCorrienteTable = ({
             </tr>
           </thead>
           <tbody>
-            {movimientosProcesados.map((movimiento) => {
+            {movimientosPaginados.map((movimiento) => {
               const montoFormateado = formatCurrency(movimiento.montoNumerico);
               const saldoFormateado = formatCurrency(movimiento.saldoMostrado);
               const esPago = movimiento.impacto < 0;
@@ -342,6 +455,37 @@ const CuentaCorrienteTable = ({
           </tbody>
         </table>
       </div>
+      {totalMovimientos > pageSize && (
+        <div className="card-footer bg-white border-0">
+          <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+            <small className="text-muted mb-2 mb-md-0">
+              Mostrando {rangoInicio}-{rangoFin} de {totalMovimientos} movimientos
+            </small>
+            <div className="btn-group" role="group" aria-label="Paginación de movimientos">
+              <button
+                type="button"
+                className="btn btn-outline-primary btn-sm"
+                onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
+                disabled={paginaActual === 1}
+              >
+                Anteriores
+              </button>
+              <button
+                type="button"
+                className="btn btn-outline-primary btn-sm"
+                onClick={() =>
+                  setPaginaActual((prev) =>
+                    prev < totalPaginas ? prev + 1 : prev
+                  )
+                }
+                disabled={paginaActual === totalPaginas}
+              >
+                Siguientes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
