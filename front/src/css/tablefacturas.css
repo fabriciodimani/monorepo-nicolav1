@@ -6,14 +6,19 @@
   font-size: 1.25rem;
 }
 
-.facturas-table thead .header,
+.facturas-table-wrapper table {
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
 .facturas-table-wrapper .header {
-  position: sticky;
   top: 0;
   z-index: 10;
-  background-color: #729bb3;
+  position: sticky;
+  background-color: rgb(114, 155, 179);
   color: #0b1c2c;
-  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 3px 3px #ccc;
 }
 
 .facturas-table .acciones {
@@ -22,6 +27,8 @@
 
 .facturas-table .monto {
   min-width: 140px;
+  font-weight: 600;
+  color: #0d6efd;
 }
 
 .facturas-table .numero,
@@ -30,36 +37,35 @@
   min-width: 160px;
 }
 
-.facturas-table-wrapper button {
+.facturas-table-wrapper .btn {
   padding: 0;
   height: 3rem;
   width: 3rem;
   font-size: 1.5rem;
 }
 
-body.dark-theme .facturas-table thead .header,
-body.dark-theme .facturas-table-wrapper .header {
-  background-color: #1f2a37;
-  color: #f1faee;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.35);
-}
-
-body.dark-theme .facturas-table {
+body.dark-theme .facturas-table-wrapper table {
   background-color: #15223a;
   color: #f1faee;
 }
 
-body.dark-theme .facturas-table tbody tr {
-  background-color: rgba(21, 34, 58, 0.85);
+body.dark-theme .facturas-table-wrapper tbody tr {
+  background-color: rgba(21, 34, 58, 0.78);
 }
 
-body.dark-theme .facturas-table tbody tr:nth-child(odd) {
-  background-color: rgba(21, 34, 58, 0.7);
+body.dark-theme .facturas-table-wrapper tbody tr:nth-child(odd) {
+  background-color: rgba(21, 34, 58, 0.6);
 }
 
-body.dark-theme .facturas-table td,
-body.dark-theme .facturas-table th {
-  border-color: rgba(241, 250, 238, 0.15);
+body.dark-theme .facturas-table-wrapper td,
+body.dark-theme .facturas-table-wrapper th {
+  border-color: rgba(241, 250, 238, 0.18);
+}
+
+body.dark-theme .facturas-table-wrapper .header {
+  background-color: #1f2a37;
+  color: #f1faee;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.35);
 }
 
 body.dark-theme .facturas-table-wrapper .btn-primary {
@@ -67,7 +73,19 @@ body.dark-theme .facturas-table-wrapper .btn-primary {
   border-color: #457b9d;
 }
 
+body.dark-theme .facturas-table-wrapper .btn-primary:hover,
+body.dark-theme .facturas-table-wrapper .btn-primary:focus {
+  background-color: #386480;
+  border-color: #386480;
+}
+
 body.dark-theme .facturas-table-wrapper .btn-danger {
   background-color: #e63946;
   border-color: #e63946;
+}
+
+body.dark-theme .facturas-table-wrapper .btn-danger:hover,
+body.dark-theme .facturas-table-wrapper .btn-danger:focus {
+  background-color: #c12531;
+  border-color: #c12531;
 }

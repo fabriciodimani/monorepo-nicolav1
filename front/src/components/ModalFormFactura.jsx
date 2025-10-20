@@ -91,11 +91,20 @@ const ModalFormFactura = ({ factura, handleClose }) => {
         monto: normalizarMonto(formValues.monto),
       },
       facturaDatos._id
-    ).then((resp) => {
-      if (resp?.ok) {
-        handleClose();
-      }
-    });
+    )
+      .then((resp) => {
+        if (resp?.ok) {
+          window.dispatchEvent(new Event("facturascompra:actualizada"));
+          handleClose();
+        } else {
+          // eslint-disable-next-line no-alert
+          window.alert("No se pudo guardar la factura. Inténtelo nuevamente.");
+        }
+      })
+      .catch(() => {
+        // eslint-disable-next-line no-alert
+        window.alert("Ocurrió un error al guardar la factura.");
+      });
   };
 
   if (!facturaDatos) {

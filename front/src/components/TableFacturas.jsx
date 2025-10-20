@@ -96,7 +96,13 @@ const TableFacturas = () => {
         <>
           <div className="col-12 mt-4"></div>
           <div>
-            <Table striped bordered hover className="facturas-table">
+            <Table
+              striped
+              bordered
+              hover
+              responsive
+              className="facturas-table"
+            >
               <thead>
                 <tr className="header">
                   <th className="numero">Nro de Factura</th>
