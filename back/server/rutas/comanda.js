@@ -536,40 +536,124 @@ app.put(
 app.delete(
   "/comandas/:id",
   [verificaToken, verificaAdmin_role],
-  function (req, res) {
-    let id = req.params.id;
+  async function (req, res) {
+    const { id } = req.params;
 
-    let estadoActualizado = {
-      activo: false,
-    };
+    try {
+      const comanda = await Comanda.findById(id);
 
-    Comanda.findByIdAndUpdate(
-      id,
-      estadoActualizado,
-      { new: true },
-      (err, comandaBorrado) => {
-        if (err) {
-          return res.status(400).json({
-            ok: false,
-            err,
-          });
-        }
-
-        if (!comandaBorrado) {
-          return res.status(400).json({
-            ok: false,
-            err: {
-              message: "Comanda no encontrada",
-            },
-          });
-        }
-
-        res.json({
-          ok: true,
-          comanda: comandaBorrado,
+      if (!comanda) {
+        return res.status(400).json({
+          ok: false,
+          err: {
+            message: "Comanda no encontrada",
+          },
         });
       }
-    );
+
+      if (comanda.activo === false) {
+        return res.status(400).json({
+          ok: false,
+          err: {
+            message: "La comanda ya fue anulada",
+          },
+        });
+      }
+
+      const estadosPermitidos = new Set([
+        "62200265c811f41820d8bda9", // A preparar
+        "622002eac811f41820d8bdab", // En distribución
+      ]);
+
+      let movimiento = null;
+      let saldoActualizado = null;
+
+      const estadoComanda = comanda.codestado
+        ? String(
+            typeof comanda.codestado === "object" && comanda.codestado !== null
+              ? comanda.codestado._id || comanda.codestado.id
+              : comanda.codestado
+          )
+        : "";
+
+      const debeRevertirSaldo =
+        comanda.codcli && estadosPermitidos.has(estadoComanda);
+
+      if (debeRevertirSaldo) {
+        const cliente = await Cliente.findById(comanda.codcli);
+
+        if (cliente) {
+          const movimientoVenta = await MovimientoCuentaCorriente.findOne({
+            comanda: comanda._id,
+            tipo: "Venta",
+          })
+            .sort({ fecha: 1 })
+            .lean();
+
+          const montoVenta = movimientoVenta
+            ? Math.abs(Number(movimientoVenta.monto) || 0)
+            : 0;
+
+          const cantidad = Number(comanda.cantidad) || 0;
+          const montoUnitario = Number(comanda.monto) || 0;
+          const totalCalculado = cantidad * montoUnitario;
+
+          const totalComanda =
+            montoVenta > 0
+              ? montoVenta
+              : Math.abs(Number.isFinite(totalCalculado) ? totalCalculado : 0);
+
+          if (Number.isFinite(totalComanda) && totalComanda !== 0) {
+            const saldoAnterior = Number(cliente.saldo || 0);
+            cliente.saldo = saldoAnterior - totalComanda;
+            await cliente.save();
+
+            saldoActualizado = cliente.saldo;
+
+            const descripcion = `Anulación comanda${
+              comanda.nrodecomanda ? ` #${comanda.nrodecomanda}` : ""
+            }`;
+
+            movimiento = new MovimientoCuentaCorriente({
+              cliente: cliente._id,
+              tipo: "Anulación",
+              descripcion,
+              fecha: obtenerFechaArgentina(),
+              monto: -totalComanda,
+              saldo: cliente.saldo,
+              comanda: comanda._id,
+            });
+
+            try {
+              await movimiento.save();
+            } catch (errorMovimiento) {
+              cliente.saldo = saldoAnterior;
+              await cliente.save();
+              throw errorMovimiento;
+            }
+          }
+        }
+      }
+
+      comanda.activo = false;
+      await comanda.save();
+
+      res.json({
+        ok: true,
+        comanda,
+        saldo: saldoActualizado,
+        movimiento,
+      });
+    } catch (err) {
+      console.error("DELETE /comandas/:id", err);
+      res.status(500).json({
+        ok: false,
+        err: {
+          message: "Error al anular la comanda",
+          detalle: err.message,
+        },
+      });
+    }
   }
 );
 
