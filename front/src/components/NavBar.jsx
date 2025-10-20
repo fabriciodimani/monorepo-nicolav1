@@ -3,7 +3,8 @@ import jwt_decode from "jwt-decode"; //Paquete para decodificar el Token
 import { Link, useLocation, useHistory } from "react-router-dom";
 // import { getComandas } from "../helpers/rutaComandas";
 import { Navbar, Nav, NavDropdown } from "react-bootstrap";
-import logo from "../images/distripollo.jpeg";
+// import logo from "../images/distripollo.jpeg";
+import logo from "../images/avicola.jpeg";
 import "../css/navbar.css";
 import ThemeContext from "../Context/ThemeContext";
 

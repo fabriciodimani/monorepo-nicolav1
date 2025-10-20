@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 // import { getCarousel } from "../helpers/rutaPropiedades";
 import Footer from "../components/Footer";
 import "../css/quienes.css";
-import distripollo from "../images/distripollo.jpeg";
+// import distripollo from "../images/distripollo.jpeg";
+import distripollo from "../images/avicola.jpeg";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const Quienes = () => {
