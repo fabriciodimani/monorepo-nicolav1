@@ -583,11 +583,30 @@ app.delete(
         const cliente = await Cliente.findById(comanda.codcli);
 
         if (cliente) {
-          const cantidad = Number(comanda.cantidad) || 0;
-          const montoUnitario = Number(comanda.monto) || 0;
-          const totalComanda = cantidad * montoUnitario;
+          let totalComanda = null;
 
-          if (Number.isFinite(totalComanda) && totalComanda !== 0) {
+          const movimientoRelacionado = await MovimientoCuentaCorriente.findOne({
+            comanda: comanda._id,
+          })
+            .sort({ fecha: -1, _id: -1 })
+            .lean();
+
+          if (
+            movimientoRelacionado &&
+            Number.isFinite(Number(movimientoRelacionado.monto))
+          ) {
+            totalComanda = Math.abs(Number(movimientoRelacionado.monto));
+          } else {
+            const cantidad = Number(comanda.cantidad);
+            const montoUnitario = Number(comanda.monto);
+            const subtotal = cantidad * montoUnitario;
+
+            if (Number.isFinite(subtotal) && subtotal !== 0) {
+              totalComanda = Math.abs(subtotal);
+            }
+          }
+
+          if (Number.isFinite(totalComanda) && totalComanda > 0) {
             const saldoAnterior = Number(cliente.saldo || 0);
             cliente.saldo = saldoAnterior - totalComanda;
             await cliente.save();
