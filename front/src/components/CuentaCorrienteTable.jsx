@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 const formatCurrency = (valor) => {
   const numero = Number(valor) || 0;
@@ -223,6 +223,31 @@ const CuentaCorrienteTable = ({
     };
   }, [movimientos, saldoActual]);
 
+  const pageSize = 5;
+  const [paginaActual, setPaginaActual] = useState(1);
+
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [movimientosProcesados]);
+
+  const totalPaginas = Math.max(1, Math.ceil(movimientosProcesados.length / pageSize));
+
+  useEffect(() => {
+    if (paginaActual > totalPaginas) {
+      setPaginaActual(totalPaginas);
+    }
+  }, [paginaActual, totalPaginas]);
+
+  const movimientosPaginados = useMemo(() => {
+    const inicio = (paginaActual - 1) * pageSize;
+    const fin = inicio + pageSize;
+    return movimientosProcesados.slice(inicio, fin);
+  }, [movimientosProcesados, paginaActual]);
+
+  const totalMovimientos = movimientosProcesados.length;
+  const rangoInicio = totalMovimientos === 0 ? 0 : (paginaActual - 1) * pageSize + 1;
+  const rangoFin = Math.min(paginaActual * pageSize, totalMovimientos);
+
   const saldoActualMostrado = Number.isFinite(Number(saldoFinalCalculado))
     ? redondearMoneda(saldoFinalCalculado)
     : redondearMoneda(saldoActual);
@@ -275,7 +300,7 @@ const CuentaCorrienteTable = ({
             </tr>
           </thead>
           <tbody>
-            {movimientosProcesados.map((movimiento) => {
+            {movimientosPaginados.map((movimiento) => {
               const montoFormateado = formatCurrency(movimiento.montoNumerico);
               const saldoFormateado = formatCurrency(movimiento.saldoMostrado);
               const esPago = movimiento.impacto < 0;
@@ -342,6 +367,37 @@ const CuentaCorrienteTable = ({
           </tbody>
         </table>
       </div>
+      {totalMovimientos > pageSize && (
+        <div className="card-footer bg-white border-0">
+          <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+            <small className="text-muted mb-2 mb-md-0">
+              Mostrando {rangoInicio}-{rangoFin} de {totalMovimientos} movimientos
+            </small>
+            <div className="btn-group" role="group" aria-label="Paginación de movimientos">
+              <button
+                type="button"
+                className="btn btn-outline-primary btn-sm"
+                onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
+                disabled={paginaActual === 1}
+              >
+                Anteriores
+              </button>
+              <button
+                type="button"
+                className="btn btn-outline-primary btn-sm"
+                onClick={() =>
+                  setPaginaActual((prev) =>
+                    prev < totalPaginas ? prev + 1 : prev
+                  )
+                }
+                disabled={paginaActual === totalPaginas}
+              >
+                Siguientes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
