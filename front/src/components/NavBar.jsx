@@ -226,6 +226,14 @@ const NavBar = () => {
               )}
 
               {(payload.role === "ADMIN_ROLE" || payload.role === "ADMIN_SUP") && (
+                <NavDropdown title="Proveedores" id="navbarProveedoresDropdown">
+                  <NavDropdown.Item href="/proveedores" classename="nav-link3">
+                    Gestión de Proveedores
+                  </NavDropdown.Item>
+                </NavDropdown>
+              )}
+
+              {(payload.role === "ADMIN_ROLE" || payload.role === "ADMIN_SUP") && (
                 <NavDropdown
                   title="Altas"
                   id="navbarScrollingDropdown"
