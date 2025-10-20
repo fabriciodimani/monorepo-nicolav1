@@ -140,11 +140,21 @@ const obtenerFechaMovimiento = (movimiento = {}) => {
 };
 
 const obtenerImpacto = (tipo, monto) => {
-  const tipoNormalizado = typeof tipo === "string" ? tipo.toLowerCase() : "";
-  if (tipoNormalizado === "pago") {
-    return -monto;
+  const numero = Number(monto);
+  if (!Number.isFinite(numero)) {
+    return 0;
   }
-  return monto;
+
+  const tipoNormalizado = typeof tipo === "string" ? tipo.toLowerCase() : "";
+  if (tipoNormalizado === "pago" || tipoNormalizado === "anulación" || tipoNormalizado === "anulacion") {
+    return -Math.abs(numero);
+  }
+
+  if (numero < 0) {
+    return numero;
+  }
+
+  return Math.abs(numero);
 };
 
 const CuentaCorrienteTable = ({
@@ -167,9 +177,12 @@ const CuentaCorrienteTable = ({
       const cliente = obtenerClienteDeMovimiento(movimiento);
       const nombreCliente = obtenerNombreCliente(cliente);
       const fechaMovimiento = obtenerFechaMovimiento(movimiento);
-      const montoNumerico = Math.abs(Number(movimiento.monto) || 0);
+      const montoOriginal = Number(movimiento.monto);
+      const montoNumerico = redondearMoneda(
+        Number.isFinite(montoOriginal) ? Math.abs(montoOriginal) : 0
+      );
       const impacto = redondearMoneda(
-        obtenerImpacto(movimiento.tipo, montoNumerico)
+        obtenerImpacto(movimiento.tipo, montoOriginal)
       );
 
       return {
