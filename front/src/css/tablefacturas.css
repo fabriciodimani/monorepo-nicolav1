@@ -1,0 +1,73 @@
+.facturas-table-wrapper {
+  max-width: 100%;
+  max-height: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+  font-size: 1.25rem;
+}
+
+.facturas-table thead .header,
+.facturas-table-wrapper .header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #729bb3;
+  color: #0b1c2c;
+  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.1);
+}
+
+.facturas-table .acciones {
+  min-width: 140px;
+}
+
+.facturas-table .monto {
+  min-width: 140px;
+}
+
+.facturas-table .numero,
+.facturas-table .fecha,
+.facturas-table .proveedor {
+  min-width: 160px;
+}
+
+.facturas-table-wrapper button {
+  padding: 0;
+  height: 3rem;
+  width: 3rem;
+  font-size: 1.5rem;
+}
+
+body.dark-theme .facturas-table thead .header,
+body.dark-theme .facturas-table-wrapper .header {
+  background-color: #1f2a37;
+  color: #f1faee;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.35);
+}
+
+body.dark-theme .facturas-table {
+  background-color: #15223a;
+  color: #f1faee;
+}
+
+body.dark-theme .facturas-table tbody tr {
+  background-color: rgba(21, 34, 58, 0.85);
+}
+
+body.dark-theme .facturas-table tbody tr:nth-child(odd) {
+  background-color: rgba(21, 34, 58, 0.7);
+}
+
+body.dark-theme .facturas-table td,
+body.dark-theme .facturas-table th {
+  border-color: rgba(241, 250, 238, 0.15);
+}
+
+body.dark-theme .facturas-table-wrapper .btn-primary {
+  background-color: #457b9d;
+  border-color: #457b9d;
+}
+
+body.dark-theme .facturas-table-wrapper .btn-danger {
+  background-color: #e63946;
+  border-color: #e63946;
+}

@@ -250,6 +250,9 @@ const NavBar = () => {
                   <NavDropdown.Item href="/proveedores" classename="nav-link3">
                     Gestión de Proveedores
                   </NavDropdown.Item>
+                  <NavDropdown.Item href="/facturas" classename="nav-link3">
+                    Factura
+                  </NavDropdown.Item>
                 </NavDropdown>
               )}
 

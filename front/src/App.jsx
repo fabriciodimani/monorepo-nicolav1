@@ -14,6 +14,7 @@ import StocksPrev from "./pages/StocksPrev";
 import Clientes from "./pages/Clientes";
 import ClientesPrev from "./pages/ClientesPrev";
 import Proveedores from "./pages/Proveedores";
+import Facturas from "./pages/Facturas";
 import Localidades from "./pages/Localidades";
 import Empresas from "./pages/Empresas";
 import Producservs from "./pages/Producservs";
@@ -49,6 +50,7 @@ const App = () => {
             <Route exact path="/Clientes" component={Clientes} />
             <Route exact path="/ClientesPrev" component={ClientesPrev} />
             <Route exact path="/Proveedores" component={Proveedores} />
+            <Route exact path="/Facturas" component={Facturas} />
             <Route exact path="/Localidades" component={Localidades} />
             <Route exact path="/Empresas" component={Empresas} />
             <Route exact path="/Producservs" component={Producservs} />
