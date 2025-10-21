@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import Table from "./TableContainer";
-import { SelectColumnFilter } from "./Filter";
 import { getFacturasCompra } from "../helpers/rutaFacturasCompra";
 import { formatearMontoARS } from "../helpers/moneda";
 import "../css/tablecomandas.css";
@@ -189,6 +188,44 @@ const DateRangeColumnFilter = ({
   );
 };
 
+const ProveedorColumnFilter = ({
+  column: { filterValue, preFilteredRows, setFilter, id },
+}) => {
+  const options = useMemo(() => {
+    const valores = new Set();
+
+    preFilteredRows.forEach((row) => {
+      const valor = row.values[id];
+
+      if (valor) {
+        valores.add(valor);
+      }
+    });
+
+    return Array.from(valores).sort((a, b) =>
+      a.localeCompare(b, "es", { sensitivity: "base" })
+    );
+  }, [id, preFilteredRows]);
+
+  return (
+    <select
+      onChange={(event) => {
+        const valor = event.target.value;
+        setFilter(valor || undefined);
+      }}
+      style={{ width: "100%", minWidth: "160px" }}
+      value={filterValue || ""}
+    >
+      <option value="">Todos</option>
+      {options.map((option) => (
+        <option key={option} value={option}>
+          {option}
+        </option>
+      ))}
+    </select>
+  );
+};
+
 const AppFacturaCompraReactTable = () => {
   const [facturas, setFacturas] = useState([]);
 
@@ -256,8 +293,9 @@ const AppFacturaCompraReactTable = () => {
         Header: "Proveedor",
         id: "proveedor",
         accessor: (row) => row?.proveedor?.razonsocial || "",
-        Filter: SelectColumnFilter,
-        width: "200",
+        Filter: ProveedorColumnFilter,
+        filter: "equals",
+        width: "260",
       },
       {
         Header: "Fecha",
@@ -284,9 +322,7 @@ const AppFacturaCompraReactTable = () => {
         },
       },
       {
-        Header: () => (
-          <div style={{ textAlign: "right" }}>Monto</div>
-        ),
+        Header: () => <div style={{ textAlign: "center" }}>Monto</div>,
         id: "monto",
         accessor: (row) => Number(row?.monto) || 0,
         width: "140",
