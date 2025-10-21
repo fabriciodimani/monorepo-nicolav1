@@ -2,27 +2,16 @@ import React, { useEffect, useState } from "react";
 import { Modal, Button } from "react-bootstrap";
 import { updateFacturaCompra } from "../helpers/rutaFacturasCompra";
 import { getProveedores } from "../helpers/rutaProveedores";
+import { formatearFechaArgentinaParaInput } from "../helpers/fechas";
+import { formatearMontoARS } from "../helpers/moneda";
 import "../css/addclienteform.css";
-
-const formatearFechaInput = (fecha) => {
-  if (!fecha) {
-    return "";
-  }
-
-  const date = new Date(fecha);
-  if (Number.isNaN(date.getTime())) {
-    return "";
-  }
-
-  return date.toISOString().split("T")[0];
-};
 
 const ModalFormFactura = ({ factura, handleClose }) => {
   const facturaDatos = factura?.factura;
 
   const [formValues, setFormValues] = useState({
     numero: facturaDatos?.numero || "",
-    fecha: formatearFechaInput(facturaDatos?.fecha),
+    fecha: formatearFechaArgentinaParaInput(facturaDatos?.fecha),
     proveedor: facturaDatos?.proveedor?._id || facturaDatos?.proveedor || "",
     monto:
       facturaDatos?.monto !== undefined && facturaDatos?.monto !== null
@@ -33,7 +22,7 @@ const ModalFormFactura = ({ factura, handleClose }) => {
   useEffect(() => {
     setFormValues({
       numero: facturaDatos?.numero || "",
-      fecha: formatearFechaInput(facturaDatos?.fecha),
+      fecha: formatearFechaArgentinaParaInput(facturaDatos?.fecha),
       proveedor: facturaDatos?.proveedor?._id || facturaDatos?.proveedor || "",
       monto:
         facturaDatos?.monto !== undefined && facturaDatos?.monto !== null
@@ -111,6 +100,9 @@ const ModalFormFactura = ({ factura, handleClose }) => {
     return null;
   }
 
+  const montoFormateado =
+    formValues.monto === "" ? "" : formatearMontoARS(formValues.monto);
+
   return (
     <form onSubmit={handleSubmit}>
       <Modal.Body>
@@ -165,17 +157,23 @@ const ModalFormFactura = ({ factura, handleClose }) => {
 
             <div className="form-group mt-3">
               <label htmlFor="monto">Monto</label>
-              <input
-                id="monto"
-                type="number"
-                className="form-control"
-                name="monto"
-                min="0"
-                step="0.01"
-                required
-                value={formValues.monto}
-                onChange={handleChange}
-              />
+              <div className="input-group">
+                <span className="input-group-text">$</span>
+                <input
+                  id="monto"
+                  type="number"
+                  className="form-control"
+                  name="monto"
+                  min="0"
+                  step="0.01"
+                  required
+                  value={formValues.monto}
+                  onChange={handleChange}
+                />
+              </div>
+              <small className="form-text text-muted">
+                {montoFormateado || "$\u00a00,00"}
+              </small>
             </div>
           </>
         )}
