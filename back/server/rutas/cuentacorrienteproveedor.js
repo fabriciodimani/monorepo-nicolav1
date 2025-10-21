@@ -156,11 +156,108 @@ app.get(
         })
         .lean();
 
+      const obtenerMontoNumerico = (valor, defecto = 0) => {
+        const numero = Number(valor);
+        return Number.isFinite(numero) ? numero : defecto;
+      };
+
+      const redondearMoneda = (valor) => {
+        const numero = Number(valor);
+
+        if (!Number.isFinite(numero)) {
+          return 0;
+        }
+
+        const redondeado = Number(numero.toFixed(2));
+        return Object.is(redondeado, -0) ? 0 : redondeado;
+      };
+
+      const calcularImpactoSaldo = (movimiento = {}) => {
+        const tipo =
+          movimiento && typeof movimiento.tipo === "string"
+            ? movimiento.tipo.toLowerCase()
+            : "";
+        const monto = obtenerMontoNumerico(movimiento.monto, 0);
+
+        if (tipo === "pago") {
+          return -monto;
+        }
+
+        if (tipo === "anulación" || tipo === "anulacion") {
+          return monto;
+        }
+
+        return monto;
+      };
+
+      const impactosMovimiento = movimientos.map((movimiento) => {
+        const monto = obtenerMontoNumerico(movimiento.monto, 0);
+        const impacto = calcularImpactoSaldo({ ...movimiento, monto });
+
+        return {
+          movimiento,
+          monto,
+          impacto,
+        };
+      });
+
+      const obtenerSaldoMovimiento = (movimiento) => {
+        const saldoMovimiento =
+          movimiento && Object.prototype.hasOwnProperty.call(movimiento, "saldo")
+            ? obtenerMontoNumerico(movimiento.saldo, null)
+            : null;
+
+        return Number.isFinite(saldoMovimiento) ? saldoMovimiento : null;
+      };
+
+      const saldoProveedorActual = obtenerMontoNumerico(proveedor.saldo, 0);
+
+      let saldoInicial = saldoProveedorActual;
+
+      if (impactosMovimiento.length) {
+        const primerImpacto = impactosMovimiento[0];
+        const saldoPrimerMovimiento = obtenerSaldoMovimiento(primerImpacto.movimiento);
+
+        if (saldoPrimerMovimiento !== null) {
+          saldoInicial = redondearMoneda(
+            saldoPrimerMovimiento - primerImpacto.impacto
+          );
+        } else {
+          let totalImpactos = 0;
+          impactosMovimiento.forEach(({ impacto }) => {
+            totalImpactos = redondearMoneda(totalImpactos + impacto);
+          });
+
+          saldoInicial = redondearMoneda(saldoProveedorActual - totalImpactos);
+        }
+      }
+
+      let saldoAcumulado = saldoInicial;
+      const movimientosConSaldo = impactosMovimiento.map(
+        ({ movimiento, impacto, monto }) => {
+          saldoAcumulado = redondearMoneda(saldoAcumulado + impacto);
+
+          return {
+            ...movimiento,
+            monto,
+            saldo: saldoAcumulado,
+          };
+        }
+      );
+
+      let saldoFinal = saldoProveedorActual;
+
+      if (movimientosConSaldo.length) {
+        saldoFinal = movimientosConSaldo[movimientosConSaldo.length - 1].saldo;
+      } else {
+        saldoFinal = redondearMoneda(saldoInicial);
+      }
+
       res.json({
         ok: true,
         proveedor,
-        movimientos,
-        saldo: proveedor.saldo || 0,
+        movimientos: movimientosConSaldo,
+        saldo: saldoFinal,
       });
     } catch (error) {
       console.error("GET /cuentacorrienteproveedores/:proveedorId", error);

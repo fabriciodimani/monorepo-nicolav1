@@ -231,7 +231,15 @@ const CuentaCorrienteTable = ({
     let saldoAcumulado = 0;
 
     const movimientosConSaldoAsc = movimientosAscendentes.map((movimiento) => {
-      saldoAcumulado = redondearMoneda(saldoAcumulado + movimiento.impacto);
+      const saldoInformado = Number.isFinite(Number(movimiento.saldo))
+        ? redondearMoneda(Number(movimiento.saldo))
+        : null;
+
+      if (saldoInformado !== null) {
+        saldoAcumulado = saldoInformado;
+      } else {
+        saldoAcumulado = redondearMoneda(saldoAcumulado + movimiento.impacto);
+      }
 
       return {
         ...movimiento,
