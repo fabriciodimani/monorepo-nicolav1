@@ -5,9 +5,13 @@ const obtenerFechaHoy = () => new Date().toISOString().split("T")[0];
 const CuentaCorrientePagoForm = ({
   clientes = [],
   clienteSeleccionado = "",
+  busquedaCliente = "",
+  onBusquedaClienteChange,
   onClienteChange,
   onSubmit,
   loading = false,
+  loadingBusquedaClientes = false,
+  errorBusquedaClientes = "",
 }) => {
   const [formData, setFormData] = useState({
     clienteId: clienteSeleccionado || "",
@@ -99,6 +103,34 @@ const CuentaCorrientePagoForm = ({
       <div className="card-body d-flex flex-column gap-3">
         <h5 className="card-title">Registrar pago</h5>
         <div className="form-group mb-3">
+          <label htmlFor="buscarCliente">Buscar cliente</label>
+          <input
+            type="text"
+            id="buscarCliente"
+            name="buscarCliente"
+            className="form-control"
+            placeholder="Ingrese al menos 3 caracteres"
+            value={busquedaCliente}
+            onChange={(event) =>
+              typeof onBusquedaClienteChange === "function"
+                ? onBusquedaClienteChange(event.target.value)
+                : null
+            }
+            disabled={loading || loadingBusquedaClientes}
+            autoComplete="off"
+          />
+          {loadingBusquedaClientes && (
+            <small className="form-text text-muted">
+              Buscando clientes...
+            </small>
+          )}
+          {!loadingBusquedaClientes && errorBusquedaClientes && (
+            <small className="form-text text-danger">
+              {errorBusquedaClientes}
+            </small>
+          )}
+        </div>
+        <div className="form-group mb-3">
           <label htmlFor="clienteId">Cliente</label>
           <select
             id="clienteId"
@@ -106,7 +138,7 @@ const CuentaCorrientePagoForm = ({
             className="form-control"
             value={formData.clienteId}
             onChange={handleChange}
-            disabled={loading}
+            disabled={loading || loadingBusquedaClientes || clientes.length === 0}
           >
             <option value="">Seleccione un cliente</option>
             {clientes.map((cliente) => (
