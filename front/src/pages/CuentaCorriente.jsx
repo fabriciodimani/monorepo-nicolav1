@@ -3,7 +3,7 @@ import jwt_decode from "jwt-decode";
 import Footer from "../components/Footer";
 import CuentaCorrientePagoForm from "../components/CuentaCorrientePagoForm";
 import CuentaCorrienteTable from "../components/CuentaCorrienteTable";
-import { getClientes } from "../helpers/rutaClientes";
+import { getClientesPorNombre } from "../helpers/rutaClientes";
 import {
   getMovimientosCuentaCorriente,
   registrarPagoCuentaCorriente,
@@ -14,6 +14,8 @@ const CuentaCorriente = () => {
   const [usuario, setUsuario] = useState({});
   const [clientes, setClientes] = useState([]);
   const [clienteSeleccionado, setClienteSeleccionado] = useState("");
+  const [busquedaCliente, setBusquedaCliente] = useState("");
+  const [buscandoClientes, setBuscandoClientes] = useState(false);
   const [movimientos, setMovimientos] = useState([]);
   const [saldo, setSaldo] = useState(0);
   const [cargandoMovimientos, setCargandoMovimientos] = useState(false);
@@ -35,23 +37,67 @@ const CuentaCorriente = () => {
   }, [token]);
 
   useEffect(() => {
-    const cargarClientes = async () => {
+    const termino = busquedaCliente.trim();
+
+    if (termino.length < 3) {
+      setClientes([]);
+      if (clienteSeleccionado) {
+        setClienteSeleccionado("");
+      }
+      setBuscandoClientes(false);
+      return;
+    }
+
+    let cancelado = false;
+    setBuscandoClientes(true);
+    const timeoutId = setTimeout(async () => {
+      setError("");
+
       try {
-        const respuesta = await getClientes();
-        if (respuesta.ok) {
-          setClientes(respuesta.clientes || []);
-        } else {
-          const mensajeError =
-            respuesta.err?.message || "No fue posible cargar los clientes";
-          setError(mensajeError);
+        const respuesta = await getClientesPorNombre(termino);
+        if (!cancelado) {
+          if (respuesta.ok) {
+            const clientesEncontrados = respuesta.clientes || [];
+            setClientes(clientesEncontrados.slice(0, 30));
+            if (
+              clienteSeleccionado &&
+              !clientesEncontrados.some(
+                (cliente) => cliente._id === clienteSeleccionado
+              )
+            ) {
+              setClienteSeleccionado("");
+            }
+          } else {
+            const mensajeError =
+              respuesta.err?.message ||
+              "No fue posible cargar los clientes";
+            setError(mensajeError);
+            setClientes([]);
+            if (clienteSeleccionado) {
+              setClienteSeleccionado("");
+            }
+          }
         }
       } catch (err) {
-        setError("No fue posible cargar los clientes");
+        if (!cancelado) {
+          setError("No fue posible cargar los clientes");
+          setClientes([]);
+          if (clienteSeleccionado) {
+            setClienteSeleccionado("");
+          }
+        }
+      } finally {
+        if (!cancelado) {
+          setBuscandoClientes(false);
+        }
       }
-    };
+    }, 300);
 
-    cargarClientes();
-  }, []);
+    return () => {
+      cancelado = true;
+      clearTimeout(timeoutId);
+    };
+  }, [busquedaCliente, clienteSeleccionado]);
 
   const cargarMovimientos = useCallback(async (clienteId) => {
     if (!clienteId) {
@@ -166,6 +212,9 @@ const CuentaCorriente = () => {
                       clientes={clientes}
                       clienteSeleccionado={clienteSeleccionado}
                       onClienteChange={setClienteSeleccionado}
+                      busquedaCliente={busquedaCliente}
+                      onBusquedaClienteChange={setBusquedaCliente}
+                      buscandoClientes={buscandoClientes}
                       onSubmit={handleRegistrarPago}
                       loading={registrandoPago}
                     />
