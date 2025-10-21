@@ -68,25 +68,29 @@ const obtenerNumeroComanda = (movimiento = {}) => {
   return "";
 };
 
-const esClienteValido = (cliente) => {
-  if (!cliente || typeof cliente !== "object") {
+const esEntidadValida = (entidad) => {
+  if (!entidad || typeof entidad !== "object") {
     return false;
   }
 
   return ["razonsocial", "nombre", "apellido"].some((propiedad) =>
-    Object.prototype.hasOwnProperty.call(cliente, propiedad)
+    Object.prototype.hasOwnProperty.call(entidad, propiedad)
   );
 };
 
-const obtenerClienteDeMovimiento = (movimiento = {}) => {
-  if (esClienteValido(movimiento.cliente)) {
+const obtenerEntidadDeMovimiento = (movimiento = {}) => {
+  if (esEntidadValida(movimiento.cliente)) {
     return movimiento.cliente;
+  }
+
+  if (esEntidadValida(movimiento.proveedor)) {
+    return movimiento.proveedor;
   }
 
   if (
     movimiento.comanda &&
     typeof movimiento.comanda === "object" &&
-    esClienteValido(movimiento.comanda.codcli)
+    esEntidadValida(movimiento.comanda.codcli)
   ) {
     return movimiento.comanda.codcli;
   }
@@ -94,22 +98,30 @@ const obtenerClienteDeMovimiento = (movimiento = {}) => {
   return null;
 };
 
-const obtenerNombreCliente = (cliente) => {
-  if (!cliente) {
+const obtenerNombreEntidad = (entidad) => {
+  if (!entidad) {
     return "";
   }
 
-  if (cliente.razonsocial) {
-    return cliente.razonsocial;
+  if (entidad.razonsocial) {
+    return entidad.razonsocial;
   }
 
-  const partes = [cliente.nombre, cliente.apellido].filter(Boolean);
+  const partes = [entidad.nombre, entidad.apellido].filter(Boolean);
   return partes.join(" ").trim();
 };
 
 const normalizarDescripcion = (movimiento, numeroComanda) => {
   if (movimiento.descripcion) {
     return movimiento.descripcion;
+  }
+
+  if (
+    movimiento.facturaCompra &&
+    typeof movimiento.facturaCompra === "object" &&
+    movimiento.facturaCompra.numero
+  ) {
+    return `Factura ${movimiento.facturaCompra.numero}`;
   }
 
   if (numeroComanda) {
@@ -163,6 +175,9 @@ const CuentaCorrienteTable = ({
   movimientos = [],
   saldoActual = 0,
   loading = false,
+  entidadLabel = "Cliente",
+  descripcionMovimientos = "Las últimas comandas y pagos aparecen primero.",
+  titulo = "Resumen de operaciones",
 }) => {
   const { movimientosProcesados, saldoFinalCalculado } = useMemo(() => {
     const lista = Array.isArray(movimientos) ? [...movimientos] : [];
@@ -176,8 +191,8 @@ const CuentaCorrienteTable = ({
 
     const movimientosEnriquecidos = lista.map((movimiento, index) => {
       const numeroComanda = obtenerNumeroComanda(movimiento);
-      const cliente = obtenerClienteDeMovimiento(movimiento);
-      const nombreCliente = obtenerNombreCliente(cliente);
+      const entidad = obtenerEntidadDeMovimiento(movimiento);
+      const nombreEntidad = obtenerNombreEntidad(entidad);
       const fechaMovimiento = obtenerFechaMovimiento(movimiento);
       const montoOriginal = Number(movimiento.monto);
       const montoNumerico = redondearMoneda(
@@ -192,8 +207,9 @@ const CuentaCorrienteTable = ({
         ordenOriginal: index,
         ...movimiento,
         numeroComanda,
-        cliente,
-        nombreCliente,
+        entidad,
+        nombreEntidad,
+        nombreCliente: nombreEntidad,
         fechaMovimiento,
         montoNumerico,
         impacto,
@@ -269,12 +285,12 @@ const CuentaCorrienteTable = ({
     ? redondearMoneda(saldoFinalCalculado)
     : redondearMoneda(saldoActual);
 
-  const nombreClientePrincipal = useMemo(() => {
-    const movimientoConCliente = movimientosProcesados.find(
-      (movimiento) => movimiento.nombreCliente
+  const nombreEntidadPrincipal = useMemo(() => {
+    const movimientoConEntidad = movimientosProcesados.find(
+      (movimiento) => movimiento.nombreEntidad
     );
 
-    return movimientoConCliente ? movimientoConCliente.nombreCliente : "";
+    return movimientoConEntidad ? movimientoConEntidad.nombreEntidad : "";
   }, [movimientosProcesados]);
 
   const movimientosParaPdf = useMemo(
@@ -296,8 +312,12 @@ const CuentaCorrienteTable = ({
 
     posicionY += 10;
     doc.setFontSize(12);
-    if (nombreClientePrincipal) {
-      doc.text(`Cliente: ${nombreClientePrincipal}`, margenInicialX, posicionY);
+    if (nombreEntidadPrincipal) {
+      doc.text(
+        `${entidadLabel}: ${nombreEntidadPrincipal}`,
+        margenInicialX,
+        posicionY
+      );
       posicionY += 8;
     }
 
@@ -344,7 +364,12 @@ const CuentaCorrienteTable = ({
     );
 
     doc.save("saldo_cuenta_corriente.pdf");
-  }, [movimientosParaPdf, nombreClientePrincipal, saldoActualMostrado]);
+  }, [
+    movimientosParaPdf,
+    nombreEntidadPrincipal,
+    saldoActualMostrado,
+    entidadLabel,
+  ]);
 
   if (loading) {
     return (
@@ -368,10 +393,8 @@ const CuentaCorrienteTable = ({
     <div className="card shadow-sm border-0">
       <div className="card-header bg-white border-0 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
         <div>
-          <h5 className="mb-1">Resumen de operaciones</h5>
-          <p className="text-muted mb-0">
-            Las últimas comandas y pagos aparecen primero.
-          </p>
+          <h5 className="mb-1">{titulo}</h5>
+          <p className="text-muted mb-0">{descripcionMovimientos}</p>
         </div>
         <div className="d-flex flex-column flex-sm-row align-items-sm-center justify-content-end mt-3 mt-md-0">
           <button
@@ -442,9 +465,9 @@ const CuentaCorrienteTable = ({
                     <div className="font-weight-semibold">
                       {movimiento.descripcionNormalizada}
                     </div>
-                    {movimiento.nombreCliente && (
+                    {movimiento.nombreEntidad && (
                       <small className="text-muted d-block">
-                        {movimiento.nombreCliente}
+                        {movimiento.nombreEntidad}
                       </small>
                     )}
                   </td>
