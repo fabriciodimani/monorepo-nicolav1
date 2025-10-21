@@ -3,7 +3,20 @@ import qs from "qs";
 
 const BASE_URL = "http://localhost:3004/facturascompra";
 
-export const getFacturasCompra = async () => {
+const buildQueryString = (params = {}) => {
+  const searchParams = new URLSearchParams();
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      searchParams.append(key, value);
+    }
+  });
+
+  const queryString = searchParams.toString();
+  return queryString ? `?${queryString}` : "";
+};
+
+export const getFacturasCompra = async (params = {}) => {
   const options = {
     method: "GET",
     headers: {
@@ -12,7 +25,7 @@ export const getFacturasCompra = async () => {
   };
 
   try {
-    const resp = await axios(BASE_URL, options);
+    const resp = await axios(`${BASE_URL}${buildQueryString(params)}`, options);
     return resp.data;
   } catch (error) {
     return {

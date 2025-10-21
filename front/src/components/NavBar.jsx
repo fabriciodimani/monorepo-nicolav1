@@ -325,6 +325,12 @@ const NavBar = () => {
                   >
                     Listar Remitos
                   </NavDropdown.Item>
+                  <NavDropdown.Item
+                    href="/InformeFacturasCompras"
+                    classename="nav-link3"
+                  >
+                    Listar Factura Compras
+                  </NavDropdown.Item>
                   <NavDropdown.Item href="/InformeStock" classename="nav-link3">
                     Historico de Stock
                   </NavDropdown.Item>
@@ -352,6 +358,12 @@ const NavBar = () => {
                   >
                     Listar Remitos
                   </NavDropdown.Item>
+                  <NavDropdown.Item
+                    href="/InformeFacturasCompras"
+                    classename="nav-link3"
+                  >
+                    Listar Factura Compras
+                  </NavDropdown.Item>
                   <NavDropdown.Item href="/InformeStock" classename="nav-link3">
                     Historico de Stock
                   </NavDropdown.Item>
@@ -371,6 +383,12 @@ const NavBar = () => {
                     classename="nav-link3"
                   >
                     Listar Remitos
+                  </NavDropdown.Item>
+                  <NavDropdown.Item
+                    href="/InformeFacturasCompras"
+                    classename="nav-link3"
+                  >
+                    Listar Factura Compras
                   </NavDropdown.Item>
                   <NavDropdown.Item href="/InformeStock" classename="nav-link3">
                     Historico de Stock
