@@ -63,3 +63,9 @@
 .loca {
   max-width: 80px;
 }
+
+.saldo {
+  min-width: 80px;
+  font-weight: 600;
+  color: #0d6efd;
+}

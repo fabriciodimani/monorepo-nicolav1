@@ -79,4 +79,55 @@ body.dark-theme .form-label,
 body.dark-theme legend {
   color: rgba(241, 250, 238, 0.85);
 }
+
+body.dark-theme .modal-content {
+  background-color: #15223a;
+  color: #f1faee;
+  border-color: rgba(241, 250, 238, 0.14);
+}
+
+body.dark-theme .modal-header,
+body.dark-theme .modal-footer {
+  border-color: rgba(241, 250, 238, 0.1);
+}
+
+body.dark-theme .modal-body label,
+body.dark-theme .modal-body .form-label,
+body.dark-theme .modal-body legend {
+  color: rgba(241, 250, 238, 0.92);
+}
+
+body.dark-theme .modal-body .form-control,
+body.dark-theme .modal-body .form-select,
+body.dark-theme .modal-body textarea {
+  background-color: rgba(8, 28, 45, 0.78);
+  border-color: rgba(241, 250, 238, 0.18);
+  color: #f1faee;
+}
+
+body.dark-theme .modal-body .form-control:focus,
+body.dark-theme .modal-body .form-select:focus,
+body.dark-theme .modal-body textarea:focus {
+  background-color: rgba(8, 28, 45, 0.9);
+  border-color: #a8dadc;
+  box-shadow: 0 0 0 0.2rem rgba(168, 218, 220, 0.25);
+  color: #f1faee;
+}
+
+body.dark-theme .modal-body .form-control::placeholder,
+body.dark-theme .modal-body textarea::placeholder {
+  color: rgba(241, 250, 238, 0.65);
+}
+
+body.dark-theme .modal-body .input-group-text {
+  background-color: rgba(8, 28, 45, 0.75);
+  border-color: rgba(241, 250, 238, 0.18);
+  color: rgba(241, 250, 238, 0.85);
+}
+
+body.dark-theme .modal-body .form-text,
+body.dark-theme .modal-body small {
+  color: rgba(241, 250, 238, 0.7) !important;
+}
+
   

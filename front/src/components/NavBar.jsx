@@ -198,7 +198,9 @@ const NavBar = () => {
                 </Link>
               )}
 
-              {(payload.role === "ADMIN_ROLE" || payload.role === "USER_STK") && (
+              {(payload.role === "ADMIN_ROLE" ||
+                payload.role === "ADMIN_SUP" ||
+                payload.role === "USER_STK") && (
                 <NavDropdown title="Productos" id="navbarProductosDropdown">
                   <NavDropdown.Item href="/remitos" classename="nav-link3">
                     Remito
@@ -210,6 +212,24 @@ const NavBar = () => {
                     <NavDropdown.Item href="/precios" classename="nav-link3">
                       Precios
                     </NavDropdown.Item>
+                  )}
+                  {(payload.role === "ADMIN_ROLE" ||
+                    payload.role === "ADMIN_SUP") && (
+                    <>
+                      <NavDropdown.Divider />
+                      <NavDropdown.Item
+                        href="/producservs"
+                        classename="nav-link3"
+                      >
+                        Productos
+                      </NavDropdown.Item>
+                      <NavDropdown.Item href="/rubros" classename="nav-link3">
+                        Rubros
+                      </NavDropdown.Item>
+                      <NavDropdown.Item href="/marcas" classename="nav-link3">
+                        Marcas
+                      </NavDropdown.Item>
+                    </>
                   )}
                 </NavDropdown>
               )}
@@ -226,27 +246,23 @@ const NavBar = () => {
               )}
 
               {(payload.role === "ADMIN_ROLE" || payload.role === "ADMIN_SUP") && (
+                <NavDropdown title="Proveedores" id="navbarProveedoresDropdown">
+                  <NavDropdown.Item href="/proveedores" classename="nav-link3">
+                    Gestión de Proveedores
+                  </NavDropdown.Item>
+                  <NavDropdown.Item href="/facturas" classename="nav-link3">
+                    Factura
+                  </NavDropdown.Item>
+                </NavDropdown>
+              )}
+
+              {(payload.role === "ADMIN_ROLE" || payload.role === "ADMIN_SUP") && (
                 <NavDropdown
                   title="Altas"
                   id="navbarScrollingDropdown"
                 >
-                  <NavDropdown.Item href="/clientes" classename="nav-link3">
-                    Clientes
-                  </NavDropdown.Item>
-                  <NavDropdown.Item href="/proveedores" classename="nav-link3">
-                    Proveedores
-                  </NavDropdown.Item>
-                  <NavDropdown.Item href="/producservs" classename="nav-link3">
-                    Productos
-                  </NavDropdown.Item>
                   <NavDropdown.Item href="/rutas" classename="nav-link3">
                     Rutas
-                  </NavDropdown.Item>
-                  <NavDropdown.Item href="/rubros" classename="nav-link3">
-                    Rubros
-                  </NavDropdown.Item>
-                  <NavDropdown.Item href="/marcas" classename="nav-link3">
-                    Marcas
                   </NavDropdown.Item>
                   <NavDropdown.Item href="/localidades" classename="nav-link3">
                     Localidades

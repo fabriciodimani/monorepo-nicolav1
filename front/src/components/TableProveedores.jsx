@@ -77,6 +77,7 @@ const TableProveedores = () => {
                   <th className="cuit">CUIT</th>
                   <th className="email">Email</th>
                   <th className="loca">Localidad</th>
+                  <th className="saldo">Saldo</th>
                   <th>Modif/Eliminar</th>
                   <th></th>
                 </tr>
@@ -94,6 +95,9 @@ const TableProveedores = () => {
                         <td>{proveedor.cuit}</td>
                         <td>{proveedor.email}</td>
                         <td>{proveedor.localidad.localidad}</td>
+                        <td>
+                          {Number(proveedor.saldo || 0).toFixed(2)}
+                        </td>
 
                         {/* <td>{cliente.lista.lista}</td>
                     <td>{cliente.codprod.descripcion}</td> */}

@@ -75,6 +75,9 @@ app.post("/proveedores", function (req, res) {
   // res.json('POST usuarios')
 
   let body = req.body;
+  const saldoNormalizado = Number(body.saldo);
+
+  const saldo = Number.isNaN(saldoNormalizado) ? 0 : saldoNormalizado;
 
   let proveedor = new Proveedor({
     codprov: body.codprov,
@@ -86,6 +89,7 @@ app.post("/proveedores", function (req, res) {
     localidad: body.localidad,
     condicioniva: body.condicioniva,
     activo: body.activo,
+    saldo,
     // usuario: req.Usuario._id, //probar si graba
   });
 
@@ -110,6 +114,11 @@ app.put(
     // res.json("PUT usuarios");
     let id = req.params.id;
     let body = req.body;
+
+    if (body.hasOwnProperty("saldo")) {
+      const saldoNormalizado = Number(body.saldo);
+      body.saldo = Number.isNaN(saldoNormalizado) ? 0 : saldoNormalizado;
+    }
 
     Proveedor.findByIdAndUpdate(
       id,

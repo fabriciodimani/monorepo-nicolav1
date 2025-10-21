@@ -52,12 +52,37 @@ body.dark-theme .cabecera .col hr {
 }
 
 body.dark-theme .cuenta-corriente-pago-form {
+    background-color: #1d3557;
+    border-color: rgba(241, 250, 238, 0.16);
     color: #f1faee;
 }
 
 body.dark-theme .cuenta-corriente-pago-form .card-title,
 body.dark-theme .cuenta-corriente-pago-form label {
     color: #f1faee;
+}
+
+body.dark-theme .cuenta-corriente-pago-form .form-control {
+    background-color: rgba(8, 28, 45, 0.75);
+    border-color: rgba(241, 250, 238, 0.18);
+    color: #f1faee;
+}
+
+body.dark-theme .cuenta-corriente-pago-form .form-control:focus {
+    background-color: rgba(8, 28, 45, 0.9);
+    border-color: #f1faee;
+    box-shadow: 0 0 0 0.2rem rgba(241, 250, 238, 0.25);
+    color: #f1faee;
+}
+
+body.dark-theme .cuenta-corriente-pago-form .form-control::placeholder {
+    color: rgba(241, 250, 238, 0.65);
+}
+
+body.dark-theme .cuenta-corriente-pago-form .alert-danger {
+    background-color: rgba(214, 48, 49, 0.12);
+    border-color: rgba(214, 48, 49, 0.35);
+    color: #f8d7da;
 }
 
 .cuenta-corriente-tabla thead th {

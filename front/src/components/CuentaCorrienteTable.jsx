@@ -1,4 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+
 
 const formatCurrency = (valor) => {
   const numero = Number(valor) || 0;
@@ -138,11 +142,21 @@ const obtenerFechaMovimiento = (movimiento = {}) => {
 };
 
 const obtenerImpacto = (tipo, monto) => {
-  const tipoNormalizado = typeof tipo === "string" ? tipo.toLowerCase() : "";
-  if (tipoNormalizado === "pago") {
-    return -monto;
+  const numero = Number(monto);
+  if (!Number.isFinite(numero)) {
+    return 0;
   }
-  return monto;
+
+  const tipoNormalizado = typeof tipo === "string" ? tipo.toLowerCase() : "";
+  if (tipoNormalizado === "pago" || tipoNormalizado === "anulación" || tipoNormalizado === "anulacion") {
+    return -Math.abs(numero);
+  }
+
+  if (numero < 0) {
+    return numero;
+  }
+
+  return Math.abs(numero);
 };
 
 const CuentaCorrienteTable = ({
@@ -165,9 +179,12 @@ const CuentaCorrienteTable = ({
       const cliente = obtenerClienteDeMovimiento(movimiento);
       const nombreCliente = obtenerNombreCliente(cliente);
       const fechaMovimiento = obtenerFechaMovimiento(movimiento);
-      const montoNumerico = Math.abs(Number(movimiento.monto) || 0);
+      const montoOriginal = Number(movimiento.monto);
+      const montoNumerico = redondearMoneda(
+        Number.isFinite(montoOriginal) ? Math.abs(montoOriginal) : 0
+      );
       const impacto = redondearMoneda(
-        obtenerImpacto(movimiento.tipo, montoNumerico)
+        obtenerImpacto(movimiento.tipo, montoOriginal)
       );
 
       return {
@@ -252,6 +269,83 @@ const CuentaCorrienteTable = ({
     ? redondearMoneda(saldoFinalCalculado)
     : redondearMoneda(saldoActual);
 
+  const nombreClientePrincipal = useMemo(() => {
+    const movimientoConCliente = movimientosProcesados.find(
+      (movimiento) => movimiento.nombreCliente
+    );
+
+    return movimientoConCliente ? movimientoConCliente.nombreCliente : "";
+  }, [movimientosProcesados]);
+
+  const movimientosParaPdf = useMemo(
+    () => movimientosProcesados.slice(0, pageSize),
+    [movimientosProcesados]
+  );
+
+  const handleExportPdf = useCallback(() => {
+    if (!movimientosParaPdf.length) {
+      return;
+    }
+
+    const doc = new jsPDF();
+    const margenInicialX = 14;
+    let posicionY = 20;
+
+    doc.setFontSize(16);
+    doc.text("Saldo de Cuenta Corriente", margenInicialX, posicionY);
+
+    posicionY += 10;
+    doc.setFontSize(12);
+    if (nombreClientePrincipal) {
+      doc.text(`Cliente: ${nombreClientePrincipal}`, margenInicialX, posicionY);
+      posicionY += 8;
+    }
+
+    const fechaActual = new Date();
+    const fechaFormateada = formatDate(fechaActual);
+    const horaFormateada = formatTime(fechaActual);
+    doc.text(
+      `Fecha de emisión: ${fechaFormateada}${
+        horaFormateada ? ` ${horaFormateada}` : ""
+      }`,
+      margenInicialX,
+      posicionY
+    );
+
+    posicionY += 6;
+
+    doc.autoTable({
+      startY: posicionY,
+      head: [["Fecha", "Tipo", "Descripción", "Monto", "Saldo"]],
+      body: movimientosParaPdf.map((movimiento) => [
+        formatDate(movimiento.fechaMovimiento) || "",
+        movimiento.tipo || "",
+        movimiento.descripcionNormalizada || "",
+        `${movimiento.impacto < 0 ? "-" : "+"} ${formatCurrency(
+          movimiento.montoNumerico
+        )}`,
+        formatCurrency(movimiento.saldoMostrado),
+      ]),
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [33, 150, 243] },
+      columnStyles: {
+        3: { halign: "right" },
+        4: { halign: "right" },
+      },
+    });
+
+    const posicionFinalTabla = doc.lastAutoTable.finalY || posicionY;
+
+    doc.setFontSize(12);
+    doc.text(
+      `Saldo actual: ${formatCurrency(saldoActualMostrado)}`,
+      margenInicialX,
+      posicionFinalTabla + 10
+    );
+
+    doc.save("saldo_cuenta_corriente.pdf");
+  }, [movimientosParaPdf, nombreClientePrincipal, saldoActualMostrado]);
+
   if (loading) {
     return (
       <div className="alert alert-info" role="alert">
@@ -279,13 +373,22 @@ const CuentaCorrienteTable = ({
             Las últimas comandas y pagos aparecen primero.
           </p>
         </div>
-        <span
-          className={`saldo-actual-chip ${
-            saldoEsPositivo ? "saldo-positivo" : "saldo-negativo"
-          }`}
-        >
-          Saldo actual: {formatCurrency(saldoActualMostrado)}
-        </span>
+        <div className="d-flex flex-column flex-sm-row align-items-sm-center justify-content-end mt-3 mt-md-0">
+          <button
+            type="button"
+            className="btn btn-outline-secondary btn-sm mb-2 mb-sm-0 me-sm-3"
+            onClick={handleExportPdf}
+          >
+            Descargar PDF
+          </button>
+          <span
+            className={`saldo-actual-chip ${
+              saldoEsPositivo ? "saldo-positivo" : "saldo-negativo"
+            }`}
+          >
+            Saldo actual: {formatCurrency(saldoActualMostrado)}
+          </span>
+        </div>
       </div>
       <div className="table-responsive">
         <table className="table table-hover mb-0 align-middle cuenta-corriente-tabla">
