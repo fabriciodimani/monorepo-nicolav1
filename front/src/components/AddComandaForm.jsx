@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext, useMemo } from "react";
 import Select from "react-select";
-import { debounce } from "lodash";
-import { getClientesPorNombre, getClientes } from "../helpers/rutaClientes";
+import { getClientesPorNombre } from "../helpers/rutaClientes";
 import { getUsuarios } from "../helpers/rutaUsuarios";
 import { getListas } from "../helpers/rutaListas";
 import ActualizaComanda from "../components/ActualizaComanda";
@@ -19,46 +18,110 @@ const AddComandaForm = () => {
   const [razonsocial, setRazonsocial] = useState("");
   const [clientesFiltrados, setClientesFiltrados] = useState([]);
   const [lista, setLista] = useState("");
-  const [clientes, setClientes] = useState({ data: {}, loading: true });
+  const [loadingBusquedaClientes, setLoadingBusquedaClientes] = useState(false);
+  const [errorBusquedaClientes, setErrorBusquedaClientes] = useState("");
   const [listas, setListas] = useState({ data: {}, loading: true });
   const [usuarios, setUsuarios] = useState({ data: {}, loading: true });
 
-  // 🧠 Inicial: todos los clientes
   useEffect(() => {
-    getClientes().then((res) => {
-      setClientes({ data: res, loading: false });
-      setClientesFiltrados(res.clientes);
-    });
     getListas().then((res) => setListas({ data: res, loading: false }));
     getUsuarios().then((res) => setUsuarios({ data: res, loading: false }));
   }, []);
 
-  // 🔎 Búsqueda parcial
-  const buscarClientesDebounced = debounce((texto) => {
-    if (texto.length >= 3) {
-      setClientes((prev) => ({ ...prev, loading: true }));
-      getClientesPorNombre(texto).then((res) => {
-        let nuevosClientes = res.clientes;
+  useEffect(() => {
+    const termino = inputValue.trim();
 
-        // Mantener selección si no viene en el resultado
-        if (
-          selectedCliente &&
-          !nuevosClientes.find((c) => c._id === selectedCliente.value)
-        ) {
-          nuevosClientes = [
-            {
-              _id: selectedCliente.value,
-              razonsocial: selectedCliente.label,
-            },
-            ...nuevosClientes,
-          ];
+    if (termino.length < 3) {
+      setClientesFiltrados(
+        selectedCliente
+          ? [
+              {
+                _id: selectedCliente.value,
+                razonsocial: selectedCliente.label,
+              },
+            ]
+          : []
+      );
+      setLoadingBusquedaClientes(false);
+      setErrorBusquedaClientes("");
+      return;
+    }
+
+    let cancelado = false;
+    setLoadingBusquedaClientes(true);
+    setErrorBusquedaClientes("");
+
+    const timeoutId = setTimeout(async () => {
+      try {
+        const respuesta = await getClientesPorNombre(termino);
+
+        if (cancelado) {
+          return;
         }
 
-        setClientesFiltrados(nuevosClientes);
-        setClientes((prev) => ({ ...prev, loading: false }));
-      });
-    }
-  }, 400);
+        if (respuesta?.ok) {
+          let nuevosClientes = Array.isArray(respuesta.clientes)
+            ? respuesta.clientes.slice(0, 30)
+            : [];
+
+          if (
+            selectedCliente &&
+            !nuevosClientes.some((cliente) => cliente._id === selectedCliente.value)
+          ) {
+            nuevosClientes = [
+              {
+                _id: selectedCliente.value,
+                razonsocial: selectedCliente.label,
+              },
+              ...nuevosClientes,
+            ];
+          }
+
+          setClientesFiltrados(nuevosClientes);
+          setErrorBusquedaClientes("");
+        } else {
+          const mensajeError =
+            respuesta?.err?.message ||
+            respuesta?.error ||
+            "No fue posible buscar clientes";
+          setErrorBusquedaClientes(mensajeError);
+          setClientesFiltrados(
+            selectedCliente
+              ? [
+                  {
+                    _id: selectedCliente.value,
+                    razonsocial: selectedCliente.label,
+                  },
+                ]
+              : []
+          );
+        }
+      } catch (err) {
+        if (!cancelado) {
+          setErrorBusquedaClientes("No fue posible buscar clientes");
+          setClientesFiltrados(
+            selectedCliente
+              ? [
+                  {
+                    _id: selectedCliente.value,
+                    razonsocial: selectedCliente.label,
+                  },
+                ]
+              : []
+          );
+        }
+      } finally {
+        if (!cancelado) {
+          setLoadingBusquedaClientes(false);
+        }
+      }
+    }, 300);
+
+    return () => {
+      cancelado = true;
+      clearTimeout(timeoutId);
+    };
+  }, [inputValue, selectedCliente]);
 
   const selectStyles = useMemo(
     () => ({
@@ -156,7 +219,7 @@ const AddComandaForm = () => {
 
   return (
     <>
-      {!clientes.loading && !listas.loading && !usuarios.loading && (
+      {!listas.loading && !usuarios.loading && (
         <form onSubmit={handleSubmit}>
           <div className="container">
             <div className="form-row">
@@ -169,6 +232,8 @@ const AddComandaForm = () => {
                   isClearable
                   isSearchable
                   styles={selectStyles}
+                  isLoading={loadingBusquedaClientes}
+                  loadingMessage={() => "Buscando clientes..."}
                   inputValue={inputValue}
                   value={
                     selectedCliente
@@ -181,7 +246,6 @@ const AddComandaForm = () => {
                   onInputChange={(newValue, { action }) => {
                     if (action === "input-change") {
                       setInputValue(newValue);
-                      buscarClientesDebounced(newValue);
                     }
                   }}
                   onChange={(selected) => {
@@ -203,7 +267,36 @@ const AddComandaForm = () => {
                     value: cliente._id,
                     label: cliente.razonsocial,
                   }))}
+                  noOptionsMessage={() => {
+                    if (loadingBusquedaClientes) {
+                      return "Buscando clientes...";
+                    }
+
+                    if (inputValue.trim().length < 3) {
+                      return "Ingrese al menos 3 caracteres";
+                    }
+
+                    if (errorBusquedaClientes) {
+                      return errorBusquedaClientes;
+                    }
+
+                    return "No se encontraron clientes";
+                  }}
                 />
+
+                {errorBusquedaClientes && (
+                  <small className="form-text text-danger d-block mt-1">
+                    {errorBusquedaClientes}
+                  </small>
+                )}
+
+                {!errorBusquedaClientes &&
+                  inputValue.trim().length > 0 &&
+                  inputValue.trim().length < 3 && (
+                    <small className="form-text text-muted d-block mt-1">
+                      Ingrese al menos 3 caracteres para buscar
+                    </small>
+                  )}
 
                 {selectedCliente && (
                   <div className="alert alert-success mt-2 p-2">

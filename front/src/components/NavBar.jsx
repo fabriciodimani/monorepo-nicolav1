@@ -247,6 +247,12 @@ const NavBar = () => {
 
               {(payload.role === "ADMIN_ROLE" || payload.role === "ADMIN_SUP") && (
                 <NavDropdown title="Proveedores" id="navbarProveedoresDropdown">
+                  <NavDropdown.Item
+                    href="/CuentaCorrienteProveedores"
+                    classename="nav-link3"
+                  >
+                    Cuenta Corriente
+                  </NavDropdown.Item>
                   <NavDropdown.Item href="/proveedores" classename="nav-link3">
                     Gestión de Proveedores
                   </NavDropdown.Item>
@@ -319,6 +325,12 @@ const NavBar = () => {
                   >
                     Listar Remitos
                   </NavDropdown.Item>
+                  <NavDropdown.Item
+                    href="/InformeFacturasCompras"
+                    classename="nav-link3"
+                  >
+                    Listar Factura Compras
+                  </NavDropdown.Item>
                   <NavDropdown.Item href="/InformeStock" classename="nav-link3">
                     Historico de Stock
                   </NavDropdown.Item>
@@ -346,6 +358,12 @@ const NavBar = () => {
                   >
                     Listar Remitos
                   </NavDropdown.Item>
+                  <NavDropdown.Item
+                    href="/InformeFacturasCompras"
+                    classename="nav-link3"
+                  >
+                    Listar Factura Compras
+                  </NavDropdown.Item>
                   <NavDropdown.Item href="/InformeStock" classename="nav-link3">
                     Historico de Stock
                   </NavDropdown.Item>
@@ -365,6 +383,12 @@ const NavBar = () => {
                     classename="nav-link3"
                   >
                     Listar Remitos
+                  </NavDropdown.Item>
+                  <NavDropdown.Item
+                    href="/InformeFacturasCompras"
+                    classename="nav-link3"
+                  >
+                    Listar Factura Compras
                   </NavDropdown.Item>
                   <NavDropdown.Item href="/InformeStock" classename="nav-link3">
                     Historico de Stock

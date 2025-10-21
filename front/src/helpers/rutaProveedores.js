@@ -20,6 +20,30 @@ export const getProveedores = async () => {
     };
   }
 };
+
+export const getProveedoresPorNombre = async (nombre) => {
+  const termino = nombre || "";
+  let url = `http://localhost:3004/proveedores/buscar?nombre=${encodeURIComponent(
+    termino
+  )}`;
+  const options = {
+    method: "GET",
+    headers: {
+      "content-type": "application/x-www-form-urlencoded",
+    },
+  };
+
+  try {
+    const resp = await axios(url, options);
+    const { data } = resp;
+    return data;
+  } catch (error) {
+    return {
+      data: error.response?.data || { error: "Error de conexión" },
+      loading: false,
+    };
+  }
+};
 //Traer un curso según su id
 export const getProveedorId = async (id) => {
   let url = `http://localhost:3004/proveedores/${id}`;
