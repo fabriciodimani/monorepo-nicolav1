@@ -6,6 +6,9 @@ const CuentaCorrientePagoForm = ({
   clientes = [],
   clienteSeleccionado = "",
   onClienteChange,
+  busquedaCliente = "",
+  onBusquedaClienteChange,
+  buscandoClientes = false,
   onSubmit,
   loading = false,
 }) => {
@@ -99,6 +102,30 @@ const CuentaCorrientePagoForm = ({
       <div className="card-body d-flex flex-column gap-3">
         <h5 className="card-title">Registrar pago</h5>
         <div className="form-group mb-3">
+          <label htmlFor="busquedaCliente">Buscar cliente</label>
+          <input
+            type="text"
+            id="busquedaCliente"
+            name="busquedaCliente"
+            className="form-control"
+            placeholder="Ingrese al menos 3 caracteres"
+            value={busquedaCliente}
+            onChange={(event) => {
+              if (typeof onBusquedaClienteChange === "function") {
+                onBusquedaClienteChange(event.target.value);
+              }
+            }}
+            disabled={loading}
+            autoComplete="off"
+          />
+          {busquedaCliente.trim().length > 0 &&
+            busquedaCliente.trim().length < 3 && (
+              <small className="form-text text-muted">
+                Ingrese al menos 3 caracteres para buscar.
+              </small>
+            )}
+        </div>
+        <div className="form-group mb-3">
           <label htmlFor="clienteId">Cliente</label>
           <select
             id="clienteId"
@@ -106,7 +133,7 @@ const CuentaCorrientePagoForm = ({
             className="form-control"
             value={formData.clienteId}
             onChange={handleChange}
-            disabled={loading}
+            disabled={loading || buscandoClientes}
           >
             <option value="">Seleccione un cliente</option>
             {clientes.map((cliente) => (
@@ -115,6 +142,17 @@ const CuentaCorrientePagoForm = ({
               </option>
             ))}
           </select>
+          {buscandoClientes && (
+            <small className="form-text text-muted">
+              Buscando clientes...
+            </small>
+          )}
+          {!buscandoClientes && busquedaCliente.trim().length >= 3 &&
+            clientes.length === 0 && (
+              <small className="form-text text-muted">
+                No se encontraron clientes para la búsqueda ingresada.
+              </small>
+            )}
         </div>
 
         <div className="form-group mb-3">
