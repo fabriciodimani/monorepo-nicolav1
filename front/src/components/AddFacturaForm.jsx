@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { addFacturaCompra } from "../helpers/rutaFacturasCompra";
 import { getProveedores } from "../helpers/rutaProveedores";
+import { obtenerFechaArgentinaHoy } from "../helpers/fechas";
+import { formatearMontoARS } from "../helpers/moneda";
 import "../css/addclienteform.css";
-
-const obtenerFechaHoy = () => new Date().toISOString().split("T")[0];
 
 const AddFacturaForm = ({ setShow }) => {
   const [formValues, setFormValues] = useState({
     numero: "",
-    fecha: obtenerFechaHoy(),
+    fecha: obtenerFechaArgentinaHoy(),
     proveedor: "",
     monto: "",
   });
@@ -59,7 +59,7 @@ const AddFacturaForm = ({ setShow }) => {
       if (resp?.ok) {
         setFormValues({
           numero: "",
-          fecha: obtenerFechaHoy(),
+          fecha: obtenerFechaArgentinaHoy(),
           proveedor: "",
           monto: "",
         });
@@ -67,6 +67,9 @@ const AddFacturaForm = ({ setShow }) => {
       }
     });
   };
+
+  const montoFormateado =
+    formValues.monto === "" ? "" : formatearMontoARS(formValues.monto);
 
   return (
     <>
@@ -126,17 +129,23 @@ const AddFacturaForm = ({ setShow }) => {
             <div className="form-row">
               <div className="form-group mt-3 col-sm-4">
                 <label htmlFor="monto">Monto de la Factura</label>
-                <input
-                  id="monto"
-                  type="number"
-                  className="form-control"
-                  name="monto"
-                  min="0"
-                  step="0.01"
-                  required
-                  value={formValues.monto}
-                  onChange={handleChange}
-                />
+                <div className="input-group">
+                  <span className="input-group-text">$</span>
+                  <input
+                    id="monto"
+                    type="number"
+                    className="form-control"
+                    name="monto"
+                    min="0"
+                    step="0.01"
+                    required
+                    value={formValues.monto}
+                    onChange={handleChange}
+                  />
+                </div>
+                <small className="form-text text-muted">
+                  {montoFormateado || "$\u00a00,00"}
+                </small>
               </div>
             </div>
 

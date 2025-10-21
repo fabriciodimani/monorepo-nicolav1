@@ -12,6 +12,12 @@ const CuentaCorrientePagoForm = ({
   loading = false,
   loadingBusquedaClientes = false,
   errorBusquedaClientes = "",
+  labelBuscar = "Buscar cliente",
+  placeholderBusqueda = "Ingrese al menos 3 caracteres",
+  labelEntidad = "Cliente",
+  entidadNombre = "cliente",
+  textoSeleccionEntidad = "Seleccione un cliente",
+  mensajeBusquedaActiva = "Buscando clientes...",
 }) => {
   const [formData, setFormData] = useState({
     clienteId: clienteSeleccionado || "",
@@ -45,7 +51,7 @@ const CuentaCorrientePagoForm = ({
 
   const validar = () => {
     if (!formData.clienteId) {
-      setErrores("Debe seleccionar un cliente");
+      setErrores(`Debe seleccionar un ${entidadNombre}`);
       return false;
     }
 
@@ -103,13 +109,13 @@ const CuentaCorrientePagoForm = ({
       <div className="card-body d-flex flex-column gap-3">
         <h5 className="card-title">Registrar pago</h5>
         <div className="form-group mb-3">
-          <label htmlFor="buscarCliente">Buscar cliente</label>
+          <label htmlFor="buscarCliente">{labelBuscar}</label>
           <input
             type="text"
             id="buscarCliente"
             name="buscarCliente"
             className="form-control"
-            placeholder="Ingrese al menos 3 caracteres"
+            placeholder={placeholderBusqueda}
             value={busquedaCliente}
             onChange={(event) =>
               typeof onBusquedaClienteChange === "function"
@@ -121,7 +127,7 @@ const CuentaCorrientePagoForm = ({
           />
           {loadingBusquedaClientes && (
             <small className="form-text text-muted">
-              Buscando clientes...
+              {mensajeBusquedaActiva}
             </small>
           )}
           {!loadingBusquedaClientes && errorBusquedaClientes && (
@@ -131,7 +137,7 @@ const CuentaCorrientePagoForm = ({
           )}
         </div>
         <div className="form-group mb-3">
-          <label htmlFor="clienteId">Cliente</label>
+          <label htmlFor="clienteId">{labelEntidad}</label>
           <select
             id="clienteId"
             name="clienteId"
@@ -140,7 +146,7 @@ const CuentaCorrientePagoForm = ({
             onChange={handleChange}
             disabled={loading || loadingBusquedaClientes || clientes.length === 0}
           >
-            <option value="">Seleccione un cliente</option>
+            <option value="">{textoSeleccionEntidad}</option>
             {clientes.map((cliente) => (
               <option key={cliente._id} value={cliente._id}>
                 {cliente.razonsocial}
