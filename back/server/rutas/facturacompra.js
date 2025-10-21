@@ -12,6 +12,27 @@ const { obtenerFechaArgentina } = require("../utils/fechas");
 
 const app = express();
 
+const sincronizarHorarioActualArgentina = (fecha) => {
+  if (!(fecha instanceof Date) || Number.isNaN(fecha.getTime())) {
+    return null;
+  }
+
+  const ahoraArgentina = obtenerFechaArgentina();
+
+  if (!(ahoraArgentina instanceof Date) || Number.isNaN(ahoraArgentina.getTime())) {
+    return fecha;
+  }
+
+  fecha.setUTCHours(
+    ahoraArgentina.getUTCHours(),
+    ahoraArgentina.getUTCMinutes(),
+    ahoraArgentina.getUTCSeconds(),
+    ahoraArgentina.getUTCMilliseconds()
+  );
+
+  return fecha;
+};
+
 const parseFechaFactura = (valor) => {
   if (!valor) {
     return null;
@@ -21,28 +42,46 @@ const parseFechaFactura = (valor) => {
     return valor;
   }
 
-  if (typeof valor === "string") {
-    const trimmed = valor.trim();
-    if (!trimmed) {
-      return null;
-    }
+  const esCadena = typeof valor === "string";
+  const contenido = esCadena ? valor.trim() : "";
 
-    const isoMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})/);
-    if (isoMatch) {
-      const date = new Date(`${isoMatch[1]}-${isoMatch[2]}-${isoMatch[3]}T00:00:00`);
-      return Number.isNaN(date.getTime()) ? null : date;
-    }
+  let fechaNormalizada = obtenerFechaArgentina(valor);
 
-    const partes = trimmed.split("/");
-    if (partes.length === 3) {
-      const [dia, mes, anio] = partes;
-      const date = new Date(`${anio}-${mes}-${dia}T00:00:00`);
-      return Number.isNaN(date.getTime()) ? null : date;
+  if (!(fechaNormalizada instanceof Date) || Number.isNaN(fechaNormalizada.getTime())) {
+    if (esCadena && contenido) {
+      const isoMatch = contenido.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (isoMatch) {
+        fechaNormalizada = obtenerFechaArgentina(
+          `${isoMatch[1]}-${isoMatch[2]}-${isoMatch[3]}`
+        );
+      } else {
+        const partes = contenido.split("/");
+        if (partes.length === 3) {
+          const [dia, mes, anio] = partes;
+          fechaNormalizada = obtenerFechaArgentina(`${anio}-${mes}-${dia}`);
+        }
+      }
     }
   }
 
-  const date = new Date(valor);
-  return Number.isNaN(date.getTime()) ? null : date;
+  if (!(fechaNormalizada instanceof Date) || Number.isNaN(fechaNormalizada.getTime())) {
+    const date = new Date(valor);
+    fechaNormalizada = Number.isNaN(date.getTime()) ? null : date;
+  }
+
+  if (!(fechaNormalizada instanceof Date) || Number.isNaN(fechaNormalizada.getTime())) {
+    return null;
+  }
+
+  if (
+    esCadena &&
+    contenido &&
+    (/^(\d{4})-(\d{2})-(\d{2})$/.test(contenido) || /^(\d{2})\/(\d{2})\/(\d{4})$/.test(contenido))
+  ) {
+    sincronizarHorarioActualArgentina(fechaNormalizada);
+  }
+
+  return fechaNormalizada;
 };
 
 const normalizarMonto = (valor) => {
