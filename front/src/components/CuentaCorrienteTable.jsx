@@ -1,6 +1,8 @@
+
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+
 
 const formatCurrency = (valor) => {
   const numero = Number(valor) || 0;
