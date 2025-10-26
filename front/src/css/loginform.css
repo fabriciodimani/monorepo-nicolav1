@@ -1,22 +1,73 @@
-.form-group label {
-  font-size: 1.5rem;
-  font-family: "Quicksand";
-}
-.form-group input {
-  font-size: 1.5rem;
-  font-family: "Quicksand";
-}
-.alert {
-  font-size: 1.5rem;
-  font-family: "Quicksand";
+.login-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
-.btn {
-  font-size: 1.5rem;
-  font-family: "Quicksand";
+.login-card .form-group {
+  margin-bottom: 0;
 }
 
-.form-group button {
-  font-size: 3rem;
-  font-family: "Quicksand";
+.login-card label {
+  font-family: "Quicksand", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #f0f0f0;
+  margin-bottom: 0.4rem;
+}
+
+.login-card input {
+  font-family: "Quicksand", sans-serif;
+  font-size: 1rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 10px;
+}
+
+.login-card .btn {
+  font-family: "Quicksand", sans-serif;
+  font-size: 1rem;
+  padding: 0.7rem;
+  border-radius: 10px;
+}
+
+.login-card .alert {
+  font-family: "Quicksand", sans-serif;
+  font-size: 0.95rem;
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .login-card form {
+    gap: 0.65rem;
+  }
+
+  .login-card label {
+    font-size: 0.9rem;
+  }
+
+  .login-card input,
+  .login-card .btn {
+    font-size: 0.95rem;
+    padding: 0.6rem 0.7rem;
+  }
+
+  .login-card .alert {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-card form {
+    gap: 0.6rem;
+  }
+
+  .login-card label {
+    font-size: 0.85rem;
+  }
+
+  .login-card input,
+  .login-card .btn {
+    font-size: 0.9rem;
+    padding: 0.55rem 0.65rem;
+  }
 }
