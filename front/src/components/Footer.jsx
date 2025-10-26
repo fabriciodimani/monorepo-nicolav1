@@ -7,8 +7,8 @@ const Footer = () => {
   return (
     <footer id="footer">
       <div className="container">
-        <div className="row">
-          <div className="col-lg-4 col-xs-12 col-md-12">
+        <div className="row footer-row">
+          <div className="col-lg-4 col-xs-12 col-md-12 footer-column centered">
             <div className="row">
               <div className="col-lg-12 col-md-12 visible-md visible-lg copyright">
                 <img src={logo} alt="logo" />
@@ -23,8 +23,8 @@ const Footer = () => {
               </div>
             </div>
           </div>
-          <div className="col-4">
-            {/* <a title="Whatsapp" 
+          <div className="col-4 footer-column centered">
+            {/* <a title="Whatsapp"
                         href="https://wa.link/0zbip1"
                         target="_blank">
                         <img className="imag1" 
@@ -37,7 +37,7 @@ const Footer = () => {
             {/* <h3>CONTACTANOS</h3> */}
           </div>
 
-          <div id="contacto" className="col-lg-4 col-xs-12 col-md-12">
+          <div id="contacto" className="col-lg-4 col-xs-12 col-md-12 footer-column right">
             <div className="row">
               <div className="col-md-12 hidden-xs hidden-sm ">
                 <p className="contact">

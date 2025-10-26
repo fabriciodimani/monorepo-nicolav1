@@ -1,18 +1,57 @@
 #footer {
-  background-color: #1d3557 !important;
+  background-color: #121212 !important;
+  color: #f5f5f5 !important;
   min-height: 5rem;
-  padding: 1rem;
+  padding: 2rem 1rem;
   text-align: center;
-  color: #f1faee !important;
   font-size: 1rem !important;
+  border-top: 1px solid #3a3a3a;
 }
 
 #footer p {
   font-size: 1.2rem;
+  color: #e0e0e0;
 }
 
-#footer a {
-  color: #f1faee !important;
+#footer a,
+#footer button {
+  color: #f5f5f5 !important;
+  background-color: transparent;
+  border: none;
+  transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out,
+    border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+#footer a:hover,
+#footer a:focus,
+#footer a:focus-visible,
+#footer button:hover,
+#footer button:focus,
+#footer button:focus-visible {
+  color: #e0e0e0 !important;
+  background-color: #2a2a2a;
+  outline: none;
+}
+
+#footer a:focus,
+#footer a:focus-visible,
+#footer button:focus,
+#footer button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(58, 58, 58, 0.6);
+}
+
+#footer button {
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #3a3a3a;
+  background-color: #1b1b1b;
+}
+
+#footer button:hover,
+#footer button:focus,
+#footer button:focus-visible {
+  border-color: #4a4a4a;
+  background-color: #2a2a2a;
 }
 
 #footer img {
@@ -20,26 +59,55 @@
   padding: 1rem;
 }
 
-#footer .imag1 {
-  margin-top: 15px;
-  height: 6rem;
-  width: 6rem;
+#footer .footer-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: center;
+  align-items: flex-start;
 }
-/*footer centrado*/
-@media (max-width: 1024px) {
-  #contacto {
-    text-align: center !important;
+
+#footer .footer-column {
+  flex: 1 1 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  text-align: left;
+}
+
+#footer .footer-column.centered {
+  text-align: center;
+  align-items: center;
+}
+
+#footer .footer-column.right {
+  text-align: right;
+  align-items: flex-end;
+}
+
+#footer .contact {
+  color: #f5f5f5;
+  letter-spacing: 0.05rem;
+}
+
+#footer .description-contact {
+  color: #e0e0e0;
+}
+
+@media (max-width: 1023px) {
+  #footer .footer-column,
+  #footer .footer-column.right {
+    text-align: center;
+    align-items: center;
   }
 }
 
-@media (min-width: 1024px) {
-  #contacto {
-    text-align: right !important;
+@media (max-width: 767px) {
+  #footer {
+    padding: 2rem 1.5rem;
   }
-}
 
-@media (max-width: 1024px) {
-  #footer .imag1 {
-    margin-left: 120px !important;
+  #footer .footer-column {
+    flex: 1 1 100%;
   }
 }
