@@ -59,51 +59,42 @@ const LoginForm = () => {
   return (
     <>
       <main>
-        <div className="row">
-          <div className="row-15">
-            <div className="col-12">
-              <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                  <label className="">Correo electrónico</label>
-                  <input
-                    type="email"
-                    className="form-control"
-                    name="email"
-                    value={formValues.email}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="form-group mt-2">
-                  <label className="">Contraseña</label>
-                  <input
-                    type="password"
-                    className="form-control"
-                    name="password"
-                    value={formValues.password}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="btn btn-info btn-block mt-2"
-                  disabled={user.loading}
-                >
-                  Enviar
-                </button>
-              </form>
-              {console.log(user.data.ok)}
-              {user.data.ok === false && (
-                <div className="alert alert-dark mt-3 text-center" role="alert">
-                  {user.data.err.message}
-                </div>
-              )}
-
-              {user.data.ok === true}
-   
-            </div>
+        <form className="login-form" onSubmit={handleSubmit}>
+          <div className="login-field">
+            <label htmlFor="login-email">Correo electrónico</label>
+            <input
+              id="login-email"
+              type="email"
+              className="form-control"
+              name="email"
+              value={formValues.email}
+              onChange={handleChange}
+            />
           </div>
-        </div>
+          <div className="login-field">
+            <label htmlFor="login-password">Contraseña</label>
+            <input
+              id="login-password"
+              type="password"
+              className="form-control"
+              name="password"
+              value={formValues.password}
+              onChange={handleChange}
+            />
+          </div>
+
+          <button type="submit" className="login-btn" disabled={user.loading}>
+            Enviar
+          </button>
+        </form>
+        {console.log(user.data.ok)}
+        {user.data.ok === false && (
+          <div className="alert alert-dark mt-3 text-center" role="alert">
+            {user.data.err.message}
+          </div>
+        )}
+
+        {user.data.ok === true}
       </main>
     </>
   );
