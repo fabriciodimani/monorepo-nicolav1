@@ -242,6 +242,9 @@ const NavBar = () => {
                   <NavDropdown.Item href="/clientes" classename="nav-link3">
                     Gestión de Clientes
                   </NavDropdown.Item>
+                  <NavDropdown.Item href="/InformeClientes" classename="nav-link3">
+                    Listar Clientes
+                  </NavDropdown.Item>
                 </NavDropdown>
               )}
 
