@@ -69,7 +69,7 @@ const Styles = styled.div`
   }
 `;
 
-const numberFormatter = new Intl.NumberFormat("es-AR", {
+const currencyFormatter = new Intl.NumberFormat("es-AR", {
   style: "currency",
   currency: "ARS",
   minimumFractionDigits: 2,
@@ -83,14 +83,14 @@ function toNumber(value) {
   return Number.isNaN(parsed) ? 0 : parsed;
 }
 
-function AppClienteReactTable() {
+function AppProveedorReactTable() {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    axios("http://localhost:3004/clientes")
+    axios("http://localhost:3004/proveedores")
       .then((res) => {
-        const clientes = res.data?.clientes || [];
-        const activos = clientes.filter((cliente) => cliente.activo !== false);
+        const proveedores = res.data?.proveedores || [];
+        const activos = proveedores.filter((proveedor) => proveedor.activo !== false);
         setData(activos);
       })
       .catch((err) => console.log(err));
@@ -100,7 +100,7 @@ function AppClienteReactTable() {
     () => [
       {
         Header: "Nro",
-        accessor: "codcli",
+        accessor: "codprov",
         width: 90,
         Cell: (row) => <div style={{ textAlign: "center" }}>{row.value}</div>,
       },
@@ -138,28 +138,17 @@ function AppClienteReactTable() {
         accessor: "saldo",
         width: 140,
         Cell: ({ value }) => (
-          <div style={{ textAlign: "right" }}>{numberFormatter.format(toNumber(value))}</div>
+          <div style={{ textAlign: "right" }}>{currencyFormatter.format(toNumber(value))}</div>
         ),
         Footer: (info) => {
-
           const total = info.rows.reduce((sum, row) => {
             const val = row.values.saldo;
             return sum + toNumber(val);
           }, 0);
 
-          const total = React.useMemo(
-            () =>
-              info.rows.reduce((sum, row) => {
-                const val = row.values.saldo;
-                return sum + toNumber(val);
-              }, 0),
-            [info.rows]
-          );
-
-
           return (
             <div style={{ textAlign: "right" }}>
-              <b className="pie">{numberFormatter.format(total)}</b>
+              <b className="pie">{currencyFormatter.format(total)}</b>
             </div>
           );
         },
@@ -171,7 +160,7 @@ function AppClienteReactTable() {
   return (
     <>
       <h1>
-        <center>Listar Clientes</center>
+        <center>Listar Proveedores</center>
       </h1>
       <Styles className="table sticky" style={{ width: "auto", height: 400 }}>
         <div className="App">
@@ -182,4 +171,4 @@ function AppClienteReactTable() {
   );
 }
 
-export default AppClienteReactTable;
+export default AppProveedorReactTable;
