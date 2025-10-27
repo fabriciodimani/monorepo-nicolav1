@@ -141,10 +141,21 @@ function AppClienteReactTable() {
           <div style={{ textAlign: "right" }}>{numberFormatter.format(toNumber(value))}</div>
         ),
         Footer: (info) => {
+
           const total = info.rows.reduce((sum, row) => {
             const val = row.values.saldo;
             return sum + toNumber(val);
           }, 0);
+
+          const total = React.useMemo(
+            () =>
+              info.rows.reduce((sum, row) => {
+                const val = row.values.saldo;
+                return sum + toNumber(val);
+              }, 0),
+            [info.rows]
+          );
+
 
           return (
             <div style={{ textAlign: "right" }}>
