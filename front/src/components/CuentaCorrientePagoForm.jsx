@@ -5,9 +5,19 @@ const obtenerFechaHoy = () => new Date().toISOString().split("T")[0];
 const CuentaCorrientePagoForm = ({
   clientes = [],
   clienteSeleccionado = "",
+  busquedaCliente = "",
+  onBusquedaClienteChange,
   onClienteChange,
   onSubmit,
   loading = false,
+  loadingBusquedaClientes = false,
+  errorBusquedaClientes = "",
+  labelBuscar = "Buscar cliente",
+  placeholderBusqueda = "Ingrese al menos 3 caracteres",
+  labelEntidad = "Cliente",
+  entidadNombre = "cliente",
+  textoSeleccionEntidad = "Seleccione un cliente",
+  mensajeBusquedaActiva = "Buscando clientes...",
 }) => {
   const [formData, setFormData] = useState({
     clienteId: clienteSeleccionado || "",
@@ -41,7 +51,7 @@ const CuentaCorrientePagoForm = ({
 
   const validar = () => {
     if (!formData.clienteId) {
-      setErrores("Debe seleccionar un cliente");
+      setErrores(`Debe seleccionar un ${entidadNombre}`);
       return false;
     }
 
@@ -92,20 +102,51 @@ const CuentaCorrientePagoForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="card shadow-sm">
+    <form
+      onSubmit={handleSubmit}
+      className="card shadow-sm cuenta-corriente-pago-form"
+    >
       <div className="card-body d-flex flex-column gap-3">
         <h5 className="card-title">Registrar pago</h5>
         <div className="form-group mb-3">
-          <label htmlFor="clienteId">Cliente</label>
+          <label htmlFor="buscarCliente">{labelBuscar}</label>
+          <input
+            type="text"
+            id="buscarCliente"
+            name="buscarCliente"
+            className="form-control"
+            placeholder={placeholderBusqueda}
+            value={busquedaCliente}
+            onChange={(event) =>
+              typeof onBusquedaClienteChange === "function"
+                ? onBusquedaClienteChange(event.target.value)
+                : null
+            }
+            disabled={loading || loadingBusquedaClientes}
+            autoComplete="off"
+          />
+          {loadingBusquedaClientes && (
+            <small className="form-text text-muted">
+              {mensajeBusquedaActiva}
+            </small>
+          )}
+          {!loadingBusquedaClientes && errorBusquedaClientes && (
+            <small className="form-text text-danger">
+              {errorBusquedaClientes}
+            </small>
+          )}
+        </div>
+        <div className="form-group mb-3">
+          <label htmlFor="clienteId">{labelEntidad}</label>
           <select
             id="clienteId"
             name="clienteId"
             className="form-control"
             value={formData.clienteId}
             onChange={handleChange}
-            disabled={loading}
+            disabled={loading || loadingBusquedaClientes || clientes.length === 0}
           >
-            <option value="">Seleccione un cliente</option>
+            <option value="">{textoSeleccionEntidad}</option>
             {clientes.map((cliente) => (
               <option key={cliente._id} value={cliente._id}>
                 {cliente.razonsocial}

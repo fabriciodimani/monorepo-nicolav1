@@ -48,6 +48,15 @@ let proveedorSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "Usuario",
   },
+
+  saldo: {
+    type: Number,
+    default: 0,
+  },
+  saldoInicial: {
+    type: Number,
+    default: 0,
+  },
 });
 
 proveedorSchema.plugin(uniqueValidator, {

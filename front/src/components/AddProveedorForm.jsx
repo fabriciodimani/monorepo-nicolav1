@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { addProveedor } from "../helpers/rutaProveedores";
 import { getLocalidades } from "../helpers/rutaLocalidades";
-import { getRutas } from "../helpers/rutaRutas";
 import { getIva } from "../helpers/rutaIva";
 import "../css/addclienteform.css";
 
@@ -17,18 +16,37 @@ const AddProveedorForm = ({ setShow }) => {
     localidad: "",
     condicioniva: "",
     ruta: "",
+    saldo: "0",
 
     // usuario: id,
   });
   const handleChange = (e) => {
-    setFormValues({
-      ...formValues,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    const nextValue =
+      name === "saldo" ? value.replace(/[^0-9,.-]/g, "") : value;
+
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      [name]: nextValue,
+    }));
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    addProveedor(formValues).then((resp) => {
+    const saldoNormalizado = () => {
+      if (formValues.saldo === null || formValues.saldo === undefined) {
+        return 0;
+      }
+
+      const normalizado = String(formValues.saldo).replace(/,/g, ".");
+      const numero = Number(normalizado);
+
+      return Number.isNaN(numero) ? 0 : numero;
+    };
+
+    addProveedor({
+      ...formValues,
+      saldo: saldoNormalizado(),
+    }).then((resp) => {
       console.log(resp);
       setFormValues({
         codprov: "",
@@ -39,6 +57,8 @@ const AddProveedorForm = ({ setShow }) => {
         email: "",
         localidad: "",
         condicioniva: "",
+        ruta: "",
+        saldo: "0",
       });
       //   setShow(false);
     });
@@ -189,7 +209,7 @@ const AddProveedorForm = ({ setShow }) => {
                 <select
                   className="form-control"
                   name="condicioniva"
-                  value={formValues.condidicioniva}
+                  value={formValues.condicioniva}
                   onChange={handleChange}
                   required
                 >
@@ -200,6 +220,19 @@ const AddProveedorForm = ({ setShow }) => {
                     <option value={iva._id}>{iva.iva}</option>
                   ))}
                 </select>
+              </div>
+
+              <div className="form-group mt-3 col-sm-2">
+                <label className="saldo-inicial-label">Saldo Inicial</label>
+                <input
+                  type="number"
+                  className="form-control saldo-inicial-input"
+                  name="saldo"
+                  value={formValues.saldo}
+                  step="0.01"
+                  inputMode="decimal"
+                  onChange={handleChange}
+                />
               </div>
             </div>
 

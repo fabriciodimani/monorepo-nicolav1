@@ -13,7 +13,7 @@ const Footer = () => {
               <div className="col-lg-12 col-md-12 visible-md visible-lg copyright">
                 <img src={logo} alt="logo" />
                 <p>
-                  © Copyright 2021 <strong> Distripollo </strong>
+                  © Copyright 2025 <strong> Avicola Nicola </strong>
                 </p>
               </div>
               <div className="col-lg-12 col-md-12 visible-md visible-lg copyright">
@@ -47,11 +47,11 @@ const Footer = () => {
                   Por consultas comuníquese con nosotros:
                 </p>
                 <p className="description-contact">
-                  Lun a Sab de 9 a 18 Hs - Tel +3816298096
+                  Lun a Sab de 8 a 13:30 Hs - Tel +0383 453-3475
                 </p>
                 {/* <p className="description-contact">Cel +5493816900030 +5493814909195</p> */}
                 <p className="description-contact">
-                  Domicilio: Eudoro Araoz 933
+                  Domicilio: Bernardino Ahumada, K4707 San Isidro, Catamarca
                 </p>
               </div>
             </div>

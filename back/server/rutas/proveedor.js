@@ -9,6 +9,54 @@ const {
 const _ = require("underscore");
 const app = express();
 
+const escaparRegex = (termino = "") =>
+  termino.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&");
+
+app.get("/proveedores/buscar", async (req, res) => {
+  const termino = (req.query.nombre || req.query.razonsocial || "").trim();
+
+  if (termino.length < 3) {
+    return res.json({
+      ok: true,
+      proveedores: [],
+    });
+  }
+
+  const terminoEscapado = escaparRegex(termino);
+  const regexBusqueda = new RegExp(terminoEscapado, "i");
+
+  const filtros = [{ razonsocial: regexBusqueda }];
+
+  if (/^\d+$/.test(termino)) {
+    filtros.push({ codprov: Number(termino) });
+  }
+
+  if (/^[0-9\-]+$/.test(termino)) {
+    filtros.push({ cuit: regexBusqueda });
+  }
+
+  try {
+    const proveedores = await Proveedor.find({
+      activo: true,
+      $or: filtros,
+    })
+      .limit(50)
+      .sort("razonsocial")
+      .lean();
+
+    res.json({
+      ok: true,
+      proveedores,
+    });
+  } catch (err) {
+    console.error("GET /proveedores/buscar", err);
+    res.status(500).json({
+      ok: false,
+      err: { message: "No fue posible buscar proveedores" },
+    });
+  }
+});
+
 app.get("/proveedores", function (req, res) {
   // res.json("GET usuarios");
 
@@ -75,6 +123,9 @@ app.post("/proveedores", function (req, res) {
   // res.json('POST usuarios')
 
   let body = req.body;
+  const saldoNormalizado = Number(body.saldo);
+
+  const saldo = Number.isNaN(saldoNormalizado) ? 0 : saldoNormalizado;
 
   let proveedor = new Proveedor({
     codprov: body.codprov,
@@ -86,6 +137,8 @@ app.post("/proveedores", function (req, res) {
     localidad: body.localidad,
     condicioniva: body.condicioniva,
     activo: body.activo,
+    saldo,
+    saldoInicial: saldo,
     // usuario: req.Usuario._id, //probar si graba
   });
 
@@ -110,6 +163,18 @@ app.put(
     // res.json("PUT usuarios");
     let id = req.params.id;
     let body = req.body;
+
+    if (body.hasOwnProperty("saldo")) {
+      const saldoNormalizado = Number(body.saldo);
+      body.saldo = Number.isNaN(saldoNormalizado) ? 0 : saldoNormalizado;
+    }
+
+    if (body.hasOwnProperty("saldoInicial")) {
+      const saldoInicialNormalizado = Number(body.saldoInicial);
+      body.saldoInicial = Number.isNaN(saldoInicialNormalizado)
+        ? 0
+        : saldoInicialNormalizado;
+    }
 
     Proveedor.findByIdAndUpdate(
       id,

@@ -14,6 +14,7 @@ import StocksPrev from "./pages/StocksPrev";
 import Clientes from "./pages/Clientes";
 import ClientesPrev from "./pages/ClientesPrev";
 import Proveedores from "./pages/Proveedores";
+import Facturas from "./pages/Facturas";
 import Localidades from "./pages/Localidades";
 import Empresas from "./pages/Empresas";
 import Producservs from "./pages/Producservs";
@@ -27,10 +28,14 @@ import InformeImpresion from "./pages/InformeImpresion";
 import InformeGestion from "./pages/InformeGestion";
 import InformePreventas from "./pages/InformePreventas";
 import InformeRemitos from "./pages/InformeRemitos";
+import InformeClientes from "./pages/InformeClientes";
+import InformeProveedores from "./pages/InformeProveedores";
 import InformeStock from "./pages/InformeStock";
 import InformeOrdenAPreparar from "./pages/InformeOrdenAPreparar";
 import InformeHojaRuta from "./pages/InformeHojaRuta";
+import InformeFacturaCompras from "./pages/InformeFacturaCompras";
 import CuentaCorriente from "./pages/CuentaCorriente";
+import CuentaCorrienteProveedores from "./pages/CuentaCorrienteProveedores";
 
 const App = () => {
   return (
@@ -49,6 +54,7 @@ const App = () => {
             <Route exact path="/Clientes" component={Clientes} />
             <Route exact path="/ClientesPrev" component={ClientesPrev} />
             <Route exact path="/Proveedores" component={Proveedores} />
+            <Route exact path="/Facturas" component={Facturas} />
             <Route exact path="/Localidades" component={Localidades} />
             <Route exact path="/Empresas" component={Empresas} />
             <Route exact path="/Producservs" component={Producservs} />
@@ -62,10 +68,26 @@ const App = () => {
             <Route exact path="/InformeGestion" component={InformeGestion} />            
             <Route exact path="/InformePreventas" component={InformePreventas} />
             <Route exact path="/InformeRemitos" component={InformeRemitos} />
+            <Route exact path="/InformeClientes" component={InformeClientes} />
+            <Route
+              exact
+              path="/InformeProveedores"
+              component={InformeProveedores}
+            />
+            <Route
+              exact
+              path="/InformeFacturasCompras"
+              component={InformeFacturaCompras}
+            />
             <Route exact path="/InformeStock" component={InformeStock} />
             <Route exact path="/InformeOrdenAPreparar" component={InformeOrdenAPreparar}/>
             <Route exact path="/InformeHojaRuta" component={InformeHojaRuta}/>
             <Route exact path="/CuentaCorriente" component={CuentaCorriente} />
+            <Route
+              exact
+              path="/CuentaCorrienteProveedores"
+              component={CuentaCorrienteProveedores}
+            />
             <Route exact path="/admin" component={Admin} />
           </Switch>
         </Layout>

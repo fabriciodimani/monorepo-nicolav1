@@ -2,16 +2,16 @@ const mongoose = require("mongoose");
 
 const { Schema } = mongoose;
 
-const movimientoCuentaCorrienteSchema = new Schema(
+const movimientoCuentaCorrienteProveedorSchema = new Schema(
   {
-    cliente: {
+    proveedor: {
       type: Schema.Types.ObjectId,
-      ref: "Cliente",
+      ref: "Proveedor",
       required: true,
     },
     tipo: {
       type: String,
-      enum: ["Venta", "Pago", "Anulación", "Anulacion"],
+      enum: ["Factura", "Pago", "Anulación", "Anulacion", "Ajuste"],
       required: true,
     },
     descripcion: {
@@ -35,9 +35,9 @@ const movimientoCuentaCorrienteSchema = new Schema(
       type: Number,
       required: true,
     },
-    comanda: {
+    facturaCompra: {
       type: Schema.Types.ObjectId,
-      ref: "Comanda",
+      ref: "FacturaCompra",
     },
   },
   {
@@ -46,6 +46,6 @@ const movimientoCuentaCorrienteSchema = new Schema(
 );
 
 module.exports = mongoose.model(
-  "MovimientoCuentaCorriente",
-  movimientoCuentaCorrienteSchema
+  "MovimientoCuentaCorrienteProveedor",
+  movimientoCuentaCorrienteProveedorSchema
 );

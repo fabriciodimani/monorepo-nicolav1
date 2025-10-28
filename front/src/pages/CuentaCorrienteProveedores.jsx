@@ -3,34 +3,34 @@ import jwt_decode from "jwt-decode";
 import Footer from "../components/Footer";
 import CuentaCorrientePagoForm from "../components/CuentaCorrientePagoForm";
 import CuentaCorrienteTable from "../components/CuentaCorrienteTable";
-import { getClientesPorNombre } from "../helpers/rutaClientes";
+import { getProveedoresPorNombre } from "../helpers/rutaProveedores";
 import {
-  getMovimientosCuentaCorriente,
-  registrarPagoCuentaCorriente,
-} from "../helpers/rutaCuentaCorriente";
+  getMovimientosCuentaCorrienteProveedores,
+  registrarPagoCuentaCorrienteProveedor,
+} from "../helpers/rutaCuentaCorrienteProveedores";
 import "../css/admin.css";
 
-const CuentaCorriente = () => {
+const CuentaCorrienteProveedores = () => {
   const [usuario, setUsuario] = useState({});
-  const [clientes, setClientes] = useState([]);
-  const [clienteSeleccionado, setClienteSeleccionado] = useState("");
-  const [busquedaCliente, setBusquedaCliente] = useState("");
+  const [proveedores, setProveedores] = useState([]);
+  const [proveedorSeleccionado, setProveedorSeleccionado] = useState("");
+  const [busquedaProveedor, setBusquedaProveedor] = useState("");
   const [movimientos, setMovimientos] = useState([]);
   const [saldo, setSaldo] = useState(0);
   const [cargandoMovimientos, setCargandoMovimientos] = useState(false);
   const [mensaje, setMensaje] = useState("");
   const [error, setError] = useState("");
   const [registrandoPago, setRegistrandoPago] = useState(false);
-  const [cargandoClientes, setCargandoClientes] = useState(false);
-  const [errorBusquedaClientes, setErrorBusquedaClientes] = useState("");
+  const [cargandoProveedores, setCargandoProveedores] = useState(false);
+  const [errorBusquedaProveedores, setErrorBusquedaProveedores] = useState("");
 
   const token = JSON.parse(localStorage.getItem("token")) || "";
 
   useEffect(() => {
     if (token) {
       try {
-        const token_decode = jwt_decode(token);
-        setUsuario(token_decode.usuario);
+        const tokenDecode = jwt_decode(token);
+        setUsuario(tokenDecode.usuario);
       } catch (err) {
         console.error("Error al decodificar el token", err);
       }
@@ -38,46 +38,46 @@ const CuentaCorriente = () => {
   }, [token]);
 
   useEffect(() => {
-    const termino = busquedaCliente.trim();
+    const termino = busquedaProveedor.trim();
 
     if (termino.length < 3) {
-      setClientes([]);
-      setCargandoClientes(false);
-      setErrorBusquedaClientes("");
+      setProveedores([]);
+      setCargandoProveedores(false);
+      setErrorBusquedaProveedores("");
       return;
     }
 
     let cancelado = false;
-    setCargandoClientes(true);
-    setErrorBusquedaClientes("");
+    setCargandoProveedores(true);
+    setErrorBusquedaProveedores("");
 
     const timeoutId = setTimeout(async () => {
       try {
-        const respuesta = await getClientesPorNombre(termino);
+        const respuesta = await getProveedoresPorNombre(termino);
         if (cancelado) {
           return;
         }
 
         if (respuesta.ok) {
-          const lista = Array.isArray(respuesta.clientes)
-            ? respuesta.clientes.slice(0, 30)
+          const lista = Array.isArray(respuesta.proveedores)
+            ? respuesta.proveedores.slice(0, 30)
             : [];
-          setClientes(lista);
-          setErrorBusquedaClientes("");
+          setProveedores(lista);
+          setErrorBusquedaProveedores("");
         } else {
           const mensajeError =
-            respuesta.err?.message || "No fue posible buscar clientes";
-          setErrorBusquedaClientes(mensajeError);
-          setClientes([]);
+            respuesta.err?.message || "No fue posible buscar proveedores";
+          setErrorBusquedaProveedores(mensajeError);
+          setProveedores([]);
         }
       } catch (err) {
         if (!cancelado) {
-          setErrorBusquedaClientes("No fue posible buscar clientes");
-          setClientes([]);
+          setErrorBusquedaProveedores("No fue posible buscar proveedores");
+          setProveedores([]);
         }
       } finally {
         if (!cancelado) {
-          setCargandoClientes(false);
+          setCargandoProveedores(false);
         }
       }
     }, 300);
@@ -86,19 +86,19 @@ const CuentaCorriente = () => {
       cancelado = true;
       clearTimeout(timeoutId);
     };
-  }, [busquedaCliente]);
+  }, [busquedaProveedor]);
 
   useEffect(() => {
     if (
-      clienteSeleccionado &&
-      !clientes.some((cliente) => cliente._id === clienteSeleccionado)
+      proveedorSeleccionado &&
+      !proveedores.some((proveedor) => proveedor._id === proveedorSeleccionado)
     ) {
-      setClienteSeleccionado("");
+      setProveedorSeleccionado("");
     }
-  }, [clientes, clienteSeleccionado]);
+  }, [proveedores, proveedorSeleccionado]);
 
-  const cargarMovimientos = useCallback(async (clienteId) => {
-    if (!clienteId) {
+  const cargarMovimientos = useCallback(async (proveedorId) => {
+    if (!proveedorId) {
       setMovimientos([]);
       setSaldo(0);
       return;
@@ -109,7 +109,7 @@ const CuentaCorriente = () => {
     setError("");
 
     try {
-      const respuesta = await getMovimientosCuentaCorriente(clienteId);
+      const respuesta = await getMovimientosCuentaCorrienteProveedores(proveedorId);
       if (respuesta.ok) {
         setMovimientos(respuesta.movimientos || []);
         setSaldo(respuesta.saldo || 0);
@@ -130,8 +130,8 @@ const CuentaCorriente = () => {
   }, []);
 
   useEffect(() => {
-    cargarMovimientos(clienteSeleccionado);
-  }, [clienteSeleccionado, cargarMovimientos]);
+    cargarMovimientos(proveedorSeleccionado);
+  }, [proveedorSeleccionado, cargarMovimientos]);
 
   const handleRegistrarPago = async ({
     clienteId,
@@ -139,8 +139,10 @@ const CuentaCorriente = () => {
     descripcion,
     monto,
   }) => {
-    if (!clienteId) {
-      const mensajeError = "Debe seleccionar un cliente";
+    const proveedorId = clienteId;
+
+    if (!proveedorId) {
+      const mensajeError = "Debe seleccionar un proveedor";
       setError(mensajeError);
       return { ok: false, message: mensajeError };
     }
@@ -150,8 +152,8 @@ const CuentaCorriente = () => {
     setError("");
 
     try {
-      const respuesta = await registrarPagoCuentaCorriente({
-        clienteId,
+      const respuesta = await registrarPagoCuentaCorrienteProveedor({
+        proveedorId,
         fecha,
         descripcion,
         monto,
@@ -160,7 +162,7 @@ const CuentaCorriente = () => {
       if (respuesta.ok) {
         setMensaje("Pago registrado correctamente");
         setSaldo(respuesta.saldo || 0);
-        await cargarMovimientos(clienteId);
+        await cargarMovimientos(proveedorId);
         return { ok: true };
       }
 
@@ -190,7 +192,7 @@ const CuentaCorriente = () => {
               <>
                 <div className="row">
                   <div className="col">
-                    <h3 className="mt-3 mb-2">Cuenta Corriente</h3>
+                    <h3 className="mt-3 mb-2">Cuenta Corriente de Proveedores</h3>
                     <hr />
                   </div>
                 </div>
@@ -207,27 +209,36 @@ const CuentaCorriente = () => {
                 <div className="row">
                   <div className="col-lg-4 mb-4">
                     <CuentaCorrientePagoForm
-                      clientes={clientes}
-                      clienteSeleccionado={clienteSeleccionado}
-                      busquedaCliente={busquedaCliente}
-                      onBusquedaClienteChange={setBusquedaCliente}
-                      onClienteChange={setClienteSeleccionado}
+                      clientes={proveedores}
+                      clienteSeleccionado={proveedorSeleccionado}
+                      busquedaCliente={busquedaProveedor}
+                      onBusquedaClienteChange={setBusquedaProveedor}
+                      onClienteChange={setProveedorSeleccionado}
                       onSubmit={handleRegistrarPago}
                       loading={registrandoPago}
-                      loadingBusquedaClientes={cargandoClientes}
-                      errorBusquedaClientes={errorBusquedaClientes}
+                      loadingBusquedaClientes={cargandoProveedores}
+                      errorBusquedaClientes={errorBusquedaProveedores}
+                      labelBuscar="Buscar proveedor"
+                      placeholderBusqueda="Ingrese al menos 3 caracteres"
+                      labelEntidad="Proveedor"
+                      entidadNombre="proveedor"
+                      textoSeleccionEntidad="Seleccione un proveedor"
+                      mensajeBusquedaActiva="Buscando proveedores..."
                     />
                   </div>
                   <div className="col-lg-8">
-                    {clienteSeleccionado ? (
+                    {proveedorSeleccionado ? (
                       <CuentaCorrienteTable
                         movimientos={movimientos}
                         saldoActual={saldo}
                         loading={cargandoMovimientos}
+                        entidadLabel="Proveedor"
+                        descripcionMovimientos="Las últimas facturas y pagos aparecen primero."
+                        titulo="Resumen de operaciones"
                       />
                     ) : (
                       <div className="alert alert-light" role="alert">
-                        Seleccione un cliente para visualizar los movimientos.
+                        Seleccione un proveedor para visualizar los movimientos.
                       </div>
                     )}
                   </div>
@@ -261,4 +272,4 @@ const CuentaCorriente = () => {
   );
 };
 
-export default CuentaCorriente;
+export default CuentaCorrienteProveedores;

@@ -70,6 +70,10 @@ let clienteSchema = new Schema({
     type: Number,
     default: 0,
   },
+  saldoInicial: {
+    type: Number,
+    default: 0,
+  },
 });
 
 clienteSchema.plugin(uniqueValidator, {
