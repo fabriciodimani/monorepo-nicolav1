@@ -28,6 +28,8 @@ import InformeImpresion from "./pages/InformeImpresion";
 import InformeGestion from "./pages/InformeGestion";
 import InformePreventas from "./pages/InformePreventas";
 import InformeRemitos from "./pages/InformeRemitos";
+import InformeClientes from "./pages/InformeClientes";
+import InformeProveedores from "./pages/InformeProveedores";
 import InformeStock from "./pages/InformeStock";
 import InformeOrdenAPreparar from "./pages/InformeOrdenAPreparar";
 import InformeHojaRuta from "./pages/InformeHojaRuta";
@@ -66,6 +68,12 @@ const App = () => {
             <Route exact path="/InformeGestion" component={InformeGestion} />            
             <Route exact path="/InformePreventas" component={InformePreventas} />
             <Route exact path="/InformeRemitos" component={InformeRemitos} />
+            <Route exact path="/InformeClientes" component={InformeClientes} />
+            <Route
+              exact
+              path="/InformeProveedores"
+              component={InformeProveedores}
+            />
             <Route
               exact
               path="/InformeFacturasCompras"
