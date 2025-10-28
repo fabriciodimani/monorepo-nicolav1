@@ -133,7 +133,9 @@ app.post("/clientes", function (req, res) {
     lng: body.lng,
     activo: body.activo,
     saldo,
+
     saldoInicial: saldo,
+
     // usuario: req.Usuario._id, //probar si graba
   });
 

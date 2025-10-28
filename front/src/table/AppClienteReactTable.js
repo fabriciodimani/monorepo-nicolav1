@@ -146,6 +146,18 @@ function AppClienteReactTable() {
             return sum + toNumber(val);
           }, 0);
 
+
+          const total = React.useMemo(
+            () =>
+              info.rows.reduce((sum, row) => {
+                const val = row.values.saldo;
+                return sum + toNumber(val);
+              }, 0),
+            [info.rows]
+          );
+
+
+
           return (
             <div style={{ textAlign: "right" }}>
               <b className="pie">{numberFormatter.format(total)}</b>
