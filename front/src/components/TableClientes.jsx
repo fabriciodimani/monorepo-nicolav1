@@ -78,7 +78,6 @@ const TableClientes = () => {
                   <th className="ruta">Ruta</th>
                   <th className="latitud">Latitud</th>
                   <th className="longitud">Longitud</th>
-                  <th className="saldo">Saldo</th>
                   <th>Modif/Eliminar</th>
                   <th></th>
                 </tr>
@@ -99,7 +98,6 @@ const TableClientes = () => {
                         <td>{cliente.ruta.ruta}</td>
                         <td>{cliente.lat}</td>
                         <td>{cliente.lng}</td>
-                        <td>{cliente.saldo}</td>
                         {/* <td>{cliente.lista.lista}</td>
                     <td>{cliente.codprod.descripcion}</td> */}
                         {/* <td>{usuario.nombre}</td>*/}
