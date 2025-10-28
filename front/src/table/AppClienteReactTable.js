@@ -87,13 +87,62 @@ function AppClienteReactTable() {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    axios("http://localhost:3004/clientes")
-      .then((res) => {
-        const clientes = res.data?.clientes || [];
+    let cancelado = false;
+
+    const obtenerSaldosPorCliente = async () => {
+      try {
+        const { data } = await axios.get(
+          "http://localhost:3004/movimientocuentacorriente/saldos"
+        );
+
+        if (data?.ok && typeof data.saldos === "object" && data.saldos !== null) {
+          return data.saldos;
+        }
+      } catch (error) {
+        console.error("No fue posible obtener los saldos acumulados", error);
+      }
+
+      return {};
+    };
+
+    const cargarClientes = async () => {
+      try {
+        const [clientesResponse, saldosPorCliente] = await Promise.all([
+          axios.get("http://localhost:3004/clientes"),
+          obtenerSaldosPorCliente(),
+        ]);
+
+        if (cancelado) {
+          return;
+        }
+
+        const clientes = clientesResponse.data?.clientes || [];
         const activos = clientes.filter((cliente) => cliente.activo !== false);
-        setData(activos);
-      })
-      .catch((err) => console.log(err));
+        const activosConSaldo = activos.map((cliente) => {
+          const clienteId = cliente && cliente._id ? String(cliente._id) : "";
+          const saldoCalculado =
+            clienteId &&
+            Object.prototype.hasOwnProperty.call(saldosPorCliente, clienteId)
+              ? saldosPorCliente[clienteId]
+              : cliente.saldo;
+
+          return {
+            ...cliente,
+            saldo: toNumber(saldoCalculado),
+          };
+        });
+
+        setData(activosConSaldo);
+      } catch (err) {
+        console.error("No fue posible cargar los clientes", err);
+      }
+    };
+
+    cargarClientes();
+
+    return () => {
+      cancelado = true;
+    };
   }, []);
 
   const columns = React.useMemo(
