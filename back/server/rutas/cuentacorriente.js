@@ -331,31 +331,47 @@ app.get(
       };
 
       const saldoClienteActual = obtenerMontoNumerico(cliente.saldo, 0);
+      const saldoInicialConfigurado = obtenerMontoNumerico(
+        cliente.saldoInicial,
+        null
+      );
 
-      let saldoInicial = saldoClienteActual;
+      let totalImpactos = 0;
+      impactosMovimiento.forEach(({ impacto }) => {
+        totalImpactos = redondearMoneda(totalImpactos + impacto);
+      });
 
-      if (impactosMovimiento.length) {
-        const primerImpacto = impactosMovimiento[0];
-        const saldoPrimerMovimiento = obtenerSaldoMovimiento(
-          primerImpacto.movimiento
-        );
+      let saldoInicial = Number.isFinite(saldoInicialConfigurado)
+        ? redondearMoneda(saldoInicialConfigurado)
+        : null;
 
-        if (saldoPrimerMovimiento !== null) {
-          saldoInicial = redondearMoneda(
-            saldoPrimerMovimiento - primerImpacto.impacto
+      if (saldoInicial === null) {
+        if (impactosMovimiento.length) {
+          const primerImpacto = impactosMovimiento[0];
+          const saldoPrimerMovimiento = obtenerSaldoMovimiento(
+            primerImpacto.movimiento
           );
-        } else {
-          let totalImpactos = 0;
-          impactosMovimiento.forEach(({ impacto }) => {
-            totalImpactos = redondearMoneda(totalImpactos + impacto);
-          });
 
-          saldoInicial = redondearMoneda(saldoClienteActual - totalImpactos);
+          if (saldoPrimerMovimiento !== null) {
+            saldoInicial = redondearMoneda(
+              saldoPrimerMovimiento - primerImpacto.impacto
+            );
+          } else {
+            saldoInicial = redondearMoneda(
+              saldoClienteActual - totalImpactos
+            );
+          }
+        } else {
+          saldoInicial = redondearMoneda(saldoClienteActual);
         }
       }
 
+      if (!Number.isFinite(saldoInicial)) {
+        saldoInicial = 0;
+      }
+
       let saldoAcumulado = saldoInicial;
-      const movimientosConSaldo = impactosMovimiento.map(
+      const movimientosCalculados = impactosMovimiento.map(
         ({ movimiento, impacto, monto }) => {
           saldoAcumulado = redondearMoneda(saldoAcumulado + impacto);
 
@@ -367,17 +383,38 @@ app.get(
         }
       );
 
-      let saldoFinal = saldoClienteActual;
+      const saldoFinalCalculado = movimientosCalculados.length
+        ? movimientosCalculados[movimientosCalculados.length - 1].saldo
+        : redondearMoneda(saldoInicial);
 
-      if (movimientosConSaldo.length) {
-        saldoFinal = movimientosConSaldo[movimientosConSaldo.length - 1].saldo;
-      } else {
-        saldoFinal = redondearMoneda(saldoInicial);
-      }
+      const incluirSaldoInicial = saldoInicial !== 0;
+      const movimientosConSaldo = incluirSaldoInicial
+        ? [
+            {
+              _id: `saldo-inicial-${clienteId}`,
+              cliente: cliente._id,
+              tipo: "Saldo inicial",
+              descripcion: "Saldo inicial",
+              fecha: movimientosAgrupados.length
+                ? movimientosAgrupados[0].fecha || null
+                : null,
+              createdAt: movimientosAgrupados.length
+                ? movimientosAgrupados[0].createdAt || null
+                : null,
+              updatedAt: movimientosAgrupados.length
+                ? movimientosAgrupados[0].updatedAt || null
+                : null,
+              monto: 0,
+              saldo: saldoInicial,
+              esSaldoInicial: true,
+            },
+            ...movimientosCalculados,
+          ]
+        : movimientosCalculados;
 
       res.json({
         ok: true,
-        saldo: saldoFinal,
+        saldo: redondearMoneda(saldoFinalCalculado),
         movimientos: movimientosConSaldo,
       });
     } catch (error) {

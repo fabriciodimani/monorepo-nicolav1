@@ -138,6 +138,7 @@ app.post("/proveedores", function (req, res) {
     condicioniva: body.condicioniva,
     activo: body.activo,
     saldo,
+    saldoInicial: saldo,
     // usuario: req.Usuario._id, //probar si graba
   });
 
@@ -166,6 +167,13 @@ app.put(
     if (body.hasOwnProperty("saldo")) {
       const saldoNormalizado = Number(body.saldo);
       body.saldo = Number.isNaN(saldoNormalizado) ? 0 : saldoNormalizado;
+    }
+
+    if (body.hasOwnProperty("saldoInicial")) {
+      const saldoInicialNormalizado = Number(body.saldoInicial);
+      body.saldoInicial = Number.isNaN(saldoInicialNormalizado)
+        ? 0
+        : saldoInicialNormalizado;
     }
 
     Proveedor.findByIdAndUpdate(

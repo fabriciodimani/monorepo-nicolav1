@@ -211,29 +211,45 @@ app.get(
       };
 
       const saldoProveedorActual = obtenerMontoNumerico(proveedor.saldo, 0);
+      const saldoInicialConfigurado = obtenerMontoNumerico(
+        proveedor.saldoInicial,
+        null
+      );
 
-      let saldoInicial = saldoProveedorActual;
+      let totalImpactos = 0;
+      impactosMovimiento.forEach(({ impacto }) => {
+        totalImpactos = redondearMoneda(totalImpactos + impacto);
+      });
 
-      if (impactosMovimiento.length) {
-        const primerImpacto = impactosMovimiento[0];
-        const saldoPrimerMovimiento = obtenerSaldoMovimiento(primerImpacto.movimiento);
+      let saldoInicial = Number.isFinite(saldoInicialConfigurado)
+        ? redondearMoneda(saldoInicialConfigurado)
+        : null;
 
-        if (saldoPrimerMovimiento !== null) {
-          saldoInicial = redondearMoneda(
-            saldoPrimerMovimiento - primerImpacto.impacto
-          );
+      if (saldoInicial === null) {
+        if (impactosMovimiento.length) {
+          const primerImpacto = impactosMovimiento[0];
+          const saldoPrimerMovimiento = obtenerSaldoMovimiento(primerImpacto.movimiento);
+
+          if (saldoPrimerMovimiento !== null) {
+            saldoInicial = redondearMoneda(
+              saldoPrimerMovimiento - primerImpacto.impacto
+            );
+          } else {
+            saldoInicial = redondearMoneda(
+              saldoProveedorActual - totalImpactos
+            );
+          }
         } else {
-          let totalImpactos = 0;
-          impactosMovimiento.forEach(({ impacto }) => {
-            totalImpactos = redondearMoneda(totalImpactos + impacto);
-          });
-
-          saldoInicial = redondearMoneda(saldoProveedorActual - totalImpactos);
+          saldoInicial = redondearMoneda(saldoProveedorActual);
         }
       }
 
+      if (!Number.isFinite(saldoInicial)) {
+        saldoInicial = 0;
+      }
+
       let saldoAcumulado = saldoInicial;
-      const movimientosConSaldo = impactosMovimiento.map(
+      const movimientosCalculados = impactosMovimiento.map(
         ({ movimiento, impacto, monto }) => {
           saldoAcumulado = redondearMoneda(saldoAcumulado + impacto);
 
@@ -245,19 +261,38 @@ app.get(
         }
       );
 
-      let saldoFinal = saldoProveedorActual;
+      const saldoFinalCalculado = movimientosCalculados.length
+        ? movimientosCalculados[movimientosCalculados.length - 1].saldo
+        : redondearMoneda(saldoInicial);
 
-      if (movimientosConSaldo.length) {
-        saldoFinal = movimientosConSaldo[movimientosConSaldo.length - 1].saldo;
-      } else {
-        saldoFinal = redondearMoneda(saldoInicial);
-      }
+      const incluirSaldoInicial = saldoInicial !== 0;
+      const movimientosConSaldo = incluirSaldoInicial
+        ? [
+            {
+              _id: `saldo-inicial-${proveedorId}`,
+              proveedor: proveedor._id,
+              tipo: "Saldo inicial",
+              descripcion: "Saldo inicial",
+              fecha: movimientos.length ? movimientos[0].fecha || null : null,
+              createdAt: movimientos.length
+                ? movimientos[0].createdAt || null
+                : null,
+              updatedAt: movimientos.length
+                ? movimientos[0].updatedAt || null
+                : null,
+              monto: 0,
+              saldo: saldoInicial,
+              esSaldoInicial: true,
+            },
+            ...movimientosCalculados,
+          ]
+        : movimientosCalculados;
 
       res.json({
         ok: true,
         proveedor,
         movimientos: movimientosConSaldo,
-        saldo: saldoFinal,
+        saldo: redondearMoneda(saldoFinalCalculado),
       });
     } catch (error) {
       console.error("GET /cuentacorrienteproveedores/:proveedorId", error);
