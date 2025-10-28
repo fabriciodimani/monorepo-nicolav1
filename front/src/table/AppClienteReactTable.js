@@ -141,7 +141,6 @@ function AppClienteReactTable() {
           <div style={{ textAlign: "right" }}>{numberFormatter.format(toNumber(value))}</div>
         ),
         Footer: (info) => {
-
           const total = info.rows.reduce((sum, row) => {
             const val = row.values.saldo;
             return sum + toNumber(val);
@@ -155,6 +154,7 @@ function AppClienteReactTable() {
               }, 0),
             [info.rows]
           );
+
 
 
           return (
