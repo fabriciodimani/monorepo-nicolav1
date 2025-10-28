@@ -62,3 +62,31 @@ export const registrarPagoCuentaCorriente = async (datos) => {
     );
   }
 };
+
+export const getSaldosClientesCuentaCorriente = async (clienteIds = []) => {
+  const token = getToken();
+  const url = `${API_URL}/cuentacorriente/saldos`;
+
+  const options = {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      token,
+    },
+    data: {
+      clienteIds,
+    },
+  };
+
+  try {
+    const { data } = await axios(url, options);
+    return data;
+  } catch (error) {
+    return (
+      error.response?.data || {
+        ok: false,
+        err: { message: "Error al obtener los saldos" },
+      }
+    );
+  }
+};

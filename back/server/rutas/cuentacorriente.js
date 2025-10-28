@@ -1,14 +1,21 @@
 const express = require("express");
+const { Types } = require("mongoose");
 const Cliente = require("../modelos/cliente");
 const MovimientoCuentaCorriente = require("../modelos/movimientoCuentaCorriente");
 const { verificaToken } = require("../middlewares/autenticacion");
 const { obtenerFechaArgentina } = require("../utils/fechas");
+const { calcularCuentaCorrienteCliente } = require("../utils/cuentaCorriente");
 
 const app = express();
 
 // Determina si el usuario posee permisos administrativos.
 const esRolAdministrativo = (usuario = {}) =>
   usuario.role === "ADMIN_ROLE" || usuario.role === "ADMIN_SUP";
+
+const toPlainObject = (documento) =>
+  documento && typeof documento.toObject === "function"
+    ? documento.toObject()
+    : documento;
 
 // Registra un pago realizado por un cliente y descuenta el saldo correspondiente.
 app.post("/cuentacorriente/pago", [verificaToken], async (req, res) => {
@@ -157,264 +164,12 @@ app.get(
         })
         .lean();
 
-      const ventasAgrupadas = new Map();
-
-      const obtenerMontoNumerico = (valor, defecto = 0) => {
-        const numero = Number(valor);
-        return Number.isFinite(numero) ? numero : defecto;
-      };
-
-      const redondearMoneda = (valor) => {
-        const numero = Number(valor);
-
-        if (!Number.isFinite(numero)) {
-          return 0;
-        }
-
-        const redondeado = Number(numero.toFixed(2));
-        return Object.is(redondeado, -0) ? 0 : redondeado;
-      };
-
-      const calcularImpactoSaldo = (movimiento) => {
-        const tipo =
-          movimiento && typeof movimiento.tipo === "string"
-            ? movimiento.tipo.toLowerCase()
-            : "";
-        const monto = obtenerMontoNumerico(movimiento.monto, 0);
-
-        if (tipo === "pago") {
-          return -monto;
-        }
-
-        if (tipo === "venta") {
-          return monto;
-        }
-
-        if (tipo === "anulación" || tipo === "anulacion") {
-          return monto;
-        }
-
-        return monto;
-      };
-
-      movimientos.forEach((movimiento) => {
-        const comanda =
-          movimiento && typeof movimiento.comanda === "object"
-            ? movimiento.comanda
-            : null;
-
-        if (
-          movimiento.tipo === "Venta" &&
-          comanda &&
-          comanda.nrodecomanda !== undefined &&
-          comanda.nrodecomanda !== null
-        ) {
-          const nrodecomanda = comanda.nrodecomanda;
-          const clienteMovimientoId =
-            movimiento.cliente !== undefined && movimiento.cliente !== null
-              ? String(movimiento.cliente)
-              : "";
-          const cantidadRegistrada = obtenerMontoNumerico(comanda.cantidad, 0);
-          const cantidad = cantidadRegistrada > 0 ? cantidadRegistrada : 1;
-          const montoUnitarioRegistrado = obtenerMontoNumerico(
-            comanda.monto,
-            0
-          );
-          let montoUnitario = montoUnitarioRegistrado;
-          const montoMovimiento = obtenerMontoNumerico(movimiento.monto, 0);
-          let subtotal = cantidad * montoUnitario;
-
-          if (!Number.isFinite(subtotal) || (subtotal === 0 && montoMovimiento)) {
-            subtotal = montoMovimiento;
-            if (cantidad > 0 && montoMovimiento) {
-              montoUnitario = subtotal / cantidad;
-            }
-          }
-
-          if (!ventasAgrupadas.has(nrodecomanda)) {
-            const clienteComanda =
-              comanda.codcli && typeof comanda.codcli === "object"
-                ? { ...comanda.codcli }
-                : null;
-
-            ventasAgrupadas.set(nrodecomanda, {
-              _id: `comanda-${clienteMovimientoId}-${nrodecomanda}`,
-              cliente: clienteComanda,
-              clienteId: movimiento.cliente,
-              tipo: movimiento.tipo,
-              descripcion:
-                movimiento.descripcion || `Comanda #${nrodecomanda}`,
-              fecha: movimiento.fecha,
-              saldo: movimiento.saldo,
-              monto: 0,
-              nrodecomanda,
-              comanda: {
-                nrodecomanda,
-                detalles: [],
-              },
-            });
-          }
-
-          const ventaAgrupada = ventasAgrupadas.get(nrodecomanda);
-
-          ventaAgrupada.monto = obtenerMontoNumerico(
-            ventaAgrupada.monto,
-            0
-          );
-          ventaAgrupada.monto += subtotal;
-          ventaAgrupada.saldo = movimiento.saldo;
-          if (
-            !ventaAgrupada.fecha ||
-            new Date(movimiento.fecha) < new Date(ventaAgrupada.fecha)
-          ) {
-            ventaAgrupada.fecha = movimiento.fecha;
-          }
-
-          const detalle = {
-            cantidad,
-            montoUnitario,
-            subtotal,
-          };
-
-          if (comanda._id) {
-            detalle.comandaId = comanda._id;
-          }
-
-          ventaAgrupada.comanda.detalles.push(detalle);
-        }
-      });
-
-      const movimientosAgrupados = [];
-      const comandasIncluidas = new Set();
-
-      movimientos.forEach((movimiento) => {
-        const comanda =
-          movimiento && typeof movimiento.comanda === "object"
-            ? movimiento.comanda
-            : null;
-
-        if (
-          movimiento.tipo === "Venta" &&
-          comanda &&
-          comanda.nrodecomanda !== undefined &&
-          comanda.nrodecomanda !== null
-        ) {
-          const nrodecomanda = comanda.nrodecomanda;
-          if (!comandasIncluidas.has(nrodecomanda)) {
-            const ventaAgrupada = ventasAgrupadas.get(nrodecomanda);
-            movimientosAgrupados.push(ventaAgrupada || movimiento);
-            comandasIncluidas.add(nrodecomanda);
-          }
-        } else {
-          movimientosAgrupados.push(movimiento);
-        }
-      });
-
-      const impactosMovimiento = movimientosAgrupados.map((movimiento) => {
-        const monto = obtenerMontoNumerico(movimiento.monto, 0);
-        const impacto = calcularImpactoSaldo({ ...movimiento, monto });
-
-        return {
-          movimiento,
-          monto,
-          impacto,
-        };
-      });
-
-      const obtenerSaldoMovimiento = (movimiento) => {
-        const saldoMovimiento =
-          movimiento && Object.prototype.hasOwnProperty.call(movimiento, "saldo")
-            ? obtenerMontoNumerico(movimiento.saldo, null)
-            : null;
-
-        return Number.isFinite(saldoMovimiento) ? saldoMovimiento : null;
-      };
-
-      const saldoClienteActual = obtenerMontoNumerico(cliente.saldo, 0);
-      const saldoInicialConfigurado = obtenerMontoNumerico(
-        cliente.saldoInicial,
-        null
-      );
-
-      let totalImpactos = 0;
-      impactosMovimiento.forEach(({ impacto }) => {
-        totalImpactos = redondearMoneda(totalImpactos + impacto);
-      });
-
-      let saldoInicial = Number.isFinite(saldoInicialConfigurado)
-        ? redondearMoneda(saldoInicialConfigurado)
-        : null;
-
-      if (saldoInicial === null) {
-        if (impactosMovimiento.length) {
-          const primerImpacto = impactosMovimiento[0];
-          const saldoPrimerMovimiento = obtenerSaldoMovimiento(
-            primerImpacto.movimiento
-          );
-
-          if (saldoPrimerMovimiento !== null) {
-            saldoInicial = redondearMoneda(
-              saldoPrimerMovimiento - primerImpacto.impacto
-            );
-          } else {
-            saldoInicial = redondearMoneda(
-              saldoClienteActual - totalImpactos
-            );
-          }
-        } else {
-          saldoInicial = redondearMoneda(saldoClienteActual);
-        }
-      }
-
-      if (!Number.isFinite(saldoInicial)) {
-        saldoInicial = 0;
-      }
-
-      let saldoAcumulado = saldoInicial;
-      const movimientosCalculados = impactosMovimiento.map(
-        ({ movimiento, impacto, monto }) => {
-          saldoAcumulado = redondearMoneda(saldoAcumulado + impacto);
-
-          return {
-            ...movimiento,
-            monto,
-            saldo: saldoAcumulado,
-          };
-        }
-      );
-
-      const saldoFinalCalculado = movimientosCalculados.length
-        ? movimientosCalculados[movimientosCalculados.length - 1].saldo
-        : redondearMoneda(saldoInicial);
-
-      const incluirSaldoInicial = saldoInicial !== 0;
-      const movimientosConSaldo = incluirSaldoInicial
-        ? [
-            {
-              _id: `saldo-inicial-${clienteId}`,
-              cliente: cliente._id,
-              tipo: "Saldo inicial",
-              descripcion: "Saldo inicial",
-              fecha: movimientosAgrupados.length
-                ? movimientosAgrupados[0].fecha || null
-                : null,
-              createdAt: movimientosAgrupados.length
-                ? movimientosAgrupados[0].createdAt || null
-                : null,
-              updatedAt: movimientosAgrupados.length
-                ? movimientosAgrupados[0].updatedAt || null
-                : null,
-              monto: 0,
-              saldo: saldoInicial,
-              esSaldoInicial: true,
-            },
-            ...movimientosCalculados,
-          ]
-        : movimientosCalculados;
+      const { movimientos: movimientosConSaldo, saldo } =
+        calcularCuentaCorrienteCliente({ cliente: toPlainObject(cliente), movimientos });
 
       res.json({
         ok: true,
-        saldo: redondearMoneda(saldoFinalCalculado),
+        saldo,
         movimientos: movimientosConSaldo,
       });
     } catch (error) {
@@ -429,5 +184,81 @@ app.get(
     }
   }
 );
+
+app.post("/cuentacorriente/saldos", [verificaToken], async (req, res) => {
+  if (!esRolAdministrativo(req.usuario)) {
+    return res.status(403).json({
+      ok: false,
+      err: { message: "No tiene permisos para consultar la cuenta" },
+    });
+  }
+
+  const { clienteIds } = req.body || {};
+  const idsNormalizados = Array.isArray(clienteIds)
+    ? clienteIds
+        .map((id) => {
+          if (typeof id !== "string" && typeof id !== "number") {
+            return null;
+          }
+
+          const idString = String(id).trim();
+
+          if (!idString) {
+            return null;
+          }
+
+          if (!Types.ObjectId.isValid(idString)) {
+            return null;
+          }
+
+          return new Types.ObjectId(idString);
+        })
+        .filter(Boolean)
+    : [];
+
+  const filtroClientes = idsNormalizados.length
+    ? { _id: { $in: idsNormalizados } }
+    : { activo: true };
+
+  try {
+    const clientes = await Cliente.find(filtroClientes).select(
+      "saldo saldoInicial codcli razonsocial activo"
+    );
+
+    const saldosCalculados = await Promise.all(
+      clientes.map(async (cliente) => {
+        const movimientos = await MovimientoCuentaCorriente.find({
+          cliente: cliente._id,
+        })
+          .sort({ fecha: 1, createdAt: 1 })
+          .lean();
+
+        const { saldo } = calcularCuentaCorrienteCliente({
+          cliente: toPlainObject(cliente),
+          movimientos,
+        });
+
+        return {
+          clienteId: String(cliente._id),
+          saldo,
+        };
+      })
+    );
+
+    res.json({
+      ok: true,
+      clientes: saldosCalculados,
+    });
+  } catch (error) {
+    console.error("POST /cuentacorriente/saldos", error);
+    res.status(500).json({
+      ok: false,
+      err: {
+        message: "Error al calcular los saldos",
+        detalle: error.message,
+      },
+    });
+  }
+});
 
 module.exports = app;

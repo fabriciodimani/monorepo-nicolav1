@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
 import Table from "./TableContainer";
+import { getSaldosClientesCuentaCorriente } from "../helpers/rutaCuentaCorriente";
 
 const Styles = styled.div`
   sticky: true;
@@ -87,13 +88,56 @@ function AppClienteReactTable() {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    axios("http://localhost:3004/clientes")
-      .then((res) => {
+    const cargarClientes = async () => {
+      try {
+        const res = await axios("http://localhost:3004/clientes");
         const clientes = res.data?.clientes || [];
         const activos = clientes.filter((cliente) => cliente.activo !== false);
         setData(activos);
-      })
-      .catch((err) => console.log(err));
+
+        const tokenGuardado = localStorage.getItem("token");
+        const clienteIds = activos
+          .map((cliente) => cliente?._id || cliente?.id || null)
+          .filter(Boolean)
+          .map((id) => String(id));
+
+        if (!tokenGuardado || clienteIds.length === 0) {
+          return;
+        }
+
+        const respuesta = await getSaldosClientesCuentaCorriente(clienteIds);
+
+        if (respuesta.ok && Array.isArray(respuesta.clientes)) {
+          const saldosPorCliente = new Map(
+            respuesta.clientes
+              .filter((registro) => registro && registro.clienteId !== undefined)
+              .map((registro) => [
+                String(registro.clienteId),
+                typeof registro.saldo === "number" ? registro.saldo : toNumber(registro.saldo),
+              ])
+          );
+
+          if (saldosPorCliente.size > 0) {
+            setData(
+              activos.map((cliente) => {
+                const id = String(cliente._id || cliente.id || "");
+
+                if (id && saldosPorCliente.has(id)) {
+                  return { ...cliente, saldo: saldosPorCliente.get(id) };
+                }
+
+                return cliente;
+              })
+            );
+          }
+        }
+      } catch (err) {
+        console.log(err);
+        setData([]);
+      }
+    };
+
+    cargarClientes();
   }, []);
 
   const columns = React.useMemo(
