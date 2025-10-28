@@ -65,6 +65,15 @@ let clienteSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "Usuario",
   },
+
+  saldo: {
+    type: Number,
+    default: 0,
+  },
+  saldoInicial: {
+    type: Number,
+    default: 0,
+  },
 });
 
 clienteSchema.plugin(uniqueValidator, {

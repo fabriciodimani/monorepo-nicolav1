@@ -26,6 +26,9 @@ app.use(require("./ultimacomanda"));
 app.use(require("./tipomovimiento"));
 app.use(require("./invoice"));
 app.use(require("./remito"));
+app.use(require("./cuentacorriente"));
+app.use(require("./cuentacorrienteproveedor"));
+app.use(require("./facturacompra"));
 
 app.use(require("./login"));
 

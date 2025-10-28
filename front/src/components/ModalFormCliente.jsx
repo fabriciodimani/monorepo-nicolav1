@@ -8,6 +8,7 @@ import { getRutas } from "../helpers/rutaRutas";
 const ModalFormCliente = ({ cliente, handleClose }) => {
   console.log(cliente);
   const id = localStorage.getItem("id");
+  const saldoActual = cliente && cliente.clientes ? cliente.clientes.saldo : 0;
   const [formValues, setFormValues] = useState({
     codcli: cliente.clientes.codcli,
     razonsocial: cliente.clientes.razonsocial,
@@ -204,6 +205,18 @@ const ModalFormCliente = ({ cliente, handleClose }) => {
                   <option value={rutas._id}>{rutas.ruta}</option>
                 ))}
               </select>
+            </div>
+
+            <div className="form-group mt-3">
+              <label>Saldo actual</label>
+              <input
+                rows="1"
+                type="text"
+                className="form-control"
+                name="saldo"
+                value={saldoActual}
+                readOnly
+              />
             </div>
 
             <div className="form-group mt-3">

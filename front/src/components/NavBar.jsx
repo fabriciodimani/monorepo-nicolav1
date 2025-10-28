@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import jwt_decode from "jwt-decode"; //Paquete para decodificar el Token
 import { Link, useLocation, useHistory } from "react-router-dom";
 // import { getComandas } from "../helpers/rutaComandas";
 import { Navbar, Nav, NavDropdown } from "react-bootstrap";
-import logo from "../images/distripollo.jpeg";
+// import logo from "../images/distripollo.jpeg";
+import logo from "../images/avicola.jpeg";
 import "../css/navbar.css";
+import ThemeContext from "../Context/ThemeContext";
 
 const NavBar = () => {
   //Defino location e history
@@ -13,6 +15,8 @@ const NavBar = () => {
 
   //estado para manejar el usuario
   const [user, setUser] = useState("Iniciar sesión");
+
+  const { theme, toggleTheme } = useContext(ThemeContext);
 
   const [payload, setPayload] = useState({
     role: "",
@@ -74,8 +78,8 @@ const NavBar = () => {
       <div id="navBar" className="navBar mr-auto">
         <Navbar bg="light" expand="lg">
           <img src={logo} alt="logo" />
-          <Link className="nav" to="/">
-            <Navbar.Brand>Distri Pollo</Navbar.Brand>
+          <Link className="navbar-brand-link" to="/">
+            <Navbar.Brand>AVICOLA NICOLA</Navbar.Brand>
           </Link>
      
           <Navbar.Toggle id="hamburguesa" aria-controls="basic-navbar-nav" />
@@ -171,57 +175,100 @@ const NavBar = () => {
               )}
 
               {payload.role === "USER_CAM" && (
-                <Link to="/camiones" className="nav-link ml-3 mt-2">
+                <Link to="/camiones" className="nav-link">
                   Distribucion
                 </Link>
               )}
 
               {payload.role === "ADMIN_ROLE" && (
-                <Link to="/camiones" className="nav-link ml-3 mt-2">
+                <Link to="/camiones" className="nav-link">
                   Distribucion
                 </Link>
               )}
-              
+
               {payload.role === "ADMIN_SUP" && (
-                <Link to="/camiones" className="nav-link ml-3 mt-2">
+                <Link to="/camiones" className="nav-link">
                   Distribucion
                 </Link>
               )}
 
               {payload.role === "USER_CAM" && (
-                <Link to="/mapas" className="nav-link ml-3 mt-2">
+                <Link to="/mapas" className="nav-link">
                   Mapa
                 </Link>
               )}
 
-              {payload.role === "ADMIN_ROLE" && (
-                <Link to="/remitos" className="nav-link ml-3 mt-2">
-                  Remito
-                </Link>
+              {(payload.role === "ADMIN_ROLE" ||
+                payload.role === "ADMIN_SUP" ||
+                payload.role === "USER_STK") && (
+                <NavDropdown title="Productos" id="navbarProductosDropdown">
+                  <NavDropdown.Item href="/remitos" classename="nav-link3">
+                    Remito
+                  </NavDropdown.Item>
+                  <NavDropdown.Item href="/stocks" classename="nav-link3">
+                    Stock
+                  </NavDropdown.Item>
+                  {payload.role === "ADMIN_ROLE" && (
+                    <NavDropdown.Item href="/precios" classename="nav-link3">
+                      Precios
+                    </NavDropdown.Item>
+                  )}
+                  {(payload.role === "ADMIN_ROLE" ||
+                    payload.role === "ADMIN_SUP") && (
+                    <>
+                      <NavDropdown.Divider />
+                      <NavDropdown.Item
+                        href="/producservs"
+                        classename="nav-link3"
+                      >
+                        Productos
+                      </NavDropdown.Item>
+                      <NavDropdown.Item href="/rubros" classename="nav-link3">
+                        Rubros
+                      </NavDropdown.Item>
+                      <NavDropdown.Item href="/marcas" classename="nav-link3">
+                        Marcas
+                      </NavDropdown.Item>
+                    </>
+                  )}
+                </NavDropdown>
               )}
 
-              {payload.role === "USER_STK" && (
-                <Link to="/remitos" className="nav-link ml-3 mt-2">
-                  Remito
-                </Link>
+              {(payload.role === "ADMIN_ROLE" || payload.role === "ADMIN_SUP") && (
+                <NavDropdown title="Clientes" id="navbarClientesDropdown">
+                  <NavDropdown.Item href="/CuentaCorriente" classename="nav-link3">
+                    Cuenta Corriente
+                  </NavDropdown.Item>
+                  <NavDropdown.Item href="/clientes" classename="nav-link3">
+                    Gestión de Clientes
+                  </NavDropdown.Item>
+                  <NavDropdown.Item href="/InformeClientes" classename="nav-link3">
+                    Listar Clientes
+                  </NavDropdown.Item>
+                </NavDropdown>
               )}
 
-              {payload.role === "ADMIN_ROLE" && (
-                <Link to="/stocks" className="nav-link ml-3 mt-2">
-                  Stock
-                </Link>
-              )}
-
-              {payload.role === "USER_STK" && (
-                <Link to="/stocks" className="nav-link ml-3 mt-2">
-                  Stock
-                </Link>
-              )}
-
-              {payload.role === "ADMIN_ROLE" && (
-                <Link to="/precios" className="nav-link ml-3 mt-2">
-                  Precios
-                </Link>
+              {(payload.role === "ADMIN_ROLE" || payload.role === "ADMIN_SUP") && (
+                <NavDropdown title="Proveedores" id="navbarProveedoresDropdown">
+                  <NavDropdown.Item
+                    href="/CuentaCorrienteProveedores"
+                    classename="nav-link3"
+                  >
+                    Cuenta Corriente
+                  </NavDropdown.Item>
+                  <NavDropdown.Item href="/proveedores" classename="nav-link3">
+                    Gestión de Proveedores
+                  </NavDropdown.Item>
+                  <NavDropdown.Item
+                    href="/InformeProveedores"
+                    classename="nav-link3"
+                  >
+                    Listar Proveedores
+                  </NavDropdown.Item>
+                  <NavDropdown.Item href="/facturas" classename="nav-link3">
+                    Factura
+                  </NavDropdown.Item>
+                </NavDropdown>
               )}
 
               {(payload.role === "ADMIN_ROLE" || payload.role === "ADMIN_SUP") && (
@@ -229,23 +276,8 @@ const NavBar = () => {
                   title="Altas"
                   id="navbarScrollingDropdown"
                 >
-                  <NavDropdown.Item href="/clientes" classename="nav-link3">
-                    Clientes
-                  </NavDropdown.Item>
-                  <NavDropdown.Item href="/proveedores" classename="nav-link3">
-                    Proveedores
-                  </NavDropdown.Item>
-                  <NavDropdown.Item href="/producservs" classename="nav-link3">
-                    Productos
-                  </NavDropdown.Item>
                   <NavDropdown.Item href="/rutas" classename="nav-link3">
                     Rutas
-                  </NavDropdown.Item>
-                  <NavDropdown.Item href="/rubros" classename="nav-link3">
-                    Rubros
-                  </NavDropdown.Item>
-                  <NavDropdown.Item href="/marcas" classename="nav-link3">
-                    Marcas
                   </NavDropdown.Item>
                   <NavDropdown.Item href="/localidades" classename="nav-link3">
                     Localidades
@@ -302,6 +334,12 @@ const NavBar = () => {
                   >
                     Listar Remitos
                   </NavDropdown.Item>
+                  <NavDropdown.Item
+                    href="/InformeFacturasCompras"
+                    classename="nav-link3"
+                  >
+                    Listar Factura Compras
+                  </NavDropdown.Item>
                   <NavDropdown.Item href="/InformeStock" classename="nav-link3">
                     Historico de Stock
                   </NavDropdown.Item>
@@ -329,6 +367,12 @@ const NavBar = () => {
                   >
                     Listar Remitos
                   </NavDropdown.Item>
+                  <NavDropdown.Item
+                    href="/InformeFacturasCompras"
+                    classename="nav-link3"
+                  >
+                    Listar Factura Compras
+                  </NavDropdown.Item>
                   <NavDropdown.Item href="/InformeStock" classename="nav-link3">
                     Historico de Stock
                   </NavDropdown.Item>
@@ -348,6 +392,12 @@ const NavBar = () => {
                     classename="nav-link3"
                   >
                     Listar Remitos
+                  </NavDropdown.Item>
+                  <NavDropdown.Item
+                    href="/InformeFacturasCompras"
+                    classename="nav-link3"
+                  >
+                    Listar Factura Compras
                   </NavDropdown.Item>
                   <NavDropdown.Item href="/InformeStock" classename="nav-link3">
                     Historico de Stock
@@ -390,27 +440,36 @@ const NavBar = () => {
               )}
               
               {payload.role === "ADMIN_ROLE" && (
-                <Link to="/quienes" className="nav-link ml-3 mt-2 mr-5">
+                <Link to="/quienes" className="nav-link">
                   Acerca
                 </Link>
               )}
             </Nav>
-            {payload.role === "ADMIN_ROLE" && (
-              <Link
-                to="/admin"
-                id="user"
-                className="text-decoration-none text-muted ml-5 mr-3 "
+            <div className="ml-auto d-flex align-items-center">
+              {payload.role === "ADMIN_ROLE" && (
+                <Link
+                  to="/admin"
+                  id="user"
+                  className="text-decoration-none text-muted ml-5 mr-3 "
+                >
+                  Administrador
+                </Link>
+              )}
+              <button
+                type="button"
+                className="btn btn-outline-secondary ml-3 theme-toggle-btn"
+                onClick={toggleTheme}
               >
-                Administrador
-              </Link>
-            )}
-            <button
-              id="booton"
-              className="btn btn-outline-info"
-              onClick={handleLogin}
-            >
-              {user}
-            </button>
+                {theme === "light" ? "Modo claro" : "Modo oscuro"}
+              </button>
+              <button
+                id="booton"
+                className="btn btn-outline-info ml-3"
+                onClick={handleLogin}
+              >
+                {user}
+              </button>
+            </div>
      
           </Navbar.Collapse>
         </Navbar>

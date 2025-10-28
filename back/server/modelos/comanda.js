@@ -3,6 +3,8 @@ const uniqueValidator = require("mongoose-unique-validator");
 
 let Schema = mongoose.Schema;
 
+const { obtenerFechaArgentina } = require("../utils/fechas");
+
 let comandaSchema = new Schema({
   nrodecomanda: {
     type: Number,
@@ -36,7 +38,7 @@ let comandaSchema = new Schema({
 
   fecha: {
     type: Date,
-    default: () => Date.now() - 3 * 60 * 60 * 1000,
+    default: () => obtenerFechaArgentina() || new Date(),
   },
 
   codestado: {

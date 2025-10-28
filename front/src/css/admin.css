@@ -1,10 +1,99 @@
-.col {
+.cabecera .col {
     background-color: #F1FAEE;
     font-size: 2rem;
 }
 
+body.dark-theme .cabecera .col {
+    background-color: transparent;
+}
+
+body.dark-theme .cabecera .col h3 {
+    color: #f1faee;
+}
+
+body.dark-theme .cabecera .col hr {
+    border-color: rgba(241, 250, 238, 0.3);
+}
+
 .titulo {
     background-color: #F1FAEE;
- 
+
+}
+
+.saldo-actual-chip {
+    border-radius: 999px;
+    font-weight: 600;
+    padding: 0.5rem 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+.saldo-positivo {
+    background: rgba(15, 155, 15, 0.12);
+    color: #0f9b0f;
+}
+
+.saldo-negativo {
+    background: rgba(217, 83, 79, 0.12);
+    color: #d9534f;
+}
+
+.cuenta-corriente-tabla tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.08);
+}
+
+.cuenta-corriente-tabla td,
+.cuenta-corriente-tabla th {
+    vertical-align: middle;
+    border-top: none;
+}
+
+body.dark-theme .cuenta-corriente-pago-form {
+    background-color: #1d3557;
+    border-color: rgba(241, 250, 238, 0.16);
+    color: #f1faee;
+}
+
+body.dark-theme .cuenta-corriente-pago-form .card-title,
+body.dark-theme .cuenta-corriente-pago-form label {
+    color: #f1faee;
+}
+
+body.dark-theme .cuenta-corriente-pago-form .form-control {
+    background-color: rgba(8, 28, 45, 0.75);
+    border-color: rgba(241, 250, 238, 0.18);
+    color: #f1faee;
+}
+
+body.dark-theme .cuenta-corriente-pago-form .form-control:focus {
+    background-color: rgba(8, 28, 45, 0.9);
+    border-color: #f1faee;
+    box-shadow: 0 0 0 0.2rem rgba(241, 250, 238, 0.25);
+    color: #f1faee;
+}
+
+body.dark-theme .cuenta-corriente-pago-form .form-control::placeholder {
+    color: rgba(241, 250, 238, 0.65);
+}
+
+body.dark-theme .cuenta-corriente-pago-form .alert-danger {
+    background-color: rgba(214, 48, 49, 0.12);
+    border-color: rgba(214, 48, 49, 0.35);
+    color: #f8d7da;
+}
+
+.cuenta-corriente-tabla thead th {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #6c757d;
+}
+
+.font-weight-semibold {
+    font-weight: 600;
 }
 

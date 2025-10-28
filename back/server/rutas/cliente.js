@@ -116,6 +116,9 @@ app.post("/clientes", function (req, res) {
 
   let body = req.body;
 
+  const saldoNormalizado = Number(body.saldo);
+  const saldo = Number.isNaN(saldoNormalizado) ? 0 : saldoNormalizado;
+
   let cliente = new Cliente({
     codcli: body.codcli,
     razonsocial: body.razonsocial,
@@ -129,6 +132,8 @@ app.post("/clientes", function (req, res) {
     lat: body.lat,
     lng: body.lng,
     activo: body.activo,
+    saldo,
+    saldoInicial: saldo,
     // usuario: req.Usuario._id, //probar si graba
   });
 
@@ -153,6 +158,18 @@ app.put(
     // res.json("PUT usuarios");
     let id = req.params.id;
     let body = req.body;
+
+    if (body.hasOwnProperty("saldo")) {
+      const saldoNormalizado = Number(body.saldo);
+      body.saldo = Number.isNaN(saldoNormalizado) ? 0 : saldoNormalizado;
+    }
+
+    if (body.hasOwnProperty("saldoInicial")) {
+      const saldoInicialNormalizado = Number(body.saldoInicial);
+      body.saldoInicial = Number.isNaN(saldoInicialNormalizado)
+        ? 0
+        : saldoInicialNormalizado;
+    }
 
     Cliente.findByIdAndUpdate(
       id,

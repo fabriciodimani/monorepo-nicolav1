@@ -3,6 +3,7 @@ import { modifProveedor } from "../helpers/rutaProveedores";
 import { Modal, Button } from "react-bootstrap";
 import { getProveedores } from "../helpers/rutaProveedores";
 import { getLocalidades } from "../helpers/rutaLocalidades";
+import "../css/addclienteform.css";
 
 const ModalFormProveedor = ({ proveedor, handleClose }) => {
   console.log(proveedor);
@@ -15,6 +16,10 @@ const ModalFormProveedor = ({ proveedor, handleClose }) => {
     cuit: proveedor.proveedores.cuit,
     email: proveedor.proveedores.email,
     localidad: proveedor.proveedores.localidad,
+    saldo:
+      proveedor.proveedores.saldo === undefined
+        ? 0
+        : proveedor.proveedores.saldo,
     // usuario: id,
   });
 
@@ -170,6 +175,19 @@ const ModalFormProveedor = ({ proveedor, handleClose }) => {
                   <option value={localidad._id}>{localidad.localidad}</option>
                 ))}
               </select>
+            </div>
+
+            <div className="form-group mt-3">
+              <label className="saldo-inicial-label">Saldo Inicial</label>
+              <input
+                rows="1"
+                type="number"
+                className="form-control saldo-inicial-input"
+                name="saldo"
+                value={formValues.saldo}
+                readOnly
+                disabled
+              />
             </div>
           </Modal.Body>
           <Modal.Footer>
