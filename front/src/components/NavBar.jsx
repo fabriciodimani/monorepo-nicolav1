@@ -242,6 +242,9 @@ const NavBar = () => {
                   <NavDropdown.Item href="/clientes" classename="nav-link3">
                     Gestión de Clientes
                   </NavDropdown.Item>
+                  <NavDropdown.Item href="/InformeClientes" classename="nav-link3">
+                    Listar Clientes
+                  </NavDropdown.Item>
                 </NavDropdown>
               )}
 
@@ -255,6 +258,12 @@ const NavBar = () => {
                   </NavDropdown.Item>
                   <NavDropdown.Item href="/proveedores" classename="nav-link3">
                     Gestión de Proveedores
+                  </NavDropdown.Item>
+                  <NavDropdown.Item
+                    href="/InformeProveedores"
+                    classename="nav-link3"
+                  >
+                    Listar Proveedores
                   </NavDropdown.Item>
                   <NavDropdown.Item href="/facturas" classename="nav-link3">
                     Factura
