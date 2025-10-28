@@ -133,6 +133,9 @@ app.post("/clientes", function (req, res) {
     lng: body.lng,
     activo: body.activo,
     saldo,
+
+    saldoInicial: saldo,
+
     // usuario: req.Usuario._id, //probar si graba
   });
 
@@ -161,6 +164,13 @@ app.put(
     if (body.hasOwnProperty("saldo")) {
       const saldoNormalizado = Number(body.saldo);
       body.saldo = Number.isNaN(saldoNormalizado) ? 0 : saldoNormalizado;
+    }
+
+    if (body.hasOwnProperty("saldoInicial")) {
+      const saldoInicialNormalizado = Number(body.saldoInicial);
+      body.saldoInicial = Number.isNaN(saldoInicialNormalizado)
+        ? 0
+        : saldoInicialNormalizado;
     }
 
     Cliente.findByIdAndUpdate(

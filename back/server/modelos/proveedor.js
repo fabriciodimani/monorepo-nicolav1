@@ -53,6 +53,10 @@ let proveedorSchema = new Schema({
     type: Number,
     default: 0,
   },
+  saldoInicial: {
+    type: Number,
+    default: 0,
+  },
 });
 
 proveedorSchema.plugin(uniqueValidator, {

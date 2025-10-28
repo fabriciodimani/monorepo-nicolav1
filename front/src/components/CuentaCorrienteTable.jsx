@@ -229,16 +229,44 @@ const CuentaCorrienteTable = ({
     });
 
     let saldoAcumulado = 0;
+    let saldoInicializado = false;
 
     const movimientosConSaldoAsc = movimientosAscendentes.map((movimiento) => {
       const saldoInformado = Number.isFinite(Number(movimiento.saldo))
         ? redondearMoneda(Number(movimiento.saldo))
         : null;
 
-      if (saldoInformado !== null) {
-        saldoAcumulado = saldoInformado;
+      const esSaldoInicialMovimiento = Boolean(
+        movimiento.esSaldoInicial ||
+          (typeof movimiento.tipo === "string" &&
+            movimiento.tipo.toLowerCase() === "saldo inicial")
+      );
+
+      if (!saldoInicializado) {
+        if (esSaldoInicialMovimiento) {
+          saldoAcumulado =
+            saldoInformado !== null
+              ? saldoInformado
+              : redondearMoneda(saldoAcumulado + movimiento.impacto);
+          saldoInicializado = true;
+        } else if (saldoInformado !== null) {
+          saldoAcumulado = saldoInformado;
+          saldoInicializado = true;
+        } else {
+          saldoAcumulado = redondearMoneda(
+            saldoAcumulado + movimiento.impacto
+          );
+          saldoInicializado = true;
+        }
+      } else if (esSaldoInicialMovimiento) {
+        saldoAcumulado =
+          saldoInformado !== null
+            ? saldoInformado
+            : redondearMoneda(saldoAcumulado + movimiento.impacto);
       } else {
-        saldoAcumulado = redondearMoneda(saldoAcumulado + movimiento.impacto);
+        saldoAcumulado = redondearMoneda(
+          saldoAcumulado + movimiento.impacto
+        );
       }
 
       return {

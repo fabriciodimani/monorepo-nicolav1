@@ -32,7 +32,11 @@ import InformeClientes from "./pages/InformeClientes";
 
 import InformeProveedores from "./pages/InformeProveedores";
 
+
 import InformeProveedores from "./pages/InformeProveedores";
+
+import InformeProveedores from "./pages/InformeProveedores";
+
 
 import InformeStock from "./pages/InformeStock";
 import InformeOrdenAPreparar from "./pages/InformeOrdenAPreparar";
@@ -73,6 +77,7 @@ const App = () => {
             <Route exact path="/InformePreventas" component={InformePreventas} />
             <Route exact path="/InformeRemitos" component={InformeRemitos} />
             <Route exact path="/InformeClientes" component={InformeClientes} />
+
 
             <Route
               exact

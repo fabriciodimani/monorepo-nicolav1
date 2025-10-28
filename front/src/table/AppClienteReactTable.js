@@ -146,6 +146,7 @@ function AppClienteReactTable() {
             return sum + toNumber(val);
           }, 0);
 
+
           const total = React.useMemo(
             () =>
               info.rows.reduce((sum, row) => {
