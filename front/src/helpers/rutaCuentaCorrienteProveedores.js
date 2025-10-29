@@ -1,7 +1,7 @@
 import axios from "axios";
 import qs from "qs";
 
-const API_URL = "http://localhost:3004";
+const API_URL = "http://backavicolanicola.us-3.evennode.com";
 
 const getToken = () => JSON.parse(localStorage.getItem("token")) || "";
 

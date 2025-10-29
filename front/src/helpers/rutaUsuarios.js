@@ -1,7 +1,7 @@
 import axios from "axios";
 import qs from "qs";
 export const postLogin = async (datos) => {
-  // const url = `http://backavicolanicola.us-3.evennode.com/login`;
+  // const url = `http://localhost:3004/login`;
   const url = `http://localhost:3004/login`;
   const options = {
     method: "POST",
@@ -27,7 +27,7 @@ export const postLogin = async (datos) => {
 export const getUsuarios = async () => {
   const token = JSON.parse(localStorage.getItem("token")) || "";
 
-  // let url = `http://backavicolanicola.us-3.evennode.com/usuarios`;
+  // let url = `http://localhost:3004/usuarios`;
   let url = `http://localhost:3004/usuarios`;
   const options = {
     method: "GET",
@@ -49,7 +49,7 @@ export const getUsuarios = async () => {
 };
 //Traer un curso según su id
 export const getUsuarioId = async (id) => {
-  // let url = `http://backavicolanicola.us-3.evennode.com/${id}`;
+  // let url = `http://localhost:3004/${id}`;
   let url = `http://localhost:3004/usuarios/${id}`;
   const options = {
     method: "GET",
